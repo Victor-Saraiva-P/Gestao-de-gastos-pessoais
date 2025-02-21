@@ -2,11 +2,17 @@ package br.com.gestorfinanceiro.models;
 
 import br.com.gestorfinanceiro.models.enums.Roles;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,6 +35,7 @@ public class UserEntity {
         this.uuid = uuid;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -45,6 +52,7 @@ public class UserEntity {
         this.email = email;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
@@ -59,6 +67,33 @@ public class UserEntity {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    // Métodos da interface UserDetails
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Conta nunca expira
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Conta nunca é bloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Credenciais nunca expiram
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Conta sempre está ativa
     }
 
     @Override
