@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.controller;
 
+import br.com.gestorfinanceiro.dto.LoginDTO;
 import br.com.gestorfinanceiro.dto.UserDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
@@ -31,5 +32,11 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
-    
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) {
+        UserEntity userEntity = authService.login(loginDTO.email(), loginDTO.password());
+        UserDTO userDTO = userMapper.mapTo(userEntity);
+        return ResponseEntity.ok(userDTO); //TODO: Posteriormente deve retornar um token JWT
+    }
 }
