@@ -1,3 +1,17 @@
-import { Routes } from '@angular/router';
+import { Routes } from "@angular/router";
+import { RegisterComponent } from "./auth/register/register.component";
+import { LoginComponent } from "./auth/login/login.component";
 
-export const routes: Routes = [];
+
+const routeConfig: Routes = [
+    { 
+        path: 'register', component: RegisterComponent, 
+        title: 'Cadastro' 
+    },
+    { 
+        path: 'login', component: LoginComponent, 
+        title: 'Login' 
+    },
+]; 
+
+export default routeConfig;
