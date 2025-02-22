@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+import { User } from '../user';
 
 @Component({
   selector: 'app-register',
@@ -10,7 +13,7 @@ import { CommonModule } from '@angular/common';
     <section>
       <div class="register-container">
         <h2>Cadastro</h2>
-        <form [formGroup]="registerForm">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <label>Username</label>
           <input type="username" formControlName="username" placeholder="Digite seu nome de usuario" required />
           
@@ -42,6 +45,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
   private fb = inject(FormBuilder);
 
   registerForm: FormGroup = this.fb.group({
@@ -56,6 +61,17 @@ export class RegisterComponent {
     const password = formGroup.get('password')?.value;
     const confirmPassword = formGroup.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  onSubmit() {
+    if (this.registerForm.valid) {
+      const { username, email, password, role } = this.registerForm.value;
+      const newUser: User = { id: 0, username, email, password, role};
+
+      this.authService.register(newUser)
+      .then(() => this.router.navigate(['/login']))
+      .catch(err => alert('Error registering user: ' + err));
+    }
   }
 
 }
