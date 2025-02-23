@@ -2,11 +2,25 @@ package br.com.gestorfinanceiro.dto;
 
 
 import br.com.gestorfinanceiro.models.enums.Roles;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class UserDTO {
     
+    @NotBlank(message = "O username é obrigatório.")
     private String username;
+
+    @NotBlank(message = "O e-mail é obrigatório.")
+    @Email(message = "Formato incorreto de e-mail. Formato válido: usuario@dominio.com")
     private String email;
+
+    @NotBlank(message = "É necessário definir a senha.")
+    @Size(min = 6, message = "A senha deve possuir pelo menos 6 caracteres")
     private String password;
+
+    @NotNull(message = "É necessário definir a role.")
     private Roles role;
 
     public UserDTO() {
