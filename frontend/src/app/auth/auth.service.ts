@@ -21,4 +21,23 @@ export class AuthService {
     }
   }
 
+  async login(email: string, password: string): Promise<boolean> {
+    try {
+      const response = await fetch(this.apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login falhou');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      return false;
+    }
+  }
+
 }
