@@ -44,7 +44,7 @@ public class AuthController {
         UserEntity userEntity = authService.login(loginDTO.email(), loginDTO.password());
 
         // Obtém a role do usuário autenticado
-        String role = userEntity.getRole().name(); // Converte Enum para String 
+        String role = userEntity.getRole().name();
 
         // Gera o token JWT com username e role
         String token = jwtUtil.generateToken(userEntity.getEmail(), role);
