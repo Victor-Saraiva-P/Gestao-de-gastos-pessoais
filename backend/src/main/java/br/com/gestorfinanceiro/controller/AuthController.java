@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserEntity> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserEntity> register(@Valid @RequestBody UserDTO userDTO) {
         UserEntity userEntity = userMapper.mapFrom(userDTO);
         UserEntity registeredUser = this.authService.register(userEntity);
 

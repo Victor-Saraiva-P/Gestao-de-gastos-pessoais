@@ -5,6 +5,7 @@ import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import jakarta.validation.Valid;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -18,8 +19,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserEntity register(UserEntity userEntity) {
-        //TODO: Criar validação para campos
+    public UserEntity register(@Valid UserEntity userEntity) {
+
+        if (userRepository.findByEmail(userEntity.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("E-mail already registered.");
+        }
+
+        if (userRepository.findByUsername(userEntity.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already registered.");
+        }
+
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
         return userRepository.save(userEntity);
     }
