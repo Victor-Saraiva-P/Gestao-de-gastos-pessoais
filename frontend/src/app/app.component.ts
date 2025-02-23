@@ -1,6 +1,7 @@
-import { Component} from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject} from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   standalone: true,
@@ -22,4 +23,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   title = 'home';
+
+  private authService = inject(AuthService);
+  private router = inject(Router);
 }
