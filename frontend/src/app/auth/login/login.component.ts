@@ -10,21 +10,63 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
-    <section>
-      <div class="login-container">
-        <h2>Login</h2>
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <label>Email</label>
-          <input type="email" formControlName="email" placeholder="Digite seu email" />
-
-          <label>Password</label>
-          <input type="password" formControlName="password" placeholder="Digite sua senha" required />
-
-          <button type="submit" [disabled]="loginForm.invalid">Login</button>
-        </form>
-        <p>No account?  <a [routerLink]="['/register']">Register</a></p>
+    <section class="form-section">
+  <div class="login-container">
+    <div class="title-container">
+      <div>
+        <h2>     Entre</h2>
+        <h3>     na sua conta</h3>
       </div>
-    </section>
+      <div class="coins">
+        <img src="assets/coin.svg" />
+      </div>
+  </div>
+
+<form [formGroup]="loginForm">
+<div class="input-container">
+  <label for="email">Email</label>
+  <div class="input-box">
+    <input 
+      type="email" 
+      id="email" 
+      formControlName="email" 
+      placeholder="Teste@gmail.com" required>
+    <i class="input-icon">
+      <img src="assets/mail-icon.svg" alt="ícone cadeado">
+    </i>
+  </div>
+</div>
+
+<div class="input-container">
+  <label for="password">Senha</label>
+  <div class="input-box">
+    <input 
+      [type]="passwordVisible ? 'text' : 'password'"  
+      id="password" 
+      formControlName="password" 
+      placeholder="Digite sua senha" 
+      required
+    >
+    <i class="input-icon" (click)="togglePasswordVisibility('password')" style="cursor: pointer;">
+    <img [src]="passwordVisible ? 'assets/open-lock.svg' : 'assets/lock-icon.svg'" alt="ícone senha">
+    </i>
+  </div>
+</div>
+<button class="entrar-bnt" type="submit" click="loginForm.invalid">Entrar</button>
+</form>
+   <p>  Não tem uma conta? </p>
+   <a [routerLink]="['/register']">
+  <button class="cadastro-btn" type="button">Cadastre-se</button>
+</a>
+
+</div>
+
+<div class="image-container">
+  <!--<div><h2>FINANCY</h2></div>-->
+  <img src="assets/pig-coinr.png"/>    
+</div>
+</section>
+
   `,
   styleUrls: ['./login.component.css']
 })
@@ -38,6 +80,14 @@ export class LoginComponent {
     password: ['', Validators.required]
   });
 
+  passwordVisible = false; 
+  
+  togglePasswordVisibility(field: 'password') {
+    if (field === 'password') {
+      this.passwordVisible = !this.passwordVisible; 
+    }
+  }
+
   onSubmit() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
@@ -46,4 +96,5 @@ export class LoginComponent {
       .catch(err => alert('Login error: ' + err));
     }
   }
+
 }

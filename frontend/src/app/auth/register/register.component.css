@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #F5F5F5;
+    display: flex;
+    font-family: 'Poppins', sans-serif;
+}
+
+.register-container {
+    background-color: #fff;
+    box-shadow: 0 14px 28px rgba(4, 95, 36, 0.25),
+        0 10px 10px rgba(9, 91, 12, 0.22);
+    width: 32%;
+    min-width: 30px;
+    height: 100vh;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+section {
+    display: flex;
+    flex-direction: row;
+    /*justify-content: center;*/
+    align-items: center;
+}
+
+
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.coins img {
+    width: 200px;
+    height: auto;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #347571;
+    margin: 0;
+    font-weight: 800;
+    font-size: 50px;
+    letter-spacing: 1px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+label {
+    font-size: 18px;
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+input {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #347571;
+    box-shadow: 0 0 12px rgba(56, 196, 63, 0.3);
+    outline: none;
+}
+
+button {
+    background-color: #35B276;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+}
+
+button:hover {
+    background-color: #5EC57E;
+    transform: scale(1.02);
+}
+
+p {
+    text-align: center;
+    margin-top: 25px;
+    color: #C2C2C2;
+}
+
+.image-container {
+    justify-items: center;
+    width: 697px;
+    height: auto;
+    margin-left: 20%;
+}
+
+/*Mexe na label de senha*/
+.input-box {
+    position: relative;
+    width: 100%;
+    margin-top: 18px;
+  }
+  
+  input[type="password"] {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  
+  input[type="password"]:focus {
+    border-color: #347571;
+    box-shadow: 0 0 12px rgba(56, 196, 63, 0.3);
+    outline: none;
+
+}
+  .input-icon {
+    position: absolute;
+    right: 15px;
+    top: 35%;
+    bottom: 0px;
+    transform: translateY(-50%);
+    color: #666;
+    width: 35px;
+    height: 35px;
+}
+
+#role {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+    appearance: none;
+    cursor: pointer;
+}
+#role:focus {
+    border-color: #347571;
+    box-shadow: 0 0 12px rgba(56, 196, 63, 0.3);
+    outline: none;
+}
+
+.input-box-sub {
+    position: relative;
+    width: 100%;
+    margin-top: 18px;
+}
+
+.input-box-sub select {
+    padding-right: 40px; 
+}
+
+.input-box-sub::after {
+    content: "▼";
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #347571;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+
+@media (max-width: 1024px) {
+    .image-container {
+        display: none;
+    }
+
+    .register-container {
+        width: 100vh;
+        height: 100vh;
+        padding: 10px;
+        box-shadow: none;
+    }
+
+    section {
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+}
