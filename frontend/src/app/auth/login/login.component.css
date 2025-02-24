@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #F5F5F5;
+    display: flex;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+}
+
+.login-container {
+    background-color: #fff;
+    box-shadow: 0 14px 28px rgba(4, 95, 36, 0.25),
+        0 10px 10px rgba(9, 91, 12, 0.22);
+    width: 32%;
+    min-width: 480px;
+    height: 100vh;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+section {
+    display: flex;
+    flex-direction: row;
+    /*justify-content: center;*/
+    align-items: center;
+}
+
+
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.coins img {
+    width: 200px;
+    height: auto;
+    margin-right: 10px;
+    margin-bottom: 50px;
+}
+
+h2 {
+    color: #347571;
+    margin: 0;
+    font-weight: 800;
+    font-size: 45px;
+    letter-spacing: 1px;
+}
+
+h3 {
+    color: #347571;
+    margin: 0;
+    font-weight: 600;
+    font-size: 40px;
+    margin-bottom: 50px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+label {
+    font-size: 18px;
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+input {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #347571;
+    box-shadow: 0 0 12px rgba(56, 196, 63, 0.3);
+    outline: none;
+}
+
+.entrar-bnt {
+    background-color: #35B276;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+}
+
+.entrar-bnt:hover {
+    background-color: #5EC57E;
+    transform: scale(1.02);
+}
+
+p {
+    text-align: center;
+    margin-top: 25px;
+    color: #C2C2C2;
+    font-size: 18px;
+}
+
+.image-container {
+    justify-items: center;
+    width: 697px;
+    height: auto;
+    margin-left: 20%;
+}
+
+
+/*Mexe na label de senha*/
+.input-box {
+    position: relative;
+    width: 100%;
+    margin-top: 18px;
+  }
+  
+  input[type="password"] {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  
+  input[type="password"]:focus {
+    border-color: #347571;
+    box-shadow: 0 0 12px rgba(56, 196, 63, 0.3);
+    outline: none;
+
+}
+  .input-icon {
+    position: absolute;
+    right: 15px;
+    top: 35%;
+    bottom: 0px;
+    transform: translateY(-50%);
+    color: #666;
+    width: 35px;
+    height: 35px;
+}
+
+.cadastro-btn {
+    background-color: transparent; /* Fundo transparente */
+    border: 2px solid #2E8B57; /* Borda verde */
+    color: #2E8B57; /* Texto verde */
+    font-size: 16px;
+    font-weight: bold;
+    padding: 15px 25px;
+    border-radius: 15px; /* Cantos arredondados */
+    cursor: pointer; /* Cursor indicando clique */
+    transition: all 0.3s ease-in-out;
+    text-align: center;
+    width: 100%; 
+    display: block;
+    margin: 20px 0;
+  }
+  
+  .cadastro-btn:hover {
+    background-color: rgba(45, 155, 93, 0.1); 
+  }
+
+
+  @media (max-width: 768px) {
+    .image-container {
+        display: none;
+    }
+
+    .login-container {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        padding: 30px;
+        box-shadow: none;
+    }
+
+    section {
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+}

@@ -10,53 +10,118 @@ import { User } from '../user';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <section>
-      <div class="register-container">
-        <h2>Cadastro</h2>
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-          <label>Username</label>
-          <input type="username" formControlName="username" placeholder="Digite seu nome de usuario" required />
-          <p class="error" *ngIf="registerForm.controls['username'].invalid && registerForm.controls['username'].touched">
-        {{ registerForm.controls['username'].hasError('required') ? 'Campo obrigatório' : 'Mínimo de 3 caracteres' }}
-          </p>
-          
-
-          <label>Email</label>
-          <input type="email" formControlName="email" placeholder="Digite seu email" required />
-           <p class="error" *ngIf="registerForm.controls['email'].invalid && registerForm.controls['email'].touched">
-        {{ registerForm.controls['email'].hasError('required') ? 'Campo obrigatório' : 'E-mail inválido' }}
-          </p>
-          
-          
-
-          <label>Password</label>
-          <input type="password" formControlName="password" placeholder="Digite sua senha" required />
-          <p class="error" *ngIf="registerForm.controls['password'].invalid && registerForm.controls['password'].touched">
-        {{ registerForm.controls['password'].hasError('required') ? 'Campo obrigatório' : 'Mínimo de 6 caracteres' }}
-          </p>
-          
-
-          <label>Password confirmation</label>
-          <input type="password" formControlName="confirmPassword" placeholder="Confirme sua senha" required />
-          <p class="error" *ngIf="registerForm.hasError('passwordMismatch') && registerForm.controls['confirmPassword'].touched">
-            As senhas não coincidem!
-          </p>
-
-
-          <label>Role</label>
-          <select formControlName="role">
-            <option value="" disabled selected>Selecione um papel</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-            <p class="error" *ngIf="registerForm.controls['role'].invalid && registerForm.controls['role'].touched">
-          Campo obrigatório
-            </p>
-          
-          <button type="submit" [disabled]="registerForm.invalid">Submit</button>
-        </form>
+    <section class="form-container">
+  <div class="register-container">
+    <div class="title-container"> 
+      <h2>Cadastre-se</h2>
+      <div class="coins">
+        <img src="assets/purse-r.png"/>
       </div>
-    </section>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Usuário -->
+      <div class="input-container">
+        <label for="usuario">Usuário</label>
+        <div class="input-box">
+          <input 
+            type="text"
+            id="usuario" 
+            formControlName="username" 
+            placeholder="Digite um usuário" 
+            required>
+          <i class="input-icon">
+            <img src="assets/mail-icon.svg" alt="ícone usuário">
+          </i>
+        </div>
+        <p class="error" *ngIf="registerForm.controls['username'].invalid && registerForm.controls['username'].touched">
+          {{ registerForm.controls['username'].hasError('required') ? 'Campo obrigatório' : 'Mínimo de 3 caracteres' }}
+        </p>
+      </div>
+
+      <!-- Email -->
+      <div class="input-container">
+        <label for="email">Email</label>
+        <div class="input-box">
+          <input 
+            type="email"
+            id="email" 
+            formControlName="email" 
+            placeholder="Teste@gmail.com" 
+            required>
+          <i class="input-icon">
+            <img src="assets/mail-icon.svg" alt="ícone email">
+          </i>
+        </div>
+        <p class="error" *ngIf="registerForm.controls['email'].invalid && registerForm.controls['email'].touched">
+          {{ registerForm.controls['email'].hasError('required') ? 'Campo obrigatório' : 'E-mail inválido' }}
+        </p>
+      </div>
+
+      <!-- Senha -->
+      <div class="input-container">
+        <label for="password">Senha</label>
+        <div class="input-box">
+          <input 
+          [type]="passwordVisible ? 'text' : 'password'" 
+            id="password" 
+            formControlName="password" 
+            placeholder="Digite uma senha" 
+            required>
+          <i class="input-icon" (click)="togglePasswordVisibility('password')" style="cursor: pointer;" >
+          <img [src]="passwordVisible ? 'assets/open-lock.svg' : 'assets/lock-icon.svg'" alt="ícone senha">
+          </i>
+        </div>
+        <p class="error" *ngIf="registerForm.controls['password'].invalid && registerForm.controls['password'].touched">
+          {{ registerForm.controls['password'].hasError('required') ? 'Campo obrigatório' : 'Mínimo de 6 caracteres' }}
+        </p>
+      </div>
+
+      <!-- Confirmar Senha -->
+      <div class="input-container">
+        <label for="confirm-password">Confirme a senha</label>
+        <div class="input-box">
+          <input 
+            [type]="confirmPasswordVisible ? 'text' : 'password'"
+            id="confirm-password" 
+            formControlName="confirmPassword" 
+            placeholder="Confirme a senha" 
+            required>
+          <i class="input-icon" (click)="togglePasswordVisibility('confirmPassword')" style="cursor: pointer;">
+            <img [src]="confirmPasswordVisible ? 'assets/open-lock.svg' : 'assets/lock-icon.svg'" alt="ícone senha">
+          </i>
+        </div>
+        <p class="error" *ngIf="registerForm.hasError('passwordMismatch') && registerForm.controls['confirmPassword'].touched">
+          As senhas não coincidem!
+        </p>
+      </div>
+
+      <!-- Função -->
+<div class="input-container-sub">
+  <label for="role">Função</label>
+  <div class="input-box-sub">
+    <select id="role" formControlName="role" required>
+      <option value="" disabled selected>Selecione um papel</option>
+      <option value="admin">Admin</option>
+      <option value="user">Usuário</option>
+    </select>
+  </div>
+  <p class="error" *ngIf="registerForm.controls['role'].invalid && registerForm.controls['role'].touched">
+    Campo obrigatório
+  </p>
+</div>
+
+
+      <!-- Botão de Submit -->
+      <button type="submit" [disabled]="registerForm.invalid">Criar conta</button>
+    </form>
+
+    <p> Já possui uma conta?  </p>
+  </div>
+  <div class="image-container">
+    <img src="assets/pig-coinr.png"/>    
+  </div>
+</section>
   `,
   styleUrls: ['./register.component.css']
 })
@@ -73,10 +138,21 @@ export class RegisterComponent {
     role: ['', Validators.required]
   }, { validators: this.passwordMatchValidator });
 
+  passwordVisible = false; 
+  confirmPasswordVisible = false;  
+
   passwordMatchValidator(formGroup: FormGroup) {
     const password = formGroup.get('password')?.value;
     const confirmPassword = formGroup.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { passwordMismatch: true };
+  }
+
+  togglePasswordVisibility(field: 'password' | 'confirmPassword') {
+    if (field === 'password') {
+      this.passwordVisible = !this.passwordVisible;  // Alterna visibilidade da senha
+    } else {
+      this.confirmPasswordVisible = !this.confirmPasswordVisible;  // Alterna visibilidade da confirmação de senha
+    }
   }
 
   onSubmit() {
