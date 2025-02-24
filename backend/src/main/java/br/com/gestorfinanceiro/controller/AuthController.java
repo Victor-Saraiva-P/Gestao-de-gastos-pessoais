@@ -5,6 +5,7 @@ import br.com.gestorfinanceiro.dto.UserDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.services.AuthService;
+import br.com.gestorfinanceiro.services.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,9 +23,12 @@ public class AuthController {
 
     private final Mapper<UserEntity, UserDTO> userMapper;
 
-    public AuthController(AuthService authService, Mapper<UserEntity, UserDTO> userMapper) {
+    private final JwtUtil jwtUtil;
+
+    public AuthController(AuthService authService, Mapper<UserEntity, UserDTO> userMapper, JwtUtil jwtUtil) {
         this.authService = authService;
         this.userMapper = userMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -35,9 +40,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginDTO loginDTO) {
         UserEntity userEntity = authService.login(loginDTO.email(), loginDTO.password());
-        UserDTO userDTO = userMapper.mapTo(userEntity);
-        return ResponseEntity.ok(userDTO); //TODO: Posteriormente deve retornar um token JWT
-    }
+
+        // Obtém a role do usuário autenticado
+        String role = userEntity.getRole().name();
+
+        // Gera o token JWT com username e role
+        String token = jwtUtil.generateToken(userEntity.getEmail(), role);
+
+        return ResponseEntity.ok(Map.of("token", token));
+    } 
 }
