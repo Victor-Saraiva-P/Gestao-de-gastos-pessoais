@@ -27,7 +27,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(Customizer.withDefaults());
 
-        return http.build();
+        return http.build();  //TODO: Configurar roles e permissões para o filtro JWT
     }
 
     @Bean
