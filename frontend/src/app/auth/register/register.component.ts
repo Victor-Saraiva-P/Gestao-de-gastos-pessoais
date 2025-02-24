@@ -2,13 +2,13 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { User } from '../user';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <section class="form-container">
   <div class="register-container">
@@ -116,7 +116,8 @@ import { User } from '../user';
       <button type="submit" [disabled]="registerForm.invalid">Criar conta</button>
     </form>
 
-    <p> Já possui uma conta?  </p>
+    <p>Já possui uma conta? <a [routerLink]="'/login'" class="login-link">Entre aqui</a></p>
+
   </div>
   <div class="image-container">
     <img src="assets/pig-coinr.png"/>    
@@ -149,9 +150,9 @@ export class RegisterComponent {
 
   togglePasswordVisibility(field: 'password' | 'confirmPassword') {
     if (field === 'password') {
-      this.passwordVisible = !this.passwordVisible;  // Alterna visibilidade da senha
+      this.passwordVisible = !this.passwordVisible;  
     } else {
-      this.confirmPasswordVisible = !this.confirmPasswordVisible;  // Alterna visibilidade da confirmação de senha
+      this.confirmPasswordVisible = !this.confirmPasswordVisible;  
     }
   }
 
