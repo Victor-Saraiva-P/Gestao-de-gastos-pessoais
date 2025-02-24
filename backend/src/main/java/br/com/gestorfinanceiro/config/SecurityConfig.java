@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()  // Rotas públicas
+                        .requestMatchers("/users/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users/**").authenticated()  // Rotas protegidas
                         .anyRequest().authenticated()
                 )
