@@ -1,11 +1,7 @@
 package br.com.gestorfinanceiro.dto;
 
 
-import br.com.gestorfinanceiro.models.enums.Roles;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class UserDTO {
     
@@ -21,12 +17,14 @@ public class UserDTO {
     private String password;
 
     @NotNull(message = "É necessário definir a role.")
-    private Roles role;
+    @Pattern(regexp = "^(USER|ADMIN)$", message = "A role deve ser USER ou ADMIN")
+    // role é colocada como string para facilitar a validação
+    private String role;
 
     public UserDTO() {
     }
 
-    public UserDTO(String name, String email, String password, Roles role) {
+    public UserDTO(String name, String email, String password, String role) {
         this.username = name;
         this.email = email;
         this.password = password;
@@ -57,11 +55,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public Roles getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Roles role) {
+    public void setRole(String role) {
         this.role = role;
     }
 }
