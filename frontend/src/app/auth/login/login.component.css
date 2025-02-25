@@ -205,3 +205,19 @@ p {
         height: 100vh;
     }
 }
+
+@media (max-width: 1366px) {
+
+    .login-container {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        padding: 30px;
+    }
+
+    section {
+        justify-content: center;
+        align-items: center;
+        height: 120vh;
+    }
+}

@@ -14,8 +14,8 @@ import { RouterModule } from '@angular/router';
   <div class="login-container">
     <div class="title-container">
       <div>
-        <h2>     Entre</h2>
-        <h3>     na sua conta</h3>
+        <h2>Entre <br> na sua conta </h2>
+       <!-- <h3>     </h3>-->
       </div>
       <div class="coins">
         <img src="assets/coin.svg" />
