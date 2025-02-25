@@ -13,4 +13,16 @@ public record ApiError(
     public ApiError(HttpStatus status, String message) {
         this(LocalDateTime.now(), status.value(), status.getReasonPhrase(), message);
     }
+
+    public String toJson() {
+        return """
+                {
+                    "timestamp": "%s",
+                    "status": %d,
+                    "error": "%s",
+                    "message": "%s"
+                }
+                """.formatted(this.timestamp, this.status, this.error, this.message);
+    }
+
 }
