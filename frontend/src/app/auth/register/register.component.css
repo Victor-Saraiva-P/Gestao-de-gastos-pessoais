@@ -21,10 +21,10 @@ body {
     background-color: #fff;
     box-shadow: 0 14px 28px rgba(4, 95, 36, 0.25),
         0 10px 10px rgba(9, 91, 12, 0.22);
-    max-width: 550px;
-    min-width: 350px;
-    width: 100%;
-    padding: 60px;
+    width: 35%;
+    height: 100vh;
+    height: auto;
+    padding: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -46,10 +46,8 @@ section {
 }
 
 .coins img {
-    width: 180px;
+    width: 190px;
     height: auto;
-    margin-right: 5px;
-    margin-left: -5px;
     margin-bottom: 10px;
 }
 
@@ -211,7 +209,7 @@ p {
 
     .register-container {
         width: 100vh;
-        height: auto;
+        height: 100vh;
         padding: 10px;
         box-shadow: none;
     }
@@ -219,6 +217,6 @@ p {
     section {
         justify-content: center;
         align-items: center;
-        height: auto;
+        height: 100vh;
     }
 }

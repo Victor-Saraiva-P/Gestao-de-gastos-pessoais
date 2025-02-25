@@ -22,11 +22,10 @@ body {
     background-color: #fff;
     box-shadow: 0 14px 28px rgba(4, 95, 36, 0.25),
         0 10px 10px rgba(9, 91, 12, 0.22);
-    width: 34%;
-    max-width: 480px;
-    min-width: unset;
-    height: 100%;
-    padding: 45px;
+    width: 32%;
+    min-width: 480px;
+    height: 100vh;
+    padding: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -203,6 +202,22 @@ p {
     section {
         justify-content: center;
         align-items: center;
+        height: 100vh;
+    }
+}
+
+@media (max-width: 1366px) {
+
+    .login-container {
+        width: 100%;
+        min-width: unset;
         height: auto;
+        padding: 30px;
+    }
+
+    section {
+        justify-content: center;
+        align-items: center;
+        height: 120vh;
     }
 }
