@@ -1,19 +1,20 @@
 package br.com.gestorfinanceiro.config;
 
+import br.com.gestorfinanceiro.exceptions.ApiError;
 import br.com.gestorfinanceiro.services.JwtFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -28,15 +29,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // Rotas públicas
+                        .requestMatchers("/auth/**").permitAll() // Rotas públicas
                         .requestMatchers("/users/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/users/**").authenticated()  // Rotas protegidas
+                        .requestMatchers("/users/**").authenticated() // Rotas protegidas
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Configuração para sessões stateless
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);  // Adiciona o filtro JWT
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        // Trata 401 Unauthorized (usuário não autenticado)
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+
+                            ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED,
+                                    "Você não está autenticado para acessar este recurso.");
+                            response.getWriter().write(apiError.toJson());
+                        })
+
+                        // Trata 403 Forbidden (usuário autenticado, mas sem permissão)
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "Acesso negado para este recurso.");
+                            response.getWriter().write(apiError.toJson());
+                        })
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
