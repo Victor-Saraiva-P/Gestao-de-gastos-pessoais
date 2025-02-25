@@ -102,8 +102,8 @@ import { User } from '../user';
   <div class="input-box-sub">
     <select id="role" formControlName="role" required>
       <option value="" disabled selected>Selecione um papel</option>
-      <option value="admin">Admin</option>
-      <option value="user">Usuário</option>
+      <option value="ADMIN">Admin</option>
+      <option value="USER">User</option>
     </select>
   </div>
   <p class="error" *ngIf="registerForm.controls['role'].invalid && registerForm.controls['role'].touched">
@@ -159,7 +159,7 @@ export class RegisterComponent {
   onSubmit() {
     if (this.registerForm.valid) {
       const { username, email, password, role } = this.registerForm.value;
-      const newUser: User = { id: 0, username, email, password, role};
+      const newUser: User = { username, email, password, role: role.toUpperCase() };
 
       this.authService.register(newUser)
       .then(() => this.router.navigate(['/login']))

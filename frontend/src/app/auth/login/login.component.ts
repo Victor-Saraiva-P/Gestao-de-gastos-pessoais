@@ -22,7 +22,7 @@ import { RouterModule } from '@angular/router';
       </div>
   </div>
 
-<form [formGroup]="loginForm">
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 <div class="input-container">
   <label for="email">Email</label>
   <div class="input-box">
