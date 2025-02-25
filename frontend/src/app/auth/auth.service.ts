@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'http://localhost:8080/auth';
 
   async register(newUser: User): Promise<User | null> {
     try {

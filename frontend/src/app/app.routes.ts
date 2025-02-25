@@ -23,7 +23,7 @@ const routeConfig: Routes = [
     { 
         path: 'home/admin', component: HomeComponent, 
         canActivate: [authGuard],
-        data: {role: 'admin'},
+        data: {role: 'ADMIN'},
         title: 'Teste filtro de role' 
     },
     {
