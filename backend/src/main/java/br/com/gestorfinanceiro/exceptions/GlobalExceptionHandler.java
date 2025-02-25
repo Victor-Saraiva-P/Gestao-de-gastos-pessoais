@@ -1,5 +1,7 @@
 package br.com.gestorfinanceiro.exceptions;
 
+import br.com.gestorfinanceiro.exceptions.auth.login.EmailNotFoundException;
+import br.com.gestorfinanceiro.exceptions.auth.login.InvalidPasswordException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -35,5 +37,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleGenericException(Exception ex) {
         logException("Erro genérico", ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
+    // Handler para falhas de autenticação durante o login (e-mail não encontrado ou senha inválida)
+    @ExceptionHandler({EmailNotFoundException.class, InvalidPasswordException.class})
+    public ResponseEntity<ApiError> handleLoginException(RuntimeException ex) {
+        logException("Erro de autenticação", ex);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
     }
 }
