@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
         if (passwordEncoder.matches(password, userFoundByEmail.getPassword())) {
             return userFoundByEmail;
         } else {
-            throw new InvalidPasswordException("Senha inválida");
+            throw new InvalidPasswordException();
         }
     }
 }

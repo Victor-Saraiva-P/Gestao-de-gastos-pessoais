@@ -3,8 +3,9 @@ package br.com.gestorfinanceiro.services;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +14,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private final String secret;
-    private final Long expiration;
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JwtUtil(@Qualifier("jwtSecret") String secret, @Qualifier("jwtExpiration") Long expiration) {
-        this.secret = secret;
-        this.expiration = expiration;
-    }    
+    @Value("${jwt.expiration}")
+    private Long expiration;
 
     public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
@@ -47,7 +46,7 @@ public class JwtUtil {
         boolean isExpired = isTokenExpired(token);
 
         return (extractedUsername.equals(username) && !isExpired);
-    }    
+    }
 
     public boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());

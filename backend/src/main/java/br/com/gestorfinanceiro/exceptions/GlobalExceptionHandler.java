@@ -6,15 +6,24 @@ import br.com.gestorfinanceiro.exceptions.auth.register.EmailAlreadyExistsExcept
 import br.com.gestorfinanceiro.exceptions.auth.register.UsernameAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -32,13 +41,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
     }
 
-    // Handler para erros de validação de dados no register (campos obrigatórios não preenchidos ou não válidos)
-    @ExceptionHandler(org.springframework.validation.BindException.class)
-    public ResponseEntity<ApiError> handleBindException(org.springframework.validation.BindException ex) {
-        logException("Erro de validação", ex);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, Objects.requireNonNull(ex.getFieldError()).getDefaultMessage());
-    }
-
     // Handler para erros de duplicação de dados no register (ex: e-mail ou username já cadastrados)
     @ExceptionHandler({EmailAlreadyExistsException.class, UsernameAlreadyExistsException.class})
     public ResponseEntity<ApiError> handleDuplicateDataException(RuntimeException ex) {
@@ -46,6 +48,27 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    // Handler para erros de validação dos campos de entrada
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+
+        // Mapeando os erros de validação (campo -≥ mensagem de erro)
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse("Erro desconhecido"),
+                        (existing, replacement) -> existing // Se houver duplicatas, mantém a primeira mensagem
+                ));
+
+        // Criando o objeto ApiError com a mensagem formatada
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Houve um erro com os dados inseridos", errors);
+
+        return ResponseEntity.badRequest().body(apiError);
+    }
 
     // Metodo auxiliar para logar a exceção
     private void logException(String messagePrefix, Exception ex) {
@@ -57,8 +80,6 @@ public class GlobalExceptionHandler {
             logger.debug("Detalhes da exceção:", ex);
         }
     }
-
-    // METODOS AUXILIARES
 
     // Metodo auxiliar para construir o ResponseEntity com ApiError
     private ResponseEntity<ApiError> buildErrorResponse(HttpStatus status, String message) {

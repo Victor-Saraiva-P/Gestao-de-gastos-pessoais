@@ -12,7 +12,7 @@
 	<artifactId>gestorfinanceiro</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gestorfinanceiro</name>
-	<description>API de gestao financeira pessoal</description>
+	<description>API de gestão financeira pessoal</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -64,12 +64,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.github.cdimascio</groupId>
-			<artifactId>dotenv-java</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
@@ -94,12 +88,6 @@
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
 			<version>0.9.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.github.cdimascio</groupId>
-			<artifactId>java-dotenv</artifactId>
-			<version>5.2.2</version>
 		</dependency>
 
 		<dependency>

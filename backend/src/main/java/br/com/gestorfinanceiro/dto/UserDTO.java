@@ -5,18 +5,18 @@ import jakarta.validation.constraints.*;
 
 public class UserDTO {
     
-    @NotBlank(message = "O username é obrigatório.")
+    @NotBlank(message = "O username é obrigatório")
     private String username;
 
-    @NotBlank(message = "O e-mail é obrigatório.")
-    @Email(message = "Formato incorreto de e-mail. Formato válido: usuario@dominio.com")
+    @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "Formato incorreto de e-mail, formato válido: usuario@dominio.com")
     private String email;
 
-    @NotBlank(message = "É necessário definir a senha.")
+    @NotBlank(message = "É necessário definir a senha")
     @Size(min = 6, message = "A senha deve possuir pelo menos 6 caracteres")
     private String password;
 
-    @NotNull(message = "É necessário definir a role.")
+    @NotNull(message = "É necessário definir a role")
     @Pattern(regexp = "^(USER|ADMIN)$", message = "A role deve ser USER ou ADMIN")
     // role é colocada como string para facilitar a validação
     private String role;
