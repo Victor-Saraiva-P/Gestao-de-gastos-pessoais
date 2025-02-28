@@ -36,6 +36,11 @@ const routeConfig: Routes = [
     {
         path: 'unauthorized', component: UnauthorizedComponent, title: 'Unauthorized'
     },
+    { 
+        path: 'home/income', component: IncomeComponent, 
+        canActivate: [authGuard],
+        title: 'incomes' 
+    },
 ]; 
 
 export default routeConfig;

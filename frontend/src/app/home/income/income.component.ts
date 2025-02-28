@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -15,17 +15,14 @@ import { Router } from '@angular/router';
         <div class="right-section">
           <button class="logout" (click)="logout()">Sair</button>
         </div>
-        <div class="right-section">
-          <button class="logout" (click)="receitas()">Minhas receitas</button>
-        </div>
       </div>
     </nav>
   `,
   styleUrls: ['./home.component.css']
   
 })
-export class HomeComponent {
-  title = "home" 
+export class IncomeComponent {
+  title = 'income';
   
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -33,9 +30,5 @@ export class HomeComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-
-  receitas(): void {
-    this.router.navigate(['/home/income']);
   }
 }
