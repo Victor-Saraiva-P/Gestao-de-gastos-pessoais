@@ -16,7 +16,7 @@ public class UserDTO {
     @Size(min = 6, message = "A senha deve possuir pelo menos 6 caracteres")
     private String password;
 
-    @NotNull(message = "É necessário definir a role")
+    @NotBlank(message = "É necessário definir a role")
     @Pattern(regexp = "^(USER|ADMIN)$", message = "A role deve ser USER ou ADMIN")
     // role é colocada como string para facilitar a validação
     private String role;
