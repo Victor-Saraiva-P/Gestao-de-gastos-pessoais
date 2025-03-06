@@ -5,5 +5,10 @@ public enum Categorias {
     RENDIMENTO_DE_INVESTIMENTO,
     COMISSOES,
     BONUS,
-    BOLSA_DE_ESTUDOS
+    BOLSA_DE_ESTUDOS;
+
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }
