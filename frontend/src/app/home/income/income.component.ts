@@ -20,19 +20,19 @@ import { HomeService } from '../home.service';
           <input type="data" formControlName="data" placeholder="Digite a data"/>
         
           <!-- Categoria -->
-          <label for="category">Categoria</label>
+          <label for="categoria">Categoria</label>
           <input type="categoria" formControlName="categoria" placeholder="Digite a categoria"/>
 
           <!-- Valor -->
-          <label for="value">Valor</label>
+          <label for="valor">Valor</label>
           <input type="valor" formControlName="valor" placeholder="Digite o valor"/>
 
           <!-- Origem -->
-          <label for="origin">Origem</label>
+          <label for="origem_do_pagamento">Origem</label>
           <input type="origem_do_pagamento" formControlName="origem_do_pagamento" placeholder="Digite a origem"/>
 
           <!-- Observação --> 
-          <label for="observacao">Observação</label>
+          <label for="">Observação</label>
           <input type="observacoes" formControlName="observacoes" placeholder="Digite a observação"/>
 
           <!-- Botão de Submit -->
@@ -57,10 +57,10 @@ export class IncomeComponent {
 
   creatIncomeForm: FormGroup = this.fb.group({
       data: ['', Validators.required],
-      category: ['', Validators.required],
-      value: ['', Validators.required],
-      origin: ['', Validators.required],
-      observation: ['', [Validators.required]],
+      categoria: ['', Validators.required],
+      valor: ['', Validators.required],
+      origem_do_pagamento: ['', Validators.required],
+      observacoes: ['', [Validators.required]],
   });
 
   onSubmit() {
