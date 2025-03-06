@@ -49,4 +49,43 @@ export class HomeService {
       return null;
     }
   }
+  
+   // Buscar uma despesa pelo ID
+   async getExpenseById(id: string): Promise<Expense | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/expense/${id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar despesa');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar despesa:', error);
+      return null;
+    }
+  }
+
+  // Atualizar uma despesa existente
+  async updateExpense(id: string, updatedExpense: Expense): Promise<Expense | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/expense/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedExpense)
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao atualizar despesa');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao atualizar despesa:', error);
+      return null;
+    }
+  }
 }
