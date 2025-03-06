@@ -2,7 +2,7 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.despesa.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;

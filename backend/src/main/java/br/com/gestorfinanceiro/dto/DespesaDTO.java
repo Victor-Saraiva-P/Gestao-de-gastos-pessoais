@@ -18,7 +18,7 @@ public class DespesaDTO {
             regexp = "ALIMENTACAO|MORADIA|TRANSPORTE|LAZER",
             message = "Categoria inválida. Valores permitidos: ALIMENTACAO, MORADIA, TRANSPORTE, LAZER."
     )
-    private String despesaCategoria;
+    private String categoria;
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
@@ -38,12 +38,12 @@ public class DespesaDTO {
         this.data = data;
     }
 
-    public String getDespesaCategoria() {
-        return despesaCategoria;
+    public String getCategoria() {
+        return categoria;
     }
 
-    public void setDespesaCategoria(String despesaCategoria) {
-        this.despesaCategoria = despesaCategoria;
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public BigDecimal getValor() {
