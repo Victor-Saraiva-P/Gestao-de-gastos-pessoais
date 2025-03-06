@@ -2,33 +2,77 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Income } from '../../entity/income';
+import { HomeService } from '../home.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <nav class="navbar">
-      <div class="nav-container">
-        <div class="left-section">
-        </div>
-        <div class="right-section">
-          <button class="logout" (click)="logout()">Sair</button>
-        </div>
+    <section>
+      <div>
+        <h2>Create Income</h2>
+        <form [formGroup]="creatIncomeForm" (ngSubmit)="onSubmit()">
+          <!-- Data -->
+          <label for="data">Data</label>
+          <input type="data" formControlName="data" placeholder="Digite a data"/>
+        
+          <!-- Categoria -->
+          <label for="category">Categoria</label>
+          <input type="categoria" formControlName="categoria" placeholder="Digite a categoria"/>
+
+          <!-- Valor -->
+          <label for="value">Valor</label>
+          <input type="valor" formControlName="valor" placeholder="Digite o valor"/>
+
+          <!-- Origem -->
+          <label for="origin">Origem</label>
+          <input type="origem_do_pagamento" formControlName="origem_do_pagamento" placeholder="Digite a origem"/>
+
+          <!-- Observação --> 
+          <label for="observacao">Observação</label>
+          <input type="observacoes" formControlName="observacoes" placeholder="Digite a observação"/>
+
+          <!-- Botão de Submit -->
+          <button type="submit" [disabled]="creatIncomeForm.invalid">Criar receita</button>
+        </form>
       </div>
-    </nav>
+
+      <div class="right-section">
+          <button class="logout" (click)="home()">Home</button>
+      </div>
+</section>
   `,
-  styleUrls: ['./home.component.css']
+  styleUrls: ['income.component.css']
   
 })
 export class IncomeComponent {
   title = 'income';
   
-  private authService = inject(AuthService);
+  private HomeService = inject(HomeService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  creatIncomeForm: FormGroup = this.fb.group({
+      data: ['', Validators.required],
+      category: ['', Validators.required],
+      value: ['', Validators.required],
+      origin: ['', Validators.required],
+      observation: ['', [Validators.required]],
+  });
+
+  onSubmit() {
+      if (this.creatIncomeForm.valid) {
+        const { data, categoria, valor, origem_do_pagamento, observacoes } = this.creatIncomeForm.value;
+        const newIncome: Income= { data, categoria, valor, origem_do_pagamento, observacoes };
+  
+        this.HomeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
+      }
+  }
+
+  home(){
+    this.router.navigate(['/home']);
   }
 }
