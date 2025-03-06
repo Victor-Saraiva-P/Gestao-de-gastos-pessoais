@@ -42,11 +42,19 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    public boolean validateToken(String token, String username) {
-        String extractedUsername = extractUsername(token);
+    public String extractUserEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
+    }
+
+    public boolean validateToken(String token, String email) {
+        String extractUserEmail = extractUserEmail(token);
         boolean isExpired = isTokenExpired(token);
 
-        return (extractedUsername.equals(username) && !isExpired);
+        return (extractUserEmail.equals(email) && !isExpired);
     }
 
     public boolean isTokenExpired(String token) {
