@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.models.enums;
 
-public enum Categorias {
+public enum ReceitaCategorias {
     SALARIO,
     RENDIMENTO_DE_INVESTIMENTO,
     COMISSOES,

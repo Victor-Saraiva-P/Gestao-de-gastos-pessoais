@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro.models;
 
-import br.com.gestorfinanceiro.models.enums.Categorias;
+import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
+import br.com.gestorfinanceiro.models.enums.ReceitaCategorias;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public class DespesaEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Categorias categoria;
+    private DespesasCategorias categoria;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal valor;
@@ -34,11 +35,11 @@ public class DespesaEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    public String getId() {
+    public String getUuid() {
         return uuid;
     }
 
-    public void setId(String uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
@@ -50,11 +51,11 @@ public class DespesaEntity {
         this.data = data;
     }
 
-    public Categorias getCategoria() {
+    public DespesasCategorias getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(Categorias categoria) {
+    public void setCategoria(DespesasCategorias categoria) {
         this.categoria = categoria;
     }
 

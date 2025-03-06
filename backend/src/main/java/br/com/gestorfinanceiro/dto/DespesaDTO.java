@@ -15,10 +15,10 @@ public class DespesaDTO {
 
     @NotBlank(message = "A categoria é obrigatória.")
     @Pattern(
-            regexp = "SALARIO|RENDIMENTO_DE_INVESTIMENTO|COMISSOES|BONUS|BOLSA_DE_ESTUDOS",
-            message = "Categoria inválida. Valores permitidos: SALARIO, RENDIMENTO_DE_INVESTIMENTO, COMISSOES, BONUS, BOLSA_DE_ESTUDOS."
+            regexp = "ALIMENTACAO|MORADIA|TRANSPORTE|LAZER",
+            message = "Categoria inválida. Valores permitidos: ALIMENTACAO, MORADIA, TRANSPORTE, LAZER."
     )
-    private String categoria;
+    private String despesaCategoria;
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
@@ -38,12 +38,12 @@ public class DespesaDTO {
         this.data = data;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public String getDespesaCategoria() {
+        return despesaCategoria;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setDespesaCategoria(String despesaCategoria) {
+        this.despesaCategoria = despesaCategoria;
     }
 
     public BigDecimal getValor() {
