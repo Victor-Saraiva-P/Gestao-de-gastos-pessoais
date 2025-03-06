@@ -4,7 +4,9 @@ import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.despesa.InvalidDataException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
+import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
+import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DespesaService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +18,16 @@ import java.util.List;
 public class DespesaServiceImpl implements DespesaService {
 
     private final DespesaRepository despesaRepository;
+    private final UserRepository userRepository;
 
-    public DespesaServiceImpl(DespesaRepository despesaRepository) {
+    public DespesaServiceImpl(DespesaRepository despesaRepository, UserRepository userRepository) {
         this.despesaRepository = despesaRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     @Transactional
-    public DespesaEntity criarDespesa(DespesaEntity despesa) {
+    public DespesaEntity criarDespesa(DespesaEntity despesa, String userId) {
         if (despesa == null) {
             throw new InvalidDataException("A despesa não pode ser nula.");
         }
@@ -32,7 +36,10 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidDataException("O valor da despesa deve ser maior que zero.");
         }
 
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found."));
+
         try {
+            despesa.setUser(user);
             return despesaRepository.save(despesa);
         } catch (Exception e) {
             throw new DespesaOperationException("Erro ao criar despesa. Por favor, tente novamente.", e);

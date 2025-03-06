@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface DespesaService {
 
-    DespesaEntity criarDespesa(DespesaEntity despesa);
+    DespesaEntity criarDespesa(DespesaEntity despesa, String userId);
 
     List<DespesaEntity> listarDespesasUsuario(String userId);
 
