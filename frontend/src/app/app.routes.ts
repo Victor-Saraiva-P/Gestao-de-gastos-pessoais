@@ -46,6 +46,8 @@ const routeConfig: Routes = [
         canActivate: [authGuard],
         title: 'incomes' 
     },
+    { path: 'editar-despesa/:id', component: ExpenseComponent }
+
 ]; 
 
 export default routeConfig;
