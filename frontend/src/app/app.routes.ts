@@ -5,8 +5,8 @@ import { HomeComponent } from "./home/home.component";
 import { UnauthorizedComponent } from "./auth/unauthorized/unauthorized.component";
 import { authGuard } from "./auth/auth.guard";
 import { IncomeComponent } from "./home/income/income.component";
-import { AppComponent } from "./app.component";
 import { RootComponent } from "./root/root.component";
+import { ExpenseComponent } from "./home/expense/expense.component";
 
 
 const routeConfig: Routes = [
@@ -38,6 +38,11 @@ const routeConfig: Routes = [
     },
     { 
         path: 'home/income', component: IncomeComponent, 
+        canActivate: [authGuard],
+        title: 'incomes' 
+    },
+    { 
+        path: 'home/expense', component: ExpenseComponent, 
         canActivate: [authGuard],
         title: 'incomes' 
     },
