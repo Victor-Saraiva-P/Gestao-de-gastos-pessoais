@@ -5,6 +5,7 @@ import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.services.ReceitaService;
 import br.com.gestorfinanceiro.services.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,7 @@ public class ReceitaController {
     }
 
     @PostMapping
-    public ResponseEntity<ReceitaDTO> criarReceita(@RequestBody ReceitaDTO receitaDTO, HttpServletRequest request) {
+    public ResponseEntity<ReceitaDTO> criarReceita(@Valid @RequestBody ReceitaDTO receitaDTO, HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(token);
 
@@ -74,7 +75,7 @@ public class ReceitaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @RequestBody ReceitaDTO receitaDTO) {
+    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @Valid @RequestBody ReceitaDTO receitaDTO) {
         ReceitaEntity receitaAtualizada = receitaMapper.mapFrom(receitaDTO);
         ReceitaEntity receitaSalva = receitaService.atualizarReceita(id, receitaAtualizada);
         return ResponseEntity.ok(receitaMapper.mapTo(receitaSalva));

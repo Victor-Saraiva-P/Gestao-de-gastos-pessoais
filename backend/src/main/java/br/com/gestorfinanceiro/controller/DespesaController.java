@@ -5,6 +5,7 @@ import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
 import br.com.gestorfinanceiro.services.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,7 @@ public class DespesaController {
     }
 
     @PostMapping
-    public ResponseEntity<DespesaDTO> criarDespesa(@RequestBody DespesaDTO despesaDTO, HttpServletRequest request) {
+    public ResponseEntity<DespesaDTO> criarDespesa(@Valid @RequestBody DespesaDTO despesaDTO, HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(token);
 
@@ -74,7 +75,7 @@ public class DespesaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @RequestBody DespesaDTO despesaDTO) {
+    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @Valid @RequestBody DespesaDTO despesaDTO) {
         DespesaEntity despesaAtualizada = despesaMapper.mapFrom(despesaDTO);
         DespesaEntity despesaSalva = despesaService.atualizarDespesa(id, despesaAtualizada);
         return ResponseEntity.ok(despesaMapper.mapTo(despesaSalva));
