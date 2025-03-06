@@ -4,9 +4,16 @@ import { LoginComponent } from "./auth/login/login.component";
 import { HomeComponent } from "./home/home.component";
 import { UnauthorizedComponent } from "./auth/unauthorized/unauthorized.component";
 import { authGuard } from "./auth/auth.guard";
+import { IncomeComponent } from "./home/income/income.component";
+import { AppComponent } from "./app.component";
+import { RootComponent } from "./root/root.component";
 
 
 const routeConfig: Routes = [
+    { 
+        path: '', component: RootComponent, 
+        title: 'root' 
+    },
     { 
         path: 'register', component: RegisterComponent, 
         title: 'Cadastro' 
@@ -28,6 +35,11 @@ const routeConfig: Routes = [
     },
     {
         path: 'unauthorized', component: UnauthorizedComponent, title: 'Unauthorized'
+    },
+    { 
+        path: 'home/income', component: IncomeComponent, 
+        canActivate: [authGuard],
+        title: 'incomes' 
     },
 ]; 
 
