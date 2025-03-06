@@ -1,6 +1,6 @@
     package br.com.gestorfinanceiro.models;
 
-    import br.com.gestorfinanceiro.models.enums.Categorias;
+    import br.com.gestorfinanceiro.models.enums.ReceitaCategorias;
     import jakarta.persistence.*;
 
     import java.math.BigDecimal;
@@ -19,7 +19,7 @@
 
         @Enumerated(EnumType.STRING)
         @Column(nullable = false)
-        private Categorias categoria;
+        private ReceitaCategorias categoria;
 
         @Column(nullable = false, precision = 19, scale = 4)
         private BigDecimal valor;
@@ -48,11 +48,11 @@
             this.data = data;
         }
 
-        public Categorias getCategoria() {
+        public ReceitaCategorias getCategoria() {
             return categoria;
         }
 
-        public void setCategoria(Categorias categoria) {
+        public void setCategoria(ReceitaCategorias categoria) {
             this.categoria = categoria;
         }
 

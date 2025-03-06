@@ -33,13 +33,12 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = recoverToken(request);
 
         if (token != null) {
-            String username = jwtUtil.extractUsername(token);
             String role = jwtUtil.extractUserRole(token);
+            String email = jwtUtil.extractUserEmail(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserEntity userEntity = userRepository.findByEmail(username).orElse(null);
-
-                if (userEntity != null && jwtUtil.validateToken(token, username)) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserEntity userEntity = userRepository.findByEmail(email).orElse(null);
+                if (jwtUtil.validateToken(token, email)) {
                     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
                     UsernamePasswordAuthenticationToken auth =
