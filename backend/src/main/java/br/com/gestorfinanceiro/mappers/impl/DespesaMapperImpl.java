@@ -18,14 +18,14 @@ public class DespesaMapperImpl implements Mapper<DespesaEntity, DespesaDTO> {
     @Override
     public DespesaDTO mapTo(DespesaEntity despesaEntity) {
         DespesaDTO dto = modelMapper.map(despesaEntity, DespesaDTO.class);
-        dto.setDespesaCategoria(despesaEntity.getCategoria().name());
+        dto.setCategoria(despesaEntity.getCategoria().name());
         return dto;
     }
 
     @Override
     public DespesaEntity mapFrom(DespesaDTO despesaDTO) {
         DespesaEntity entity = modelMapper.map(despesaDTO, DespesaEntity.class);
-        entity.setCategoria(DespesasCategorias.valueOf(despesaDTO.getDespesaCategoria()));
+        entity.setCategoria(DespesasCategorias.valueOf(despesaDTO.getCategoria()));
         return entity;
     }
 }
