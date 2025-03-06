@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginDTO loginDTO) {
         UserEntity userEntity = authService.login(loginDTO.email(), loginDTO.password());
 
         // Obtém a role do usuário autenticado
