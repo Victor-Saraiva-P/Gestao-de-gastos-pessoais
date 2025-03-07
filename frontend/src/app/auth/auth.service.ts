@@ -6,11 +6,11 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = 'http://localhost:8080/';
 
   async register(newUser: User): Promise<User | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/register`, {
+      const response = await fetch(`${this.apiUrl}auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser)
@@ -29,7 +29,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<boolean> {
     try {
-      const response = await fetch(`${this.apiUrl}/login`, {
+      const response = await fetch(`${this.apiUrl}receitas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
