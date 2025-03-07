@@ -17,23 +17,23 @@ import { HomeService } from '../home.service';
         <form [formGroup]="creatIncomeForm" (ngSubmit)="onSubmit()">
           <!-- Data -->
           <label for="data">Data</label>
-          <input type="data" formControlName="data" placeholder="Digite a data"/>
+          <input type="date" formControlName="data" placeholder="Digite a data"/>
         
           <!-- Categoria -->
           <label for="categoria">Categoria</label>
-          <input type="categoria" formControlName="categoria" placeholder="Digite a categoria"/>
+          <input type="text" formControlName="categoria" placeholder="Digite a categoria"/>
 
           <!-- Valor -->
           <label for="valor">Valor</label>
-          <input type="valor" formControlName="valor" placeholder="Digite o valor"/>
+          <input type="text" formControlName="valor" placeholder="Digite o valor"/>
 
           <!-- Origem -->
-          <label for="origem_do_pagamento">Origem</label>
-          <input type="origem_do_pagamento" formControlName="origem_do_pagamento" placeholder="Digite a origem"/>
+          <label for="origemDoPagamento">Origem</label>
+          <input type="text" formControlName="origemDoPagamento" placeholder="Digite a origem"/>
 
           <!-- Observação --> 
           <label for="">Observação</label>
-          <input type="observacoes" formControlName="observacoes" placeholder="Digite a observação"/>
+          <input type="text" formControlName="observacoes" placeholder="Digite a observação"/>
 
           <!-- Botão de Submit -->
           <button type="submit" [disabled]="creatIncomeForm.invalid">Criar receita</button>
@@ -59,16 +59,17 @@ export class IncomeComponent {
       data: ['', Validators.required],
       categoria: ['', Validators.required],
       valor: ['', Validators.required],
-      origem_do_pagamento: ['', Validators.required],
+      origemDoPagamento: ['', Validators.required],
       observacoes: ['', [Validators.required]],
   });
 
   onSubmit() {
       if (this.creatIncomeForm.valid) {
-        const { data, categoria, valor, origem_do_pagamento, observacoes } = this.creatIncomeForm.value;
-        const newIncome: Income= { data, categoria, valor, origem_do_pagamento, observacoes };
+        const { data, categoria, valor, origemDoPagamento, observacoes } = this.creatIncomeForm.value;
+        const newIncome: Income= { data, categoria, valor, origemDoPagamento, observacoes };
   
         this.HomeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
+        this.router.navigate(['/home']);
       }
   }
 

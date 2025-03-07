@@ -18,6 +18,9 @@ import { Router } from '@angular/router';
         <div class="right-section">
           <button class="logout" (click)="receitas()">Minhas receitas</button>
         </div>
+        <div class="right-section">
+          <button class="logout" (click)="despesas()">Minhas despesas</button>
+        </div>
       </div>
     </nav>
   `,
@@ -37,5 +40,9 @@ export class HomeComponent {
 
   receitas(): void {
     this.router.navigate(['/home/income']);
+  }
+
+  despesas(): void {
+    this.router.navigate(['/home/expense']);
   }
 }
