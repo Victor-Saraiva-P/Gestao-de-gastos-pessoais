@@ -1,19 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Income } from '../entity/income';
 import { Expense } from '../entity/expense';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HomeService {
-  private apiUrl = 'http://localhost:8080/income';
+  private apiUrl = 'http://localhost:8080';
+  private authService = inject(AuthService);
   
   //------------------------ Receitas -----------------------------------------
   async createIncome(newIncome: Income): Promise<Income | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/createIncome`, {
+      const response = await fetch(`${this.apiUrl}/receitas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        },
         body: JSON.stringify(newIncome)
       });
 
@@ -33,9 +38,12 @@ export class HomeService {
 
   async createExpense(newExpense: Expense): Promise<Expense | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/createExpense`, {
+      const response = await fetch(`${this.apiUrl}/despesas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        },
         body: JSON.stringify(newExpense)
       });
 
@@ -53,9 +61,12 @@ export class HomeService {
    // Buscar uma despesa pelo ID
    async getExpenseById(id: string): Promise<Expense | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/expense/${id}`, {
+      const response = await fetch(`${this.apiUrl}/despesas/${id}`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
       });
 
       if (!response.ok) {
@@ -74,7 +85,10 @@ export class HomeService {
     try {
       const response = await fetch(`${this.apiUrl}/expense/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        },
         body: JSON.stringify(updatedExpense)
       });
 

@@ -12,7 +12,7 @@ import { Expense } from '../../entity/expense';
   template: `
     <section>
       <div>
-        <h2>{{ isEditing ? 'Editar Despesa' : 'Criar Receita' }}</h2>
+        <h2>{{ isEditing ? 'Editar Despesa' : 'Criar Despesa' }}</h2>
 
         <form [formGroup]="creatExpenseForm" (ngSubmit)="onSubmit()">
           <!-- Data -->
@@ -20,12 +20,12 @@ import { Expense } from '../../entity/expense';
           <input type="date" formControlName="data" placeholder="Digite a data"/>
         
           <!-- Categoria -->
-          <label for="despesaCategoria">Categoria</label>
-          <input type="text" formControlName="despesaCategoria" placeholder="Digite a categoria"/>
+          <label for="categoria">Categoria</label>
+          <input type="text" formControlName="categoria" placeholder="Digite a categoria"/>
 
           <!-- Valor -->
           <label for="valor">Valor</label>
-          <input type="number" formControlName="valor" placeholder="Digite o valor"/>
+          <input type="text" formControlName="valor" placeholder="Digite o valor"/>
 
           <!-- Origem -->
           <label for="destinoPagamento">Origem</label>
@@ -61,7 +61,7 @@ export class ExpenseComponent implements OnInit {
 
   creatExpenseForm: FormGroup = this.fb.group({
     data: ['', Validators.required],
-    despesaCategoria: ['', Validators.required],
+    categoria: ['', Validators.required],
     valor: ['', Validators.required],
     destinoPagamento: ['', Validators.required],
     observacoes: ['', Validators.required],
