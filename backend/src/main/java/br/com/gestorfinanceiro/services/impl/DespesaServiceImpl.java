@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
@@ -12,7 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DespesaServiceImpl implements DespesaService {
@@ -112,5 +119,26 @@ public class DespesaServiceImpl implements DespesaService {
         } catch (Exception e) {
             throw new DespesaOperationException("Erro ao excluir despesa. Por favor, tente novamente.", e);
         }
+    }
+
+    @Override
+    public GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim) {
+        List<DespesaEntity> despesas = despesaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
+
+        // Formata datas para o padrão "Mês Ano" em português
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR"));
+
+        // Cria um mapa ordenado com os dados mensais
+        Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
+        despesas.stream()
+                .collect(Collectors.groupingBy(
+                        d -> YearMonth.from(d.getData()),
+                        Collectors.reducing(BigDecimal.ZERO, DespesaEntity::getValor, BigDecimal::add)))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(e -> dadosMensais.put(e.getKey().format(formatter), e.getValue()));
+
+        // Retorna o DTO com os dados mensais
+        return new GraficoBarraDTO(dadosMensais);
     }
 }

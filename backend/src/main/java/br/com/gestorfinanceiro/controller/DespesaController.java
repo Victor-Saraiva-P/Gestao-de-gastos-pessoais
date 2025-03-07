@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.YearMonth;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +86,14 @@ public class DespesaController {
     public ResponseEntity<Void> excluirDespesa(@PathVariable String id) {
         despesaService.excluirDespesa(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/grafico-barras")
+    public ResponseEntity<?> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        return ResponseEntity.ok(despesaService.gerarGraficoBarras(userId, inicio, fim));
     }
 }
 
