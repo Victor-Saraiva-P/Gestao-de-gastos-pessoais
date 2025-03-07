@@ -2,8 +2,9 @@ package br.com.gestorfinanceiro.services;
 
 import br.com.gestorfinanceiro.models.DespesaEntity;
 
+import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 
 public interface DespesaService {
 
@@ -16,4 +17,6 @@ public interface DespesaService {
     DespesaEntity atualizarDespesa(String uuid, DespesaEntity despesaAtualizada);
 
     void excluirDespesa(String uuid);
+
+    GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim);
 }
