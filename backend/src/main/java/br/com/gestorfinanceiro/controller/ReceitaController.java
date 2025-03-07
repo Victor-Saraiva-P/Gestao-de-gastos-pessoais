@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -66,11 +67,11 @@ public class ReceitaController {
         String userId = jwtUtil.extractUserId(token);
         ReceitaEntity receita = receitaService.buscarReceitaPorId(id);
 
-        if (receita == null) {
-            return ResponseEntity.notFound().build();
-        } else if (!Objects.equals(userId, receita.getUser().getUuid())) {
-            return ResponseEntity.badRequest().build();
+        // Checa se o usuário logado é o dono da receita
+        if (!Objects.equals(userId, receita.getUser().getUuid())) {
+            return ResponseEntity.status(403).build();
         }
+
         return ResponseEntity.ok(receitaMapper.mapTo(receita));
     }
 

@@ -66,11 +66,11 @@ public class DespesaController {
         String userId = jwtUtil.extractUserId(token);
         DespesaEntity despesa = despesaService.buscarDespesaPorId(id);
 
-        if (despesa == null) {
-            return ResponseEntity.notFound().build();
-        } else if (!Objects.equals(userId, despesa.getUser().getUuid())) {
-            return ResponseEntity.badRequest().build();
+        // Checa se o usuário logado é o dono da despesa
+        if (!Objects.equals(userId, despesa.getUser().getUuid())) {
+            return ResponseEntity.status(403).build();
         }
+
         return ResponseEntity.ok(despesaMapper.mapTo(despesa));
     }
 
