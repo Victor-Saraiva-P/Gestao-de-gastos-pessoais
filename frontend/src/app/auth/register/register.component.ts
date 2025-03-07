@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
 import { Router, RouterLink } from '@angular/router';
-import { User } from '../user';
+import { User } from '../../entity/user';
 
 @Component({
   selector: 'app-register',
