@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll() // Rotas públicas
                         .requestMatchers("/users/admin/**").hasRole("ADMIN")
                         .requestMatchers("/users/**").authenticated() // Rotas protegidas
+                        .requestMatchers(HttpMethod.POST, "/receitas/**").hasAnyRole("ADMIN", "USER") // Apenas USER e ADMIN podem criar receita
+                        .requestMatchers("/receitas/**").authenticated() // Receitas: demais ações protegidas
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
