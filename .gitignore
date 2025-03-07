@@ -1,2 +1,5 @@
 backend/.env
 backend/docker-compose.yml
+
+### VS Code ###
+.vscode/
