@@ -1,0 +1,30 @@
+.acesso-negado {
+    text-align: center;
+    padding: 50px;
+    font-family: Arial, sans-serif;
+  }
+  .acesso-negado h1 {
+    font-size: 2rem;
+    color: #e74c3c;
+  }
+  .acesso-negado p {
+    font-size: 1.2rem;
+    color: #333;
+  }
+  .acesso-negado button {
+    background-color: #35B276;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+  }
+  .acesso-negado button:hover {
+    background-color: #5EC57E;
+    transform: scale(1.02);
+  }
+  

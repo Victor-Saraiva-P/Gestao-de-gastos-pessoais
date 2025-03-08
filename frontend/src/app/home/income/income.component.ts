@@ -18,7 +18,7 @@ import { OnInit } from '@angular/core';
         <!-- Botões para abrir os modais -->
         <button (click)="openModal('create')">Criar Receita</button>
         <button (click)="openModal('edit')">Editar Receita</button> 
-        <button (click)="openModal('remove')">Remover Despesa</button>
+        <button (click)="openModal('remove')">Remover Receita</button>
       </div>
 
       <div class="main-content">
