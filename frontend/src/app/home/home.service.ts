@@ -53,7 +53,27 @@ export class HomeService {
     }
   }
 
-
+  async editIncome(id: string, incomeData: Income): Promise<Income | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/receitas/${id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        },
+        body: JSON.stringify(incomeData)
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao atualizar renda');
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao atualizar renda:', error);
+      return null;
+    }
+  }
   //------------------------ Despesas -----------------------------------------
 
   async createExpense(newExpense: Expense): Promise<Expense | null> {
