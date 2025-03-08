@@ -10,25 +10,6 @@ export class HomeService {
   private apiUrl = 'http://localhost:8080';
   private authService = inject(AuthService);
  
-  async getExpenses(): Promise<Expense[] | null> {
-    try {
-      const response = await fetch(`${this.apiUrl}`, {
-        method: 'GET',
-        headers: { 
-          'Authorization': `Bearer ${this.authService.getToken()}`
-        }
-      });
-  
-      if (!response.ok) {
-        throw new Error('Falha ao buscar despesas');
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Erro ao buscar despesas:', error);
-      return null;
-    }
-  }
   
  
   //------------------------ Receitas -----------------------------------------
@@ -197,6 +178,26 @@ async getIncomes(): Promise<Income[] | null> {
       return null;
     } catch (error) {
       console.error('Erro ao remover renda:', error);
+      return null;
+    }
+  }
+
+  async getExpenses(): Promise<Expense[] | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/despesas`, {
+        method: 'GET',
+        headers: { 
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao buscar despesas');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar despesas:', error);
       return null;
     }
   }

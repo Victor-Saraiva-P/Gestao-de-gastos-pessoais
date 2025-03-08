@@ -20,6 +20,22 @@ import { Expense } from '../../entity/expense';
     </div>
 
     <div class="main-content">
+    <!-- Lista de Despesas -->
+        <div class="expense-list">
+          <h2>Lista de Despesas</h2>
+          <ul>
+            <li *ngFor="let expense of expenses">
+              <div>
+                <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
+                <strong>Categoria:</strong> {{ expense.categoria }} <br>
+                <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
+                <strong>Origem do Pagamento:</strong> {{ expense.destinoPagamento }} <br>
+                <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
+              </div>
+            </li>
+          </ul>
+        </div>
+
       <!-- Modal Criar Despesa -->
       <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
         <div class="modal-content">
@@ -144,6 +160,10 @@ export class ExpenseComponent {
     this.carregarDespesas();
   }
 
+  refreshPage() {
+    window.location.reload();
+  }
+
   carregarDespesas() {
     this.homeService.getExpenses()
       .then((despesas: Expense[] | null) => {
@@ -228,7 +248,7 @@ export class ExpenseComponent {
           this.router.navigate(['/home/expenses']);
         })
         .catch(err => alert('Erro ao criar despesa: ' + err));
-      this.closeModal();
+        this.refreshPage();
     }
   }
 
@@ -246,7 +266,7 @@ export class ExpenseComponent {
       })
       .catch(err => alert('Erro ao atualizar despesa: ' + err));
     }
-      this.closeModal();
+    this.refreshPage();
   }
   
 
@@ -260,7 +280,7 @@ export class ExpenseComponent {
           this.router.navigate(['/home/expenses']);
         })
         .catch(err => alert('Erro ao remover despesa: ' + err));
-      this.closeModal();
+        this.refreshPage();
     }
   }
 
