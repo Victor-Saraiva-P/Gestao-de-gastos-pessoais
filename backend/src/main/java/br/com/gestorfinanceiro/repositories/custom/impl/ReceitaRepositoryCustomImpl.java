@@ -8,6 +8,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Repository
@@ -26,5 +27,16 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
         query.setParameter("fim", fim);
 
         return query.getResultList();
+    }
+
+    @Override
+    public List<ReceitaEntity> findByUserAndYearMonthRange(String userId, YearMonth inicio, YearMonth fim) {
+        String jpql = "SELECT d FROM ReceitaEntity d WHERE d.user.uuid = :userId AND d.data BETWEEN :inicio AND :fim ORDER BY d.data";
+
+        return entityManager.createQuery(jpql, ReceitaEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("inicio", inicio.atDay(1))
+                .setParameter("fim", fim.atEndOfMonth())
+                .getResultList();
     }
 }
