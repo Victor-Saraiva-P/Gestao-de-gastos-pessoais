@@ -37,8 +37,20 @@ import { Expense } from '../../entity/expense';
 
           <!-- Botão de Submit -->
           <button type="submit" [disabled]="creatExpenseForm.invalid">
-            {{ isEditing ? 'Salvar Alterações' : 'Criar Receita' }}
+            {{ isEditing ? 'Salvar Alterações' : 'Criar despesa' }}
           </button>
+        </form>
+      </div>
+
+      <div>
+        <h2>Remove Expense</h2>
+        <form [formGroup]="removeExpenseForm" (ngSubmit)="onSubmitRemove()">
+          <!-- Id -->
+          <label for="id">Id</label>
+          <input type="text" formControlName="id" placeholder="Digite o id"/>
+
+          <!-- Botão de Submit -->
+          <button type="submit" [disabled]="removeExpenseForm.invalid">Remover despesa</button>
         </form>
       </div>
 
@@ -65,6 +77,10 @@ export class ExpenseComponent implements OnInit {
     valor: ['', Validators.required],
     destinoPagamento: ['', Validators.required],
     observacoes: ['', Validators.required],
+  });
+
+  removeExpenseForm: FormGroup = this.fb.group({
+    id: ['', Validators.required],
   });
 
   ngOnInit(): void {
@@ -110,6 +126,15 @@ export class ExpenseComponent implements OnInit {
           })
           .catch(err => alert('Erro ao criar despesa: ' + err));
       }
+    }
+  }
+
+  onSubmitRemove() {
+    if (this.removeExpenseForm.valid) {
+      const {id} = this.removeExpenseForm.value;
+
+      this.homeService.removeExpense(id).catch(err => alert('Error removing income: ' + err));
+      this.router.navigate(['/home']);
     }
   }
   
