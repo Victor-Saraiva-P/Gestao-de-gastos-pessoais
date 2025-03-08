@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Income } from '../../entity/income';
 import { HomeService } from '../home.service';
+import { OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -51,13 +52,8 @@ import { HomeService } from '../home.service';
           <button type="submit" [disabled]="removeIncomeForm.invalid">Remover receita</button>
         </form>
       </div>
-
-      <div class="right-section">
-          <button class="logout" (click)="home()">Home</button>
-      </div>
     
-      <div>
-        
+<div>
   <h2>Edit Income</h2>
   <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit()">
     <!-- ID -->
@@ -88,13 +84,41 @@ import { HomeService } from '../home.service';
   </form>
 </div>
 
+<div class="income-list">
+  <h2>Receitas Cadastradas</h2>
+  
+  <table *ngIf="incomes.length > 0">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Categoria</th>
+        <th>Valor</th>
+        <th>Origem</th>
+        <th>Observações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let income of incomes">
+        <td>{{ income.data | date:'dd/MM/yyyy' }}</td>
+        <td>{{ income.categoria }}</td>
+        <td>{{ income.valor | currency:'BRL' }}</td>
+        <td>{{ income.origemDoPagamento }}</td>
+        <td>{{ income.observacoes }}</td>
+      </tr>
+    </tbody>
+  </table>
 
+  <p *ngIf="incomes.length === 0">Nenhuma receita cadastrada.</p>
+</div>
+<div class="right-section">
+          <button class="logout" (click)="home()">Home</button>
+      </div>
 </section>
   `,
   styleUrls: ['income.component.css']
   
 })
-export class IncomeComponent {
+export class IncomeComponent implements OnInit {
   title = 'income';
   
   private homeService = inject(HomeService);
@@ -122,34 +146,61 @@ export class IncomeComponent {
     observacoes: ['', Validators.required]
   });
 
-  onSubmit() {
+    async onSubmit() {
       if (this.creatIncomeForm.valid) {
-        const { data, categoria, valor, origemDoPagamento, observacoes } = this.creatIncomeForm.value;
-        const newIncome: Income= { data, categoria, valor, origemDoPagamento, observacoes };
+        try {
+          const { data, categoria, valor, origemDoPagamento, observacoes } = this.creatIncomeForm.value;
+          const newIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
   
-        this.homeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
-        this.router.navigate(['/home']);
+          await this.homeService.createIncome(newIncome);
+          await this.ngOnInit(); 
+          this.creatIncomeForm.reset(); 
+          this.router.navigate(['/home']);
+        } catch (err) {
+          alert('Error registering income: ' + err);
+        }
       }
-  }
-
-  onSubmitRemove() {
-    if (this.removeIncomeForm.valid) {
-      const {id} = this.removeIncomeForm.value;
-
-      this.homeService.removeIncome(id).catch(err => alert('Error removing income: ' + err));
-      this.router.navigate(['/home']);
     }
-  }
+    
+    async onSubmitRemove() {
+      if (this.removeIncomeForm.valid) {
+        try {
+          const { id } = this.removeIncomeForm.value;
+          await this.homeService.removeIncome(id);
+          await this.ngOnInit(); 
+          this.removeIncomeForm.reset(); 
+          this.router.navigate(['/home']);
+        } catch (err) {
+          alert('Error removing income: ' + err);
+        }
+      }
+    }
+    
+    async onSubmitEdit() {
+      if (this.editIncomeForm.valid) {
+        try {
+          const { id, data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
+          const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
+          
+          await this.homeService.editIncome(id, updatedIncome);
+          await this.ngOnInit();
+          this.editIncomeForm.reset(); 
+          this.router.navigate(['/home']);
+        } catch (err) {
+          alert('Error updating income: ' + err);
+        }
+      }
+    }
 
-  onSubmitEdit() {
-    if (this.editIncomeForm.valid) {
-      const { id, data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
-      const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
-      
-      this.homeService.editIncome(id, updatedIncome)
-        .catch(err => alert('Error updating income: ' + err));
-      
-      this.router.navigate(['/home']);
+  incomes: Income[] = [];
+  async ngOnInit() {
+    try {
+      const incomes = await this.homeService.getIncomes();
+      if (incomes) {
+        this.incomes = incomes;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar receitas:', error);
     }
   }
 

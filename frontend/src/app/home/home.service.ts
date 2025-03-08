@@ -74,6 +74,23 @@ export class HomeService {
       return null;
     }
   }
+
+async getIncomes(): Promise<Income[] | null> {
+  try {
+    const response = await fetch(`${this.apiUrl}/receitas`, {
+      method: 'GET',
+      headers: { 
+        'Authorization': `Bearer ${this.authService.getToken()}`
+      }
+    });
+
+    if (!response.ok) throw new Error('Falha ao buscar receitas');
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar receitas:', error);
+    return null;
+  }
+}
   //------------------------ Despesas -----------------------------------------
 
   async createExpense(newExpense: Expense): Promise<Expense | null> {
