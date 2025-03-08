@@ -4,6 +4,8 @@ import br.com.gestorfinanceiro.exceptions.auth.login.EmailNotFoundException;
 import br.com.gestorfinanceiro.exceptions.auth.login.InvalidPasswordException;
 import br.com.gestorfinanceiro.exceptions.auth.register.EmailAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.auth.register.UsernameAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
+import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 
@@ -78,6 +80,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Erro ao atualizar receita. Por favor, tente novamente.", errors);
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+        // Handler para quando a despesa não for encontrada
+    @ExceptionHandler(DespesaNotFoundException.class)
+    public ResponseEntity<ApiError> handleDespesaNotFoundException(DespesaNotFoundException ex) {
+        logException("Despesa não encontrada", ex);
+
+        Map<String, String> errors = Map.of(
+            "Detalhes do erro", "Não há despesas para este usuário ou o UUID fornecido é inválido."
+        );
+
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), errors);
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    // Handler para erros operacionais relacionados à despesa
+    @ExceptionHandler(DespesaOperationException.class)
+    public ResponseEntity<ApiError> handleDespesaOperationException(DespesaOperationException ex) {
+        logException("Erro na operação com despesa", ex);
+
+        Map<String, String> errors = Map.of(
+            "Detalhes do erro", ex.getCause() != null ? ex.getCause().getMessage() : "Erro desconhecido"
+        );
+
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao processar a operação na despesa. Por favor, tente novamente.", errors);
+        return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Handler para erros de parse de JSON na requisição (ex: JSON malformado, formato de data inválido, tipos incompatíveis)
