@@ -164,6 +164,40 @@ export class IncomeComponent implements OnInit{
 
   ngOnInit() {
     this.loadIncomes(); // Chama ao iniciar
+    this.generateChart();
+  }
+  
+
+  generateChart() {
+    const svg = document.getElementById('incomeChart') as unknown as SVGSVGElement;
+
+    if (!svg) return;
+    
+    const total = this.incomes.reduce((sum, income) => sum + income.valor, 0);
+    let startAngle = 0;
+    const radius = 100;
+    const centerX = 150, centerY = 150;
+    const colors = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff'];
+    
+    this.incomes.forEach((income, index) => {
+      const sliceAngle = (income.valor / total) * 2 * Math.PI;
+      const endAngle = startAngle + sliceAngle;
+      
+      const x1 = centerX + radius * Math.cos(startAngle);
+      const y1 = centerY + radius * Math.sin(startAngle);
+      const x2 = centerX + radius * Math.cos(endAngle);
+      const y2 = centerY + radius * Math.sin(endAngle);
+      
+      const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
+      const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', pathData);
+      path.setAttribute('fill', colors[index % colors.length]);
+      svg.appendChild(path);
+      
+      startAngle = endAngle;
+    });
   }
 
   async loadIncomes() {
