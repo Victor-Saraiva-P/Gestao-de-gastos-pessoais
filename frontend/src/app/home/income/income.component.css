@@ -1,0 +1,284 @@
+/* Fonte Global */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #F5F5F5;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Container principal */
+.expense-container {
+  display: flex;
+  height: 100vh;
+  padding: 20px;
+}
+
+/* Lateral esquerda com os botões */
+.left-section {
+  width: 300px; /* Aumente a largura de 220px para 300px */
+  background-color: #FFFFFF;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.left-section button {
+  background-color: #6CBF88;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  margin: 12px 0;
+  width: 100%; /* Isso garante que os botões ocupem toda a largura disponível */
+  text-align: left;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.left-section button:hover {
+  background-color: #34A853;
+  transform: scale(1.05);
+}
+
+/* Área principal que vai conter o modal e formulário */
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.show-modal {
+  display: flex;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  float: right;
+  color: #888;
+  transition: color 0.3s;
+}
+
+.close:hover {
+  color: #333;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+label {
+  font-weight: 600;
+  color: #444;
+  font-size: 16px;
+  text-align: left;
+}
+
+input {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  background-color: #f9f9f9;
+}
+
+input:focus {
+  border-color: #6CBF88;
+  outline: none;
+}
+
+button {
+  background-color: #6CBF88;
+  color: white;
+  border: none;
+  padding: 15px 25px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+button:hover {
+  background-color: #34A853;
+}
+
+button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+/* Layout Responsivo */
+@media (max-width: 768px) {
+  .expense-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .left-section {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 15px;
+  }
+
+  .main-content {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+/* Estilo para o botão Home no canto superior direito */
+.home-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #6CBF88;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.home-button:hover {
+  background-color: #34A853;
+  transform: scale(1.05);
+}
+
+select {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  background-color: #f9f9f9;
+  width: 100%; /* Garante que o select ocupe toda a largura disponível */
+}
+
+select:focus {
+  border-color: #6CBF88;
+  outline: none;
+}
+
+.category-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.category-list li {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.category-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.income-list {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.income-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.income-list li {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.income-item {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  flex-grow: 1;
+}
+
+.income-item input[type="radio"] {
+  transform: scale(1.2);
+}
+
+.delete-btn {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}
