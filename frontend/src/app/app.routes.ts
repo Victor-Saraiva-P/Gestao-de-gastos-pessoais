@@ -44,14 +44,8 @@ const routeConfig: Routes = [
     { 
         path: 'home/expense', component: ExpenseComponent, 
         canActivate: [authGuard],
-        title: 'incomes' 
+        title: 'expenses' 
     },
-    { 
-        path: 'home/editar-despesa/:id',
-        canActivate: [authGuard],
-        component: ExpenseComponent 
-    },
-
 ]; 
 
 export default routeConfig;
