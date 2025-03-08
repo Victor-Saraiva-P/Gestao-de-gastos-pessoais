@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
@@ -7,21 +8,27 @@ import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
+import br.com.gestorfinanceiro.repositories.custom.ReceitaRepositoryCustom;
 import br.com.gestorfinanceiro.services.ReceitaService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceitaServiceImpl implements ReceitaService {
 
     private final ReceitaRepository receitaRepository;
+    private final ReceitaRepositoryCustom receitaRepositoryCustom;
     private final UserRepository userRepository;
 
-    public ReceitaServiceImpl(ReceitaRepository receitaRepository, UserRepository userRepository) {
+    public ReceitaServiceImpl(ReceitaRepository receitaRepository, ReceitaRepositoryCustom receitaRepositoryCustom,UserRepository userRepository) {
         this.receitaRepository = receitaRepository;
+        this.receitaRepositoryCustom = receitaRepositoryCustom;
         this.userRepository = userRepository;
     }
 
@@ -113,5 +120,18 @@ public class ReceitaServiceImpl implements ReceitaService {
         } catch (Exception e) {
             throw new ReceitaOperationException("Erro ao excluir receita. Por favor, tente novamente.", e);
         }
+    }
+
+    @Override
+    public GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim) {
+        List<ReceitaEntity> receitas = receitaRepositoryCustom.findByUserAndDateRange(userId, inicio, fim);
+
+        Map<String, BigDecimal> categorias = receitas.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getCategoria().name(),
+                        Collectors.mapping(ReceitaEntity::getValor, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                ));
+
+        return new GraficoPizzaDTO(categorias);
     }
 }
