@@ -1,25 +1,22 @@
 package br.com.gestorfinanceiro.controller;
 
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.dto.ReceitaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
-import br.com.gestorfinanceiro.services.ReceitaService;
 import br.com.gestorfinanceiro.services.JwtUtil;
+import br.com.gestorfinanceiro.services.ReceitaService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -104,5 +101,12 @@ public class ReceitaController {
         return ResponseEntity.ok(graficoPizza);
     }
 
+    @GetMapping("/grafico-barras")
+    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
+    }
 }
 

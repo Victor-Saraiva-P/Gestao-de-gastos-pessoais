@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
@@ -8,14 +9,17 @@ import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
-import br.com.gestorfinanceiro.repositories.custom.ReceitaRepositoryCustom;
 import br.com.gestorfinanceiro.services.ReceitaService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -23,12 +27,10 @@ import java.util.stream.Collectors;
 public class ReceitaServiceImpl implements ReceitaService {
 
     private final ReceitaRepository receitaRepository;
-    private final ReceitaRepositoryCustom receitaRepositoryCustom;
     private final UserRepository userRepository;
 
-    public ReceitaServiceImpl(ReceitaRepository receitaRepository, ReceitaRepositoryCustom receitaRepositoryCustom,UserRepository userRepository) {
+    public ReceitaServiceImpl(ReceitaRepository receitaRepository ,UserRepository userRepository) {
         this.receitaRepository = receitaRepository;
-        this.receitaRepositoryCustom = receitaRepositoryCustom;
         this.userRepository = userRepository;
     }
 
@@ -124,7 +126,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     public GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim) {
-        List<ReceitaEntity> receitas = receitaRepositoryCustom.findByUserAndDateRange(userId, inicio, fim);
+        List<ReceitaEntity> receitas = receitaRepository.findByUserAndDateRange(userId, inicio, fim);
 
         Map<String, BigDecimal> categorias = receitas.stream()
                 .collect(Collectors.groupingBy(
@@ -133,5 +135,26 @@ public class ReceitaServiceImpl implements ReceitaService {
                 ));
 
         return new GraficoPizzaDTO(categorias);
+    }
+
+    @Override
+    public GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim) {
+        List<ReceitaEntity> receitas = receitaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
+
+        // Formata datas para o padrão "Mês Ano" em português
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR"));
+
+        // Cria um mapa ordenado com os dados mensais
+        Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
+        receitas.stream()
+                .collect(Collectors.groupingBy(
+                        d -> YearMonth.from(d.getData()),
+                        Collectors.reducing(BigDecimal.ZERO, ReceitaEntity::getValor, BigDecimal::add)))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(e -> dadosMensais.put(e.getKey().format(formatter), e.getValue()));
+
+        // Retorna o DTO com os dados mensais
+        return new GraficoBarraDTO(dadosMensais);
     }
 }
