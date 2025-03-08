@@ -4,6 +4,9 @@ import br.com.gestorfinanceiro.exceptions.auth.login.EmailNotFoundException;
 import br.com.gestorfinanceiro.exceptions.auth.login.InvalidPasswordException;
 import br.com.gestorfinanceiro.exceptions.auth.register.EmailAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.auth.register.UsernameAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
+import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -48,6 +51,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiError> handleDuplicateDataException(RuntimeException ex) {
         logException("Erro de duplicação de dados", ex);
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    // Handler para quando a receita não for encontrada
+    @ExceptionHandler(ReceitaNotFoundException.class)
+    public ResponseEntity<ApiError> handleReceitaNotFoundException(ReceitaNotFoundException ex) {
+        logException("Receita não encontrada", ex);
+
+        // Criando um Map para adicionar detalhes ao campo errors
+        Map<String, String> errors = Map.of(
+                "Detalhes do erro", "Não há receitas para este usuário ou o usuário não existe."
+        );
+
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, ex.getMessage(), errors);
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    // Handler para erros operacionais relacionados à receita
+    @ExceptionHandler(ReceitaOperationException.class)
+    public ResponseEntity<ApiError> handleReceitaOperationException(ReceitaOperationException ex) {
+        logException("Erro na operação com receita", ex);
+
+        Map<String, String> errors = Map.of(
+                "Detalhes do erro", ex.getCause() != null ? ex.getCause().getMessage() : "Erro desconhecido"
+        );
+
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Erro ao atualizar receita. Por favor, tente novamente.", errors);
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     // Handler para erros de parse de JSON na requisição (ex: JSON malformado, formato de data inválido, tipos incompatíveis)
@@ -122,5 +152,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         return false;
     }
-
 }
