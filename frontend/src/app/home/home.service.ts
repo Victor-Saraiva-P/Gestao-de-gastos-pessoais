@@ -140,7 +140,7 @@ async getIncomes(): Promise<Income[] | null> {
   // Atualizar uma despesa existente
   async updateExpense(id: string, updatedExpense: Expense): Promise<Expense | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/expense/${id}`, {
+      const response = await fetch(`${this.apiUrl}/despesas/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
