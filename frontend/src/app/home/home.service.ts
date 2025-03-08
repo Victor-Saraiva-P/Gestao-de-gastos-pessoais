@@ -32,6 +32,26 @@ export class HomeService {
       return null;
     }
   }
+  
+  async removeIncome(id: string){
+    try {
+      const response = await fetch(`${this.apiUrl}/receitas/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao remover renda');
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Erro ao remover renda:', error);
+      return null;
+    }
+  }
 
 
   //------------------------ Despesas -----------------------------------------
@@ -102,4 +122,5 @@ export class HomeService {
       return null;
     }
   }
+
 }

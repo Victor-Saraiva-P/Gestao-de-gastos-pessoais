@@ -40,6 +40,18 @@ import { HomeService } from '../home.service';
         </form>
       </div>
 
+      <div>
+        <h2>Remove Income</h2>
+        <form [formGroup]="removeIncomeForm" (ngSubmit)="onSubmitRemove()">
+          <!-- Id -->
+          <label for="id">Id</label>
+          <input type="text" formControlName="id" placeholder="Digite o id"/>
+
+          <!-- Botão de Submit -->
+          <button type="submit" [disabled]="removeIncomeForm.invalid">Remover receita</button>
+        </form>
+      </div>
+
       <div class="right-section">
           <button class="logout" (click)="home()">Home</button>
       </div>
@@ -51,7 +63,7 @@ import { HomeService } from '../home.service';
 export class IncomeComponent {
   title = 'income';
   
-  private HomeService = inject(HomeService);
+  private homeService = inject(HomeService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -63,14 +75,27 @@ export class IncomeComponent {
       observacoes: ['', [Validators.required]],
   });
 
+  removeIncomeForm: FormGroup = this.fb.group({
+    id: ['', Validators.required],
+  });
+
   onSubmit() {
       if (this.creatIncomeForm.valid) {
         const { data, categoria, valor, origemDoPagamento, observacoes } = this.creatIncomeForm.value;
         const newIncome: Income= { data, categoria, valor, origemDoPagamento, observacoes };
   
-        this.HomeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
+        this.homeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
         this.router.navigate(['/home']);
       }
+  }
+
+  onSubmitRemove() {
+    if (this.removeIncomeForm.valid) {
+      const {id} = this.removeIncomeForm.value;
+
+      this.homeService.removeIncome(id).catch(err => alert('Error removing income: ' + err));
+      this.router.navigate(['/home']);
+    }
   }
 
   home(){
