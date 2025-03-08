@@ -30,6 +30,8 @@ public class DespesaDTO {
     @NotBlank(message = "As observações são obrigatórias.")
     private String observacoes;
 
+    private String uuid;
+
     public LocalDate getData() {
         return data;
     }
@@ -69,4 +71,8 @@ public class DespesaDTO {
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
     }
+
+    public String getUuid() {return uuid;}
+
+    public void setUuid(String uuid) {this.uuid = uuid;}
 }
