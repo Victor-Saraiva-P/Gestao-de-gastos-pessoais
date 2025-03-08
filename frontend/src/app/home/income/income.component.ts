@@ -55,6 +55,40 @@ import { HomeService } from '../home.service';
       <div class="right-section">
           <button class="logout" (click)="home()">Home</button>
       </div>
+    
+      <div>
+        
+  <h2>Edit Income</h2>
+  <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit()">
+    <!-- ID -->
+    <label for="id">Id</label>
+    <input type="text" formControlName="id" placeholder="Digite o id" required/>
+
+    <!-- Data -->
+    <label for="data">Data</label>
+    <input type="date" formControlName="data" placeholder="Digite a data"/>
+
+    <!-- Categoria -->
+    <label for="categoria">Categoria</label>
+    <input type="text" formControlName="categoria" placeholder="Digite a categoria"/>
+
+    <!-- Valor -->
+    <label for="valor">Valor</label>
+    <input type="text" formControlName="valor" placeholder="Digite o valor"/>
+
+    <!-- Origem -->
+    <label for="origemDoPagamento">Origem</label>
+    <input type="text" formControlName="origemDoPagamento" placeholder="Digite a origem"/>
+
+    <!-- Observação -->
+    <label for="observacoes">Observação</label>
+    <input type="text" formControlName="observacoes" placeholder="Digite a observação"/>
+
+    <button type="submit" [disabled]="editIncomeForm.invalid">Editar receita</button>
+  </form>
+</div>
+
+
 </section>
   `,
   styleUrls: ['income.component.css']
@@ -79,6 +113,15 @@ export class IncomeComponent {
     id: ['', Validators.required],
   });
 
+  editIncomeForm: FormGroup = this.fb.group({
+    id: ['', Validators.required],
+    data: ['', Validators.required],
+    categoria: ['', Validators.required],
+    valor: ['', Validators.required],
+    origemDoPagamento: ['', Validators.required],
+    observacoes: ['', Validators.required]
+  });
+
   onSubmit() {
       if (this.creatIncomeForm.valid) {
         const { data, categoria, valor, origemDoPagamento, observacoes } = this.creatIncomeForm.value;
@@ -94,6 +137,18 @@ export class IncomeComponent {
       const {id} = this.removeIncomeForm.value;
 
       this.homeService.removeIncome(id).catch(err => alert('Error removing income: ' + err));
+      this.router.navigate(['/home']);
+    }
+  }
+
+  onSubmitEdit() {
+    if (this.editIncomeForm.valid) {
+      const { id, data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
+      const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
+      
+      this.homeService.editIncome(id, updatedIncome)
+        .catch(err => alert('Error updating income: ' + err));
+      
       this.router.navigate(['/home']);
     }
   }
