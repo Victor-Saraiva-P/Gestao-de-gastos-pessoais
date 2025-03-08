@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -23,12 +27,10 @@ import java.util.stream.Collectors;
 public class ReceitaServiceImpl implements ReceitaService {
 
     private final ReceitaRepository receitaRepository;
-    private final ReceitaRepositoryCustom receitaRepositoryCustom;
     private final UserRepository userRepository;
 
-    public ReceitaServiceImpl(ReceitaRepository receitaRepository, ReceitaRepositoryCustom receitaRepositoryCustom,UserRepository userRepository) {
+    public ReceitaServiceImpl(ReceitaRepository receitaRepository ,UserRepository userRepository) {
         this.receitaRepository = receitaRepository;
-        this.receitaRepositoryCustom = receitaRepositoryCustom;
         this.userRepository = userRepository;
     }
 
@@ -124,7 +126,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     public GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim) {
-        List<ReceitaEntity> receitas = receitaRepositoryCustom.findByUserAndDateRange(userId, inicio, fim);
+        List<ReceitaEntity> receitas = receitaRepository.findByUserAndDateRange(userId, inicio, fim);
 
         Map<String, BigDecimal> categorias = receitas.stream()
                 .collect(Collectors.groupingBy(
