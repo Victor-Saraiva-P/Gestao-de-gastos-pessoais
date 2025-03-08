@@ -29,7 +29,17 @@ public class ReceitaDTO {
     @NotBlank(message = "As observações são obrigatórias.")
     private String observacoes;
 
+    private String uuid; // Pegar o ID para rotas específicas
+
     // Getters and Setters
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public LocalDate getData() {
         return data;
     }
