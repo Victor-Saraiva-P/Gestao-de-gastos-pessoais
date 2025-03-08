@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.dto.DespesaDTO;
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
@@ -89,7 +90,7 @@ public class DespesaController {
     }
 
     @GetMapping("/grafico-barras")
-    public ResponseEntity<?> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
+    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(token);
 
