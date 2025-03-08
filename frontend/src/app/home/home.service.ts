@@ -123,4 +123,23 @@ export class HomeService {
     }
   }
 
+  async removeExpense(id: string){
+    try {
+      const response = await fetch(`${this.apiUrl}/despesas/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao remover renda');
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Erro ao remover renda:', error);
+      return null;
+    }
+  }
 }
