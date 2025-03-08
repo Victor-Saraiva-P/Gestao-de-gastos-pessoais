@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HomeService } from '../home.service';
 import { Router } from '@angular/router';
 import { Expense } from '../../entity/expense';
@@ -118,7 +118,7 @@ export class ExpenseComponent {
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  createExpenseForm = this.fb.group({
+  createExpenseForm: FormGroup = this.fb.group({
     data: ['', Validators.required],
     categoria: ['', Validators.required],
     valor: ['', Validators.required],
@@ -126,7 +126,7 @@ export class ExpenseComponent {
     observacoes: ['', Validators.required],
   });
 
-  editExpenseForm = this.fb.group({
+  editExpenseForm: FormGroup = this.fb.group({
     id: ['', Validators.required],
     data: ['', Validators.required],
     categoria: ['', Validators.required],
@@ -135,7 +135,7 @@ export class ExpenseComponent {
     observacoes: ['', Validators.required],
   });
 
-  removeExpenseForm = this.fb.group({
+  removeExpenseForm: FormGroup = this.fb.group({
       id: ['', Validators.required],
   });
   
@@ -153,7 +153,7 @@ export class ExpenseComponent {
   // Envio para criar a despesa
   onSubmitCreate() {
     if (this.createExpenseForm.valid) {
-      const { data, categoria, valor, destinoPagamento, observacoes }: any = this.createExpenseForm.value;
+      const { data, categoria, valor, destinoPagamento, observacoes } = this.createExpenseForm.value;
       const newExpense: Expense = { data, categoria, valor, destinoPagamento, observacoes };
       this.homeService.createExpense(newExpense)
         .then(() => {
@@ -168,7 +168,7 @@ export class ExpenseComponent {
   // Envio para editar a despesa
   onSubmitEdit() {
     if (this.editExpenseForm.valid) {
-      const {data, categoria, valor, destinoPagamento, observacoes }: any = this.editExpenseForm.value;
+      const {data, categoria, valor, destinoPagamento, observacoes } = this.editExpenseForm.value;
       const {id}: any = this.editExpenseForm.value;
       const editExpense: Expense = { data, categoria, valor, destinoPagamento, observacoes };
 
@@ -186,7 +186,7 @@ export class ExpenseComponent {
   // Envio para remover a despesa
   onSubmitRemove() {
     if (this.removeExpenseForm.valid) {
-      const {id}: any = this.removeExpenseForm.value;
+      const {id} = this.removeExpenseForm.value;
       this.homeService.removeExpense(id)
         .then(() => {
           alert('Despesa removida com sucesso!')
