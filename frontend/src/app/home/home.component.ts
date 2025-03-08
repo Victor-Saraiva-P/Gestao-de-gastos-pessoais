@@ -13,15 +13,15 @@ import { Router } from '@angular/router';
         <div class="left-section">
         </div>
         <div class="right-section">
+        <button class="logout" (click)="receitas()">Minhas receitas</button>
+        </div>
+        <div class="right-section">
+        <button class="logout" (click)="despesas()">Minhas despesas</button>
+        </div>
+        <div class="right-section">
           <button class="logout" (click)="logout()">Sair</button>
         </div>
-        <div class="right-section">
-          <button class="logout" (click)="receitas()">Minhas receitas</button>
         </div>
-        <div class="right-section">
-          <button class="logout" (click)="despesas()">Minhas despesas</button>
-        </div>
-      </div>
     </nav>
   `,
   styleUrls: ['./home.component.css']
