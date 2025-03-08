@@ -113,6 +113,8 @@ export class ExpenseComponent {
   title = 'expense'
 
   modalType: 'create' | 'edit' | 'remove' | null = null;
+  expenses: Expense[] = []; // Lista de despesas
+  pieChartStyles: any[] = []; // Lista de estilos CSS para o gráfico
 
   private homeService = inject(HomeService);
   private router = inject(Router);
@@ -138,7 +140,72 @@ export class ExpenseComponent {
   removeExpenseForm: FormGroup = this.fb.group({
       id: ['', Validators.required],
   });
+  ngOnInit() {
+    this.carregarDespesas();
+  }
+
+  carregarDespesas() {
+    this.homeService.getExpenses()
+      .then((despesas: Expense[] | null) => {
+        if (despesas) {
+          this.expenses = despesas;
+          this.gerarGraficoPizza(); // Atualiza o gráfico após carregar as despesas
+        } else {
+          console.warn('Nenhuma despesa encontrada.');
+        }
+      })
+      .catch((err: any) => {
+        console.error('Erro ao carregar despesas:', err);
+      });
+  }
   
+  
+  
+
+  // 🔹 Agrupar despesas por categoria e calcular proporções
+  gerarGraficoPizza() {
+    const totais = this.agruparDespesasPorCategoria();
+    const totalGeral = Object.values(totais).reduce((sum, valor) => sum + valor, 0);
+
+    let anguloInicial = 0;
+    this.pieChartStyles = Object.entries(totais).map(([categoria, valor], index) => {
+      const percentual = (valor / totalGeral) * 100;
+      const anguloFinal = anguloInicial + (percentual * 3.6); // 3.6° para cada 1% do círculo
+      const estilo = {
+        background: `conic-gradient(
+          ${this.getColor(index)} ${anguloInicial}deg, 
+          ${this.getColor(index)} ${anguloFinal}deg, 
+          transparent ${anguloFinal}deg
+        )`
+      };
+      anguloInicial = anguloFinal;
+      return estilo;
+    });
+  }
+
+  // 🔹 Agrupar despesas por categoria
+  agruparDespesasPorCategoria(): { [key: string]: number } {
+    const totais: { [key: string]: number } = {};
+
+    this.expenses.forEach(expense => {
+      const categoria = expense.categoria;
+      const valor = Number(expense.valor);
+
+      if (totais[categoria]) {
+        totais[categoria] += valor;
+      } else {
+        totais[categoria] = valor;
+      }
+    });
+
+    return totais;
+  }
+
+  // 🔹 Gerar cores para cada fatia do gráfico
+  getColor(index: number): string {
+    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
+    return colors[index % colors.length]; // Retorna uma cor com base no índice
+  }
 
   // Função para abrir o modal com base no tipo
   openModal(type: 'create' | 'edit' | 'remove') {
