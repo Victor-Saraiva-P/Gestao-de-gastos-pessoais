@@ -75,7 +75,53 @@ import { OnInit } from '@angular/core';
 
       <!-- Lista de Receitas -->
         <div class="income-list">
-          <h2>Lista de Receitas</h2>
+        <!-- FILTROS -->
+<div class="filter-section">
+  <h2>Filtro Avançado</h2>
+  
+  <div class="filter-controls">
+    <div class="filter-group">
+      <label>Valor Mínimo:</label>
+      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Valor Máximo:</label>
+      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Inicial:</label>
+      <input type="date" [(ngModel)]="filterStartDate">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Final:</label>
+      <input type="date" [(ngModel)]="filterEndDate">
+    </div>
+    
+    <div class="filter-buttons">
+      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
+      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="filtered-list">
+    <h3>Receitas Filtradas ({{filteredList.length}} resultados)</h3>
+    <ul>
+      <li *ngFor="let income of filteredList">
+        <div>
+          <strong>Data:</strong> {{ income.data | date:'dd/MM/yyyy' }} <br>
+          <strong>Categoria:</strong> {{ income.categoria }} <br>
+          <strong>Valor:</strong> R$ {{ income.valor | number:'1.2-2' }} <br>
+          <strong>Destino:</strong> {{ income.origemDoPagamento }} <br>
+          <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+          <h2>Receitas Cadastradas</h2>
           <ul>
             <li *ngFor="let income of incomes">
               <div>
@@ -164,52 +210,7 @@ import { OnInit } from '@angular/core';
         </div>
       </div>
     </div>
-<!-- FILTROS -->
-<div class="filter-section">
-  <h2>Filtro Avançado</h2>
-  
-  <div class="filter-controls">
-    <div class="filter-group">
-      <label>Valor Mínimo:</label>
-      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Valor Máximo:</label>
-      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Inicial:</label>
-      <input type="date" [(ngModel)]="filterStartDate">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Final:</label>
-      <input type="date" [(ngModel)]="filterEndDate">
-    </div>
-    
-    <div class="filter-buttons">
-      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
-      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
-    </div>
-  </div>
 
-  <div class="filtered-list">
-    <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
-    <ul>
-      <li *ngFor="let income of filteredList">
-        <div>
-          <strong>Data:</strong> {{ income.data | date:'dd/MM/yyyy' }} <br>
-          <strong>Categoria:</strong> {{ income.categoria }} <br>
-          <strong>Valor:</strong> R$ {{ income.valor | number:'1.2-2' }} <br>
-          <strong>Destino:</strong> {{ income.origemDoPagamento }} <br>
-          <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
 
 </section>
   `,
