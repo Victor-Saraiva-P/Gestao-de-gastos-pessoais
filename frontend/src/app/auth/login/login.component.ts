@@ -63,7 +63,7 @@ import { RouterModule } from '@angular/router';
 
 <div class="image-container">
   <!--<div><h2>FINANCY</h2></div>-->
-  <img src="assets/pig-coinr.png"/>    
+  <img src="assets/logo2-branco.png"/>    
 </div>
 </section>
 
