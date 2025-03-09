@@ -65,7 +65,6 @@ import { Expense } from '../../entity/expense';
     <button (click)="applyMonthFilter()">Aplicar Filtro</button>
     <button (click)="clearMonthFilter()">Limpar Filtro</button>
   </div>
-
   <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
 </div>
 
@@ -158,6 +157,53 @@ import { Expense } from '../../entity/expense';
         </div>
       </div>
     </div>
+
+  <!-- FILTROS -->
+<div class="filter-section">
+  <h2>Filtro Avançado</h2>
+  
+  <div class="filter-controls">
+    <div class="filter-group">
+      <label>Valor Mínimo:</label>
+      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Valor Máximo:</label>
+      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Inicial:</label>
+      <input type="date" [(ngModel)]="filterStartDate">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Final:</label>
+      <input type="date" [(ngModel)]="filterEndDate">
+    </div>
+    
+    <div class="filter-buttons">
+      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
+      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="filtered-list">
+    <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
+    <ul>
+      <li *ngFor="let expense of filteredList">
+        <div>
+          <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
+          <strong>Categoria:</strong> {{ expense.categoria }} <br>
+          <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
+          <strong>Destino:</strong> {{ expense.destinoPagamento }} <br>
+          <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
   </section>
   `,
   styleUrls: ['expense.component.css']
@@ -177,6 +223,13 @@ export class ExpenseComponent {
   expenses: Expense[] = []; // Lista de despesas
   filteredExpenses: Expense[] = []; // Despesas filtradas
   pieChartStyles: any[] = []; // Lista de estilos CSS para o gráfico
+
+
+filteredList: Expense[] = []; // Nova lista filtrada
+minValue: number | null = null;
+maxValue: number | null = null;
+filterStartDate: string = '';
+filterEndDate: string = '';
 
   startDate: string = '';  // Data inicial
   endDate: string = '';    // Data final
@@ -226,7 +279,8 @@ export class ExpenseComponent {
     const response = await this.homeService.getExpenses();
     if (response) {
       this.expenses = response;
-      this.filteredExpenses = [...this.expenses]; // Inicialmente, exibe todas as despesas
+     this.filteredExpenses = [...this.expenses]; // Inicialmente, exibe todas as despesas
+     //this.filteredList = [...this.expenses]; // Inicialmente, exibe todas as despesas
       this.gerarGraficoPizza();
       this.gerarGraficoBarras();
     }
@@ -440,7 +494,6 @@ export class ExpenseComponent {
     return totais;
   }
 
-  
 
   // Função para abrir o modal com base no tipo
   openModal(type: 'create' | 'edit') {
@@ -502,10 +555,59 @@ export class ExpenseComponent {
     })
     .catch(err => alert('Error removing expense: ' + err));
     this.refreshPage(); 
+}   
+// Método para aplicar filtro combinado de valor e data
+applyValueDateFilter() {
+  /*this.filteredList = this.expenses.filter(expense => {
+    const expenseDate = new Date(expense.data);
+    const dateInRange = this.isDateInFilterRange(expenseDate);
+    const valueInRange = this.isValueInFilterRange(expense.valor);
+    return dateInRange && valueInRange;
+  });*/
+  if (this.minValue || this.maxValue || this.filterStartDate || this.filterEndDate) {
+    this.filteredList = this.expenses.filter(expense => {
+      const expenseDate = new Date(expense.data);
+      return this.isDateInFilterRange(expenseDate) && 
+             this.isValueInFilterRange(expense.valor);
+    });
+  } else {
+    this.filteredList = []; // Mantém vazio se nenhum filtro estiver aplicado
+  }
 }
 
+
+// Método para verificar se o valor está na faixa
+private isValueInFilterRange(value: number): boolean {
+  if (this.minValue !== null && value < this.minValue) return false;
+  if (this.maxValue !== null && value > this.maxValue) return false;
+  return true;
+}
+
+// Método para verificar se a data está no intervalo
+private isDateInFilterRange(date: Date): boolean {
+  if (!this.filterStartDate && !this.filterEndDate) return true;
+  
+  const start = this.filterStartDate ? new Date(this.filterStartDate) : null;
+  const end = this.filterEndDate ? new Date(this.filterEndDate) : null;
+  
+  if (start && date < start) return false;
+  if (end && date > end) return false;
+  return true;
+}
+
+// Método para limpar filtros da nova lista
+clearValueDateFilter() {
+  this.minValue = null;
+  this.maxValue = null;
+  this.filterStartDate = '';
+  this.filterEndDate = '';
+  /*this.filteredList = [...this.expenses];*/
+  this.filteredList = [];
+}
   home() {
     this.router.navigate(['/home']);
   }
+
+  
 }
 

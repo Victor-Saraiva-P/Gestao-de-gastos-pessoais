@@ -12,15 +12,24 @@ import { OnInit } from '@angular/core';
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
-    <section class="expense-container">
-      <button class ="home-button"(click)="home()">home</button>
-      <div class="left-section">
-        <!-- Botões para abrir os modais -->
-        <button (click)="openModal('create')">Criar Receita</button>
-        <button (click)="toggleEditMode()"> {{ isEditing ? 'Cancelar Edição' : 'Editar Receita' }} </button>
-        <button (click)="toggleRemoveMode()"> {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }} </button>
-      </div>
-       
+<section class="expense-container">
+      <button class ="home-button"(click)="home()">Home</button>
+<div class="left-section">
+  <button class="criar-edit-trash" (click)="openModal('create')">Criar Receita</button>
+  <button 
+    class="criar-edit-trash" 
+    [class.cancel-mode]="isEditing" 
+    (click)="toggleEditMode()">
+    {{ isEditing ? 'Cancelar Edição' : 'Editar Receita' }}
+  </button>
+  <button 
+    class="criar-edit-trash" 
+    [class.cancel-mode]="isRemoving" 
+    (click)="toggleRemoveMode()">
+    {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
+  </button>
+</div>
+
       <div class="main-content">
         <div class="chart-container">
           <h2>Gráfico de Receitas</h2>
@@ -36,7 +45,8 @@ import { OnInit } from '@angular/core';
         <button (click)="clearFilter()">Limpar Filtro</button>
       </div>
 
-          <svg id="incomeChart" width="300" height="300"></svg>
+        <svg id="incomeChart" width="300" height="300"></svg>
+
            <!-- 🔹 Adicionando a legenda -->
             <ul class="legend">
               <li *ngFor="let income of filteredIncomes; let i = index">
@@ -51,13 +61,13 @@ import { OnInit } from '@angular/core';
       <div class = "chart-container">
        <h2>Receitas por Mês</h2>
           <div class = "data-filter">
-            <label>Mês Inicial:</label>
+            <label>Mês Inicial:  </label>
             <input type="month" [(ngModel)]="startMonth" />
-            <label>Mês Inicial:</label>
+            <label>Mês Final:  </label>
             <input type="month" [(ngModel)]="endMonth" />
 
             <button (click)="applyMonthFilter()">Aplicar Filtro</button>
-            <button (click)="clearMonthFilter()">Aplicar Filtro</button>
+            <button (click)="clearMonthFilter()">Limpar Filtro</button>
           </div>
           <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
       </div>
@@ -77,12 +87,12 @@ import { OnInit } from '@angular/core';
               </div>
 
               <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
-              <button *ngIf="isEditing" (click)="openEditModal(income)">✏️</button>
-              <button *ngIf="isRemoving" (click)="onSubmitRemove(income.uuid!)">❌</button>
+              <button class="edit-remove"*ngIf="isEditing" (click)="openEditModal(income)"><img src="assets/edit-bnt.png"></button>
+              <button class="edit-remove"*ngIf="isRemoving" (click)="onSubmitRemove(income.uuid!)"><img src="assets/trash-bnt.png"></button>
             </li>
           </ul>
         </div>
-
+  
       <!-- Modal Criar Receita -->
         <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
         <div class="modal-content">
@@ -96,10 +106,10 @@ import { OnInit } from '@angular/core';
             <div>
               <select id="categoria" formControlName="categoria" required>
                 <option value="" disabled selected>Selecione uma categoria</option>
-                <option value="SALARIO">Salario</option>
+                <option value="SALARIO">Salário</option>
                 <option value="RENDIMENTO_DE_INVESTIMENTO">Rendimento de investimentos</option>
                 <option value="COMISSOES">Comissões</option>
-                <option value="BONUS">Bonus</option>
+                <option value="BONUS">Bônus</option>
                 <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
               </select>
             </div>
@@ -116,7 +126,7 @@ import { OnInit } from '@angular/core';
             <button type="submit" [disabled]="createIncomeForm.invalid">Criar Receita</button>
           </form>
         </div>
-        </div>
+      </div>
 
         <!-- Modal Editar Despesa -->
       <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
@@ -154,7 +164,54 @@ import { OnInit } from '@angular/core';
         </div>
       </div>
     </div>
-  </section>
+<!-- FILTROS -->
+<div class="filter-section">
+  <h2>Filtro Avançado</h2>
+  
+  <div class="filter-controls">
+    <div class="filter-group">
+      <label>Valor Mínimo:</label>
+      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Valor Máximo:</label>
+      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Inicial:</label>
+      <input type="date" [(ngModel)]="filterStartDate">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Final:</label>
+      <input type="date" [(ngModel)]="filterEndDate">
+    </div>
+    
+    <div class="filter-buttons">
+      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
+      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="filtered-list">
+    <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
+    <ul>
+      <li *ngFor="let income of filteredList">
+        <div>
+          <strong>Data:</strong> {{ income.data | date:'dd/MM/yyyy' }} <br>
+          <strong>Categoria:</strong> {{ income.categoria }} <br>
+          <strong>Valor:</strong> R$ {{ income.valor | number:'1.2-2' }} <br>
+          <strong>Destino:</strong> {{ income.origemDoPagamento }} <br>
+          <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</section>
   `,
   styleUrls: ['income.component.css']
   
@@ -173,6 +230,12 @@ export class IncomeComponent implements OnInit{
   isEditing = false;
   editingIncomeId: string | null = null; 
   modalType: 'create' | 'edit' | null = null;
+
+  filteredList: Income[] = []; // Nova lista filtrada
+  minValue: number | null = null;
+  maxValue: number | null = null;
+  filterStartDate: string = '';
+  filterEndDate: string = '';
 
   private homeService = inject(HomeService);
   private router = inject(Router);
@@ -332,6 +395,17 @@ export class IncomeComponent implements OnInit{
   }
 
  
+  async carregarDespesas() {
+    const response = await this.homeService.getIncomes();
+    if (response) {
+      this.incomes = response;
+     this.filteredIncomes = [...this.incomes]; // Inicialmente, exibe todas as despesas
+     //this.filteredList = [...this.expenses]; // Inicialmente, exibe todas as despesas
+      this.generateBarChart();
+      this.generateChart();
+    }
+  }
+
 
 
   applyDateFilter() {
@@ -465,6 +539,48 @@ export class IncomeComponent implements OnInit{
       observacoes: income.observacoes
     });
   }
+// Método para aplicar filtro combinado de valor e data
+applyValueDateFilter() {
+  if (this.minValue || this.maxValue || this.filterStartDate || this.filterEndDate) {
+    this.filteredList = this.incomes.filter(income => {
+      const incomeDate = new Date(income.data);
+      return this.isDateInFilterRange(incomeDate) && 
+             this.isValueInFilterRange(income.valor);
+    });
+  } else {
+    this.filteredList = []; // Mantém vazio se nenhum filtro estiver aplicado
+  }
+}
+
+
+// Método para verificar se o valor está na faixa
+private isValueInFilterRange(value: number): boolean {
+  if (this.minValue !== null && value < this.minValue) return false;
+  if (this.maxValue !== null && value > this.maxValue) return false;
+  return true;
+}
+
+// Método para verificar se a data está no intervalo
+private isDateInFilterRange(date: Date): boolean {
+  if (!this.filterStartDate && !this.filterEndDate) return true;
+  
+  const start = this.filterStartDate ? new Date(this.filterStartDate) : null;
+  const end = this.filterEndDate ? new Date(this.filterEndDate) : null;
+  
+  if (start && date < start) return false;
+  if (end && date > end) return false;
+  return true;
+}
+
+// Método para limpar filtros da nova lista
+clearValueDateFilter() {
+  this.minValue = null;
+  this.maxValue = null;
+  this.filterStartDate = '';
+  this.filterEndDate = '';
+  /*this.filteredList = [...this.expenses];*/
+  this.filteredList = [];
+}
 
   home(){
     this.router.navigate(['/home']);
