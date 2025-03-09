@@ -120,7 +120,7 @@ import { User } from '../../entity/user';
 
   </div>
   <div class="image-container">
-    <img src="assets/pig-coinr.png"/>    
+    <img src="assets/logo2-branco.png"/>    
   </div>
 </section>
   `,
