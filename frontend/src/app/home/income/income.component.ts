@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { AuthService } from '../../auth/auth.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Income } from '../../entity/income';
@@ -17,8 +16,8 @@ import { OnInit } from '@angular/core';
       <div class="left-section">
         <!-- Botões para abrir os modais -->
         <button (click)="openModal('create')">Criar Receita</button>
-        <button (click)="openModal('edit')">Editar Receita</button> 
-        <button (click)="openModal('remove')">Remover Receita</button>
+        <button (click)="toggleEditMode()"> {{ isEditing ? 'Cancelar Edição' : 'Editar Receita' }} </button>
+        <button (click)="toggleRemoveMode()"> {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }} </button>
       </div>
 
       <div class="main-content">
@@ -34,6 +33,10 @@ import { OnInit } from '@angular/core';
                 <strong>Origem do Pagamento:</strong> {{ income.origemDoPagamento }} <br>
                 <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
               </div>
+
+              <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
+              <button *ngIf="isEditing" (click)="openEditModal(income)">✏️</button>
+              <button *ngIf="isRemoving" (click)="onSubmitRemove(income.uuid!)">❌</button>
             </li>
           </ul>
         </div>
@@ -78,9 +81,7 @@ import { OnInit } from '@angular/core';
         <div class="modal-content">
           <button class="close" (click)="closeModal()">&times;</button>
           <h2>Editar Despesa</h2>
-          <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit()">
-            <label>ID</label>
-            <input type="text" formControlName="id"/>
+          <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit(editingIncomeId!)">
 
             <label>Data</label>
             <input type="date" formControlName="data"/>
@@ -110,20 +111,6 @@ import { OnInit } from '@angular/core';
           </form>
         </div>
       </div>
-
-      <!-- Modal Remover Receita -->
-       <div [ngClass]="{'modal': true, 'show-modal': modalType === 'remove'}">
-        <div class="modal-content">
-          <button class="close" (click)="closeModal()">&times;</button>
-          <h2>Remover Receitas</h2>
-          <form [formGroup]="removeIncomeForm" (ngSubmit)="onSubmitRemove()">
-              <label>Id da Receita</label>
-              <input type="text" formControlName="id"/>
-
-            <button type="submit" [disabled]="removeIncomeForm.invalid">Remover</button>
-          </form>
-        </div>
-       </div>
     </div>
   </section>
   `,
@@ -134,7 +121,10 @@ export class IncomeComponent implements OnInit{
   title = 'income';
 
   incomes: Income[] = [];
-  modalType: 'create' | 'edit' | 'remove' | null = null;
+  isRemoving = false;
+  isEditing = false;
+  editingIncomeId: string | null = null; 
+  modalType: 'create' | 'edit' | null = null;
 
   private homeService = inject(HomeService);
   private router = inject(Router);
@@ -150,21 +140,30 @@ export class IncomeComponent implements OnInit{
 
   
   editIncomeForm: FormGroup = this.fb.group({
-    id: ['', Validators.required],
     data: ['', Validators.required],
     categoria: ['', Validators.required],
     valor: ['', Validators.required],
     origemDoPagamento: ['', Validators.required],
     observacoes: ['', Validators.required]
   });
-  
-  removeIncomeForm: FormGroup = this.fb.group({
-    id: ['', Validators.required],
-  });
 
   ngOnInit() {
     this.loadIncomes(); // Chama ao iniciar
     this.generateChart();
+  }
+
+  toggleRemoveMode() {
+    this.isRemoving = !this.isRemoving;
+    if (this.isEditing) {
+      this.isRemoving = false; 
+    }
+  }
+
+  toggleEditMode() {
+    this.isEditing = !this.isEditing;
+    if (this.isRemoving) {
+      this.isEditing = false; 
+    }
   }
   
 
@@ -212,7 +211,7 @@ export class IncomeComponent implements OnInit{
   }
 
 
-  openModal(type: 'create' | 'edit' | 'remove') {
+  openModal(type: 'create' | 'edit' ) {
     this.modalType = type;
   }
 
@@ -230,40 +229,47 @@ export class IncomeComponent implements OnInit{
       this.homeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
       this.router.navigate(['/home']).then(() => {
         alert("Receita criada com sucesso!")
-        this.router.navigate(['/home/income']);
       })
       .catch(err => alert('Erro ao criar receita: ' + err));
       this.refreshPage();
     }
   }
     
-  onSubmitRemove() {
-    if (this.removeIncomeForm.valid) {
-      const {id} = this.removeIncomeForm.value;
+  onSubmitRemove(id: string) {
       this.homeService.removeIncome(id).then(() => {
         alert('Receita removida com sucesso!')
-        this.router.navigate(['/home/income']);
       })
       .catch(err => alert('Error removing income: ' + err));
-      this.router.navigate(['/home/income']);
-      this.refreshPage();
-    }
+      this.refreshPage(); 
   } 
     
-  async onSubmitEdit() {
+  async onSubmitEdit(id: string) {
     if (this.editIncomeForm.valid) {
       try {
-        const { id, data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
+        const {data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
         const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
         
-        await this.homeService.editIncome(id, updatedIncome);
-        this.router.navigate(['/home/income']);
+        await this.homeService.editIncome(id, updatedIncome).then(() =>{
+          alert('Receita atualizada com sucesso!')
+        });
         this.refreshPage();
 
       } catch (err) {
         alert('Error updating income: ' + err);
       }
     }
+  }
+
+  openEditModal(income: Income) {
+    this.modalType = 'edit';
+    this.editingIncomeId = income.uuid!;
+    this.editIncomeForm.setValue({
+      data: income.data,
+      categoria: income.categoria,
+      valor: income.valor,
+      origemDoPagamento: income.origemDoPagamento,
+      observacoes: income.observacoes
+    });
   }
 
   home(){

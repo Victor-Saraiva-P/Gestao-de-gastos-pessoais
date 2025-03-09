@@ -15,8 +15,8 @@ import { Expense } from '../../entity/expense';
     <div class="left-section">
       <!-- Botões para abrir os modais -->
       <button (click)="openModal('create')">Criar Despesa</button>
-      <button (click)="openModal('edit')">Editar Despesa</button> 
-      <button (click)="openModal('remove')">Remover Despesa</button>
+      <button (click)="toggleEditMode()"> {{ isEditing ? 'Cancelar Edição' : 'Editar Despesa' }} </button>
+      <button (click)="toggleRemoveMode()"> {{ isRemoving ? 'Cancelar Remoção' : 'Remover Despesa' }} </button>
     </div>
 
     <div class="main-content">
@@ -29,9 +29,13 @@ import { Expense } from '../../entity/expense';
                 <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
                 <strong>Categoria:</strong> {{ expense.categoria }} <br>
                 <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
-                <strong>Origem do Pagamento:</strong> {{ expense.destinoPagamento }} <br>
+                <strong>Destino do pagamento:</strong> {{ expense.destinoPagamento }} <br>
                 <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
               </div>
+
+              <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
+              <button *ngIf="isEditing" (click)="openEditModal(expense)">✏️</button>
+              <button *ngIf="isRemoving" (click)="onSubmitRemove(expense.uuid!)">❌</button>
             </li>
           </ul>
         </div>
@@ -75,10 +79,7 @@ import { Expense } from '../../entity/expense';
         <div class="modal-content">
           <button class="close" (click)="closeModal()">&times;</button>
           <h2>Editar Despesa</h2>
-          <form [formGroup]="editExpenseForm" (ngSubmit)="onSubmitEdit()">
-            <label>ID</label>
-            <input type="text" formControlName="id"/>
-
+         <form [formGroup]="editExpenseForm" (ngSubmit)="onSubmitEdit(editingExpenseId!)">
             <label>Data</label>
             <input type="date" formControlName="data"/>
 
@@ -106,20 +107,6 @@ import { Expense } from '../../entity/expense';
           </form>
         </div>
       </div>
-
-      <!-- Modal Remover Despesa -->
-      <div [ngClass]="{'modal': true, 'show-modal': modalType === 'remove'}">
-        <div class="modal-content">
-          <button class="close" (click)="closeModal()">&times;</button>
-          <h2>Remover Despesa</h2>
-          <form [formGroup]="removeExpenseForm" (ngSubmit)="onSubmitRemove()">
-            <label>Id da Despesa</label>
-            <input type="text" formControlName="id"/>
-
-            <button type="submit" [disabled]="removeExpenseForm.invalid">Remover</button>
-          </form>
-        </div>
-      </div>
     </div>
   </section>
   `,
@@ -128,7 +115,11 @@ import { Expense } from '../../entity/expense';
 export class ExpenseComponent {
   title = 'expense'
 
-  modalType: 'create' | 'edit' | 'remove' | null = null;
+  isRemoving = false;
+  isEditing = false;
+  editingExpenseId: string | null = null;
+  modalType: 'create' | 'edit' | null = null;
+
   expenses: Expense[] = []; // Lista de despesas
   pieChartStyles: any[] = []; // Lista de estilos CSS para o gráfico
 
@@ -145,7 +136,6 @@ export class ExpenseComponent {
   });
 
   editExpenseForm: FormGroup = this.fb.group({
-    id: ['', Validators.required],
     data: ['', Validators.required],
     categoria: ['', Validators.required],
     valor: ['', Validators.required],
@@ -153,15 +143,26 @@ export class ExpenseComponent {
     observacoes: ['', Validators.required],
   });
 
-  removeExpenseForm: FormGroup = this.fb.group({
-      id: ['', Validators.required],
-  });
   ngOnInit() {
     this.carregarDespesas();
   }
 
   refreshPage() {
     window.location.reload();
+  }
+
+  toggleRemoveMode() {
+    this.isRemoving = !this.isRemoving;
+    if (this.isEditing) {
+      this.isRemoving = false; 
+    }
+  }
+
+  toggleEditMode() {
+    this.isEditing = !this.isEditing;
+    if (this.isRemoving) {
+      this.isEditing = false; 
+    }
   }
 
   carregarDespesas() {
@@ -228,7 +229,7 @@ export class ExpenseComponent {
   }
 
   // Função para abrir o modal com base no tipo
-  openModal(type: 'create' | 'edit' | 'remove') {
+  openModal(type: 'create' | 'edit') {
     this.modalType = type;
   }
 
@@ -245,7 +246,6 @@ export class ExpenseComponent {
       this.homeService.createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
-          this.router.navigate(['/home/expenses']);
         })
         .catch(err => alert('Erro ao criar despesa: ' + err));
         this.refreshPage();
@@ -253,36 +253,42 @@ export class ExpenseComponent {
   }
 
   // Envio para editar a despesa
-  onSubmitEdit() {
+  onSubmitEdit(id: string) {
     if (this.editExpenseForm.valid) {
       const {data, categoria, valor, destinoPagamento, observacoes } = this.editExpenseForm.value;
-      const {id}: any = this.editExpenseForm.value;
       const editExpense: Expense = { data, categoria, valor, destinoPagamento, observacoes };
 
       this.homeService.updateExpense(id, editExpense)
       .then(() => {
         alert('Despesa atualizada com sucesso!');
-        this.router.navigate(['/home/expenses']);
       })
       .catch(err => alert('Erro ao atualizar despesa: ' + err));
     }
     this.refreshPage();
   }
   
+  openEditModal(expense: Expense) {
+      this.modalType = 'edit';
+      this.editingExpenseId = expense.uuid!;
+
+      this.editExpenseForm.setValue({
+        data: expense.data,
+        categoria: expense.categoria,
+        valor: expense.valor,
+        destinoPagamento: expense.destinoPagamento,
+        observacoes: expense.observacoes
+      });
+    }
+  
 
   // Envio para remover a despesa
-  onSubmitRemove() {
-    if (this.removeExpenseForm.valid) {
-      const {id} = this.removeExpenseForm.value;
-      this.homeService.removeExpense(id)
-        .then(() => {
-          alert('Despesa removida com sucesso!')
-          this.router.navigate(['/home/expenses']);
-        })
-        .catch(err => alert('Erro ao remover despesa: ' + err));
-        this.refreshPage();
-    }
-  }
+  onSubmitRemove(id: string) {
+    this.homeService.removeExpense(id).then(() => {
+      alert('Despesa removida com sucesso!')
+    })
+    .catch(err => alert('Error removing expense: ' + err));
+    this.refreshPage(); 
+}
 
   home() {
     this.router.navigate(['/home']);
