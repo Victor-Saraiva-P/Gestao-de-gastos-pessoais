@@ -8,8 +8,51 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  height: 200vh;  
-  overflow-y: auto; 
+       
+}
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+svg {
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+.chart-container {
+  display: flex;
+  align-items: center;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin-left: 20px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  border-radius: 50%;
+}
+.date-filter {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.date-filter label {
+  font-weight: bold;
 }
 
 /* Container principal */
@@ -43,15 +86,110 @@ body {
   transition: all 0.3s ease;
   font-weight: 500;
   margin: 12px 0;
-  width: 100%; /* Isso garante que os botões ocupem toda a largura disponível */
+  width: 90%; /* Isso garante que os botões ocupem toda a largura disponível */
   text-align: left;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+/* 🔹 Ajuste do layout geral */
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start; /* mantém o topo alinhado */
+  gap: 20px; /* Espaço entre os elementos */
+}
+
+/* 🔹 Ajuste específico para a lista de despesas */
+.expense-list {
+  width: 100%; /* Ocupa toda a largura */
+  max-width: 800px; /* Definir um limite para não ficar gigante */
+  margin-top: 30px; /* Move para baixo */
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 800px;
+  border: 1px solid #ddd;
+}
+
+/* 🔹 Estiliza o título */
+.expense-list h2 {
+  font-size: 1.6rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+/* 🔹 Deixa os itens mais organizados */
+.expense-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* 🔹 Ajuste dos itens */
+.expense-list li {
+  background: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 6px solid #34A853;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* 🔥 Ajuste do hover */
+.expense-list li:hover {
+  transform: scale(1.02);
+  background: #f1f1f1;
+}
+
 
 .left-section button:hover {
   background-color: #34A853;
   transform: scale(1.05);
 }
+
+
+
+
+.month-filter input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100px;
+  text-align: center;
+}
+
+.month-filter button {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background-color: #ffc107;
+  color: black;
+}
+.chart-container {
+  flex: 1;
+  max-width: 50%;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+#barChart {
+  display: block;
+  width: 90%;
+  height: auto;
+  border-radius: 0; /
+}
+
 
 /* Área principal que vai conter o modal e formulário */
 .main-content {
@@ -237,39 +375,4 @@ select:focus {
 
 .category-list li:hover {
   background-color: #f0f0f0;
-}
-
-.expense-list {
-  width: 100%;
-  max-width: 600px;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  max-height: 700px; 
-  overflow-y: auto;  
-}
-
-.expense-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.expense-list li {
-  padding: 15px;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.expense-item {
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 8px;
-  flex-grow: 1;
-}
-
-.expense-item input[type="radio"] {
-  transform: scale(1.2);
 }

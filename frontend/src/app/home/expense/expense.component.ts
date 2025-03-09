@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HomeService } from '../home.service';
 import { Router } from '@angular/router';
 import { Expense } from '../../entity/expense';
@@ -8,7 +8,7 @@ import { Expense } from '../../entity/expense';
 @Component({
   selector: 'app-expense',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
   <section class="expense-container">
     <button class ="home-button"(click)="home()">home</button>
@@ -20,6 +20,49 @@ import { Expense } from '../../entity/expense';
     </div>
 
     <div class="main-content">
+
+    <div class="chart-container">
+        <h2>Gráfico de Despesas</h2>
+        <div class="date-filter">
+          <label>Data Inicial:</label>
+          <input type="date" [(ngModel)]="startDate" />
+
+          <label>Data Final:</label>
+          <input type="date" [(ngModel)]="endDate" />
+
+          <button (click)="applyDateFilter()">Aplicar Filtro</button>
+          <button (click)="clearFilter()">Limpar Filtro</button>
+        </div>
+
+        <svg id="expenseChart" width="300" height="300"></svg>
+
+        <!-- Legenda Sincronizada -->
+        <ul class="legend">
+          <li *ngFor="let expense of filteredExpenses; let i = index">
+            <span class="legend-color" [style.background]="getColor(i)"></span>
+            {{ expense.categoria }} - R$ {{ expense.valor | number:'1.2-2' }}
+          </li>
+        </ul>
+      </div>
+<div class="chart-container">
+  <h2>Despesas por Mês</h2>
+
+  <div class="date-filter">
+    <label>Mês Inicial:</label>
+    <input type="month" [(ngModel)]="startMonth" />
+
+    <label>Mês Final:</label>
+    <input type="month" [(ngModel)]="endMonth" />
+
+    <button (click)="applyMonthFilter()">Aplicar Filtro</button>
+    <button (click)="clearMonthFilter()">Limpar Filtro</button>
+  </div>
+
+  <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
+</div>
+
+
+
     <!-- Lista de Despesas -->
         <div class="expense-list">
           <h2>Lista de Despesas</h2>
@@ -114,6 +157,10 @@ import { Expense } from '../../entity/expense';
 })
 export class ExpenseComponent {
   title = 'expense'
+  startMonth: string = ''; // Mês inicial selecionado
+  endMonth: string = '';   // Mês final selecionado
+  filteredBarData: Expense[] = [];  // Lista filtrada para o gráfico de barras
+
 
   isRemoving = false;
   isEditing = false;
@@ -121,7 +168,11 @@ export class ExpenseComponent {
   modalType: 'create' | 'edit' | null = null;
 
   expenses: Expense[] = []; // Lista de despesas
+  filteredExpenses: Expense[] = []; // Despesas filtradas
   pieChartStyles: any[] = []; // Lista de estilos CSS para o gráfico
+
+  startDate: string = '';  // Data inicial
+  endDate: string = '';    // Data final
 
   private homeService = inject(HomeService);
   private router = inject(Router);
@@ -143,8 +194,8 @@ export class ExpenseComponent {
     observacoes: ['', Validators.required],
   });
 
-  ngOnInit() {
-    this.carregarDespesas();
+  async ngOnInit() {
+    await this.carregarDespesas();
   }
 
   refreshPage() {
@@ -153,10 +204,9 @@ export class ExpenseComponent {
 
   toggleRemoveMode() {
     this.isRemoving = !this.isRemoving;
-    if (this.isEditing) {
-      this.isRemoving = false; 
-    }
+    if (this.isEditing) this.isRemoving = false;
   }
+
 
   toggleEditMode() {
     this.isEditing = !this.isEditing;
@@ -165,43 +215,204 @@ export class ExpenseComponent {
     }
   }
 
-  carregarDespesas() {
-    this.homeService.getExpenses()
-      .then((despesas: Expense[] | null) => {
-        if (despesas) {
-          this.expenses = despesas;
-          this.gerarGraficoPizza(); // Atualiza o gráfico após carregar as despesas
-        } else {
-          console.warn('Nenhuma despesa encontrada.');
-        }
-      })
-      .catch((err: any) => {
-        console.error('Erro ao carregar despesas:', err);
-      });
+  async carregarDespesas() {
+    const response = await this.homeService.getExpenses();
+    if (response) {
+      this.expenses = response;
+      this.filteredExpenses = [...this.expenses]; // Inicialmente, exibe todas as despesas
+      this.gerarGraficoPizza();
+      this.gerarGraficoBarras();
+    }
+  }
+  clearMonthFilter() {
+    this.startMonth = '';
+    this.endMonth = '';
+    this.filteredBarData = [...this.expenses]; // Restaura todas as despesas
+    this.gerarGraficoBarras(); // Atualiza o gráfico
+  }
+  
+
+  applyMonthFilter() {
+    if (!this.startMonth || !this.endMonth) return;
+  
+    const startDate = new Date(`${this.startMonth}-01`);
+    const endDate = new Date(`${this.endMonth}-31`);
+  
+   
+    this.filteredBarData = this.expenses.filter(expense => {
+      const expenseDate = new Date(expense.data);
+      return expenseDate >= startDate && expenseDate <= endDate;
+    });
+  
+    this.gerarGraficoBarras(); // Atualiza o gráfico de barras apenas
+  }
+
+  getMonthIndex(month: string): number {
+    const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    return months.indexOf(month.toLowerCase());
+  }
+  
+
+  gerarGraficoBarras() {
+    const svg = document.getElementById('barChart') as unknown as SVGSVGElement;
+    if (!svg) return;
+  
+    svg.innerHTML = ''; // Limpa o gráfico antes de redesenhar
+  
+    const data = this.filteredBarData.length > 0 ? this.filteredBarData : this.expenses;
+    if (data.length === 0) return;
+  
+   
+    const totals: { [key: string]: number } = {};
+    data.forEach(expense => {
+      const date = new Date(expense.data);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+  
+      if (!totals[monthYear]) {
+        totals[monthYear] = 0;
+      }
+      totals[monthYear] += expense.valor; 
+    });
+  
+    
+    const months = Object.keys(totals)
+    .map(month => ({ 
+      month, 
+      date: new Date(Number(month.split(' ')[1]), this.getMonthIndex(month.split(' ')[0])) 
+  }))
+  
+      .sort((a, b) => b.date.getTime() - a.date.getTime()) 
+      .map(item => item.month);
+  
+    const values = months.map(m => totals[m]);
+  
+    const maxValor = Math.max(...values);
+    const barWidth = 25;  
+    const barSpacing = 50; 
+    const startX = 50;
+    const startY = 350;
+    const chartHeight = 200;
+  
+    months.forEach((month, index) => {
+      const totalValue = totals[month];
+      const barHeight = (totalValue / maxValor) * chartHeight;
+      const x = startX + index * barSpacing;
+      const y = startY - barHeight;
+  
+      // Criando a barra
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x.toString());
+      rect.setAttribute("y", y.toString());
+      rect.setAttribute("width", barWidth.toString());
+      rect.setAttribute("height", barHeight.toString());
+      rect.setAttribute("fill", this.getColor(index));
+  
+      svg.appendChild(rect);
+  
+      
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", (x + barWidth / 2).toString());
+      text.setAttribute("y", (startY + 15).toString()); 
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-size", "11px");
+      text.textContent = month;
+  
+      svg.appendChild(text);
+    });
+  
+    
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", "40");
+    xAxis.setAttribute("y1", startY.toString());
+    xAxis.setAttribute("x2", (months.length * barSpacing + 50).toString());
+    xAxis.setAttribute("y2", startY.toString());
+    xAxis.setAttribute("stroke", "black");
+    xAxis.setAttribute("stroke-width", "2");
+    svg.appendChild(xAxis);
   }
   
   
+   agruparDespesasPorMes(): { [key: string]: number } {
+    const totais: { [key: string]: number } = {};
+
+    this.filteredExpenses.forEach(expense => {
+      const date = new Date(expense.data);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+
+      if (!totais[monthYear]) {
+        totais[monthYear] = 0;
+      }
+      totais[monthYear] += Number(expense.valor);
+    });
+
+    return totais;
+  }
+
+
+  applyDateFilter() {
+    if (!this.startDate || !this.endDate) {
+      this.filteredExpenses = [...this.expenses]; // Exibe todas as despesas se não houver filtro
+    } else {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+
+      this.filteredExpenses = this.expenses.filter(expense => {
+        const expenseDate = new Date(expense.data);
+        return expenseDate >= start && expenseDate <= end;
+      });
+    }
+    this.gerarGraficoPizza();
+  }
+  
+  clearFilter() {
+    this.startDate = '';
+    this.endDate = '';
+    this.filteredExpenses = [...this.expenses]; // Restaurar todas as despesas
+    this.gerarGraficoPizza();
+  }
+  
   
 
-  // 🔹 Agrupar despesas por categoria e calcular proporções
   gerarGraficoPizza() {
-    const totais = this.agruparDespesasPorCategoria();
-    const totalGeral = Object.values(totais).reduce((sum, valor) => sum + valor, 0);
+    const svg = document.getElementById('expenseChart') as unknown as SVGSVGElement;
+    if (!svg) return;
 
-    let anguloInicial = 0;
-    this.pieChartStyles = Object.entries(totais).map(([categoria, valor], index) => {
-      const percentual = (valor / totalGeral) * 100;
-      const anguloFinal = anguloInicial + (percentual * 3.6); // 3.6° para cada 1% do círculo
-      const estilo = {
-        background: `conic-gradient(
-          ${this.getColor(index)} ${anguloInicial}deg, 
-          ${this.getColor(index)} ${anguloFinal}deg, 
-          transparent ${anguloFinal}deg
-        )`
-      };
-      anguloInicial = anguloFinal;
-      return estilo;
+    svg.innerHTML = ''; // Limpa o gráfico antes de redesenhá-lo
+
+    if (this.filteredExpenses.length === 0) return;
+
+    const total = this.filteredExpenses.reduce((sum, expense) => sum + expense.valor, 0);
+    let startAngle = 0;
+    const radius = 100;
+    const centerX = 150, centerY = 150;
+
+    this.filteredExpenses.forEach((expense, index) => {
+      const sliceAngle = (expense.valor / total) * 2 * Math.PI;
+      const endAngle = startAngle + sliceAngle;
+
+      const x1 = centerX + radius * Math.cos(startAngle);
+      const y1 = centerY + radius * Math.sin(startAngle);
+      const x2 = centerX + radius * Math.cos(endAngle);
+      const y2 = centerY + radius * Math.sin(endAngle);
+
+      const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
+      const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', pathData);
+      path.setAttribute('fill', this.getColor(index));
+      svg.appendChild(path);
+
+      startAngle = endAngle;
     });
+  }
+
+  getColor(index: number): string {
+    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
+    "#FF9F40", "#D4AF37", "#8A2BE2", "#20B2AA", "#DC143C",
+    "#FFD700", "#4682B4", "#32CD32", "#FF4500", "#6A5ACD",
+    "#008080", "#8B0000", "#556B2F", "#D2691E", "#1E90FF"];
+    return colors[index % colors.length];
   }
 
   // 🔹 Agrupar despesas por categoria
@@ -222,11 +433,7 @@ export class ExpenseComponent {
     return totais;
   }
 
-  // 🔹 Gerar cores para cada fatia do gráfico
-  getColor(index: number): string {
-    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
-    return colors[index % colors.length]; // Retorna uma cor com base no índice
-  }
+  
 
   // Função para abrir o modal com base no tipo
   openModal(type: 'create' | 'edit') {

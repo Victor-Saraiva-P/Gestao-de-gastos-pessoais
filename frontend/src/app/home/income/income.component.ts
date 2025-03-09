@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Income } from '../../entity/income';
 import { HomeService } from '../home.service';
 import { OnInit } from '@angular/core';
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <section class="expense-container">
       <button class ="home-button"(click)="home()">home</button>
@@ -19,8 +20,34 @@ import { OnInit } from '@angular/core';
         <button (click)="toggleEditMode()"> {{ isEditing ? 'Cancelar Edição' : 'Editar Receita' }} </button>
         <button (click)="toggleRemoveMode()"> {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }} </button>
       </div>
-
+       
       <div class="main-content">
+        <div class="chart-container">
+          <h2>Gráfico de Receitas</h2>
+          <div class="date-filter">
+        <label>Data Inicial:</label>
+        <input type="date" [(ngModel)]="startDate" />
+
+        <label>Data Final:</label>
+        <input type="date" [(ngModel)]="endDate" />
+
+        <!-- 🔹 BOTÃO PARA APLICAR O FILTRO -->
+        <button (click)="applyDateFilter()">Aplicar Filtro</button>
+        <button (click)="clearFilter()">Limpar Filtro</button>
+      </div>
+
+          <svg id="incomeChart" width="300" height="300"></svg>
+           <!-- 🔹 Adicionando a legenda -->
+            <ul class="legend">
+              <li *ngFor="let income of filteredIncomes; let i = index">
+                <span class="legend-color" [style.background]="getColor(i)"></span>
+                {{ income.categoria }} - R$ {{ income.valor | number:'1.2-2' }}
+              </li>
+            </ul>
+        </div>
+
+        
+
       <!-- Lista de Receitas -->
         <div class="income-list">
           <h2>Lista de Receitas</h2>
@@ -119,6 +146,10 @@ import { OnInit } from '@angular/core';
 })
 export class IncomeComponent implements OnInit{
   title = 'income';
+  startDate: string = '';  // Data inicial
+  endDate: string = '';    // Data final
+  filteredIncomes: Income[] = [];  // Lista de receitas filtradas
+
 
   incomes: Income[] = [];
   isRemoving = false;
@@ -147,11 +178,10 @@ export class IncomeComponent implements OnInit{
     observacoes: ['', Validators.required]
   });
 
-  ngOnInit() {
-    this.loadIncomes(); // Chama ao iniciar
-    this.generateChart();
+  async ngOnInit() {
+    await this.loadIncomes();  // Carrega as receitas do backend
   }
-
+  
   toggleRemoveMode() {
     this.isRemoving = !this.isRemoving;
     if (this.isEditing) {
@@ -165,20 +195,59 @@ export class IncomeComponent implements OnInit{
       this.isEditing = false; 
     }
   }
+  getColor(index: number): string {
+    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+    return colors[index % colors.length]; // Retorna uma cor com base no índice
+  }
+  
+
+  async loadIncomes() {
+    const response = await this.homeService.getIncomes();
+    if (response) {
+      this.incomes = response;
+      this.filteredIncomes = [...this.incomes]; // Exibir todas as receitas no início
+      this.generateChart();
+    }
+  }
+
+
+  applyDateFilter() {
+    if (!this.startDate || !this.endDate) {
+      this.filteredIncomes = [...this.incomes]; // Usa todas as receitas se não houver filtro
+    } else {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+      
+      this.filteredIncomes = this.incomes.filter(income => {
+        const incomeDate = new Date(income.data);
+        return incomeDate >= start && incomeDate <= end;
+      });
+    }
+    this.generateChart();
+  }
+  
+  clearFilter() {
+    this.startDate = '';
+    this.endDate = '';
+    this.filteredIncomes = [...this.incomes]; // Restaurar todas as receitas
+    this.generateChart(); // Atualizar o gráfico para exibir todos os dados
+  }
   
 
   generateChart() {
     const svg = document.getElementById('incomeChart') as unknown as SVGSVGElement;
-
     if (!svg) return;
-    
-    const total = this.incomes.reduce((sum, income) => sum + income.valor, 0);
+
+    svg.innerHTML = ''; // Limpa o gráfico antes de redesenhá-lo
+
+    if (this.filteredIncomes.length === 0) return;
+
+    const total = this.filteredIncomes.reduce((sum, income) => sum + income.valor, 0);
     let startAngle = 0;
     const radius = 100;
     const centerX = 150, centerY = 150;
-    const colors = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff'];
-    
-    this.incomes.forEach((income, index) => {
+
+    this.filteredIncomes.forEach((income, index) => {
       const sliceAngle = (income.valor / total) * 2 * Math.PI;
       const endAngle = startAngle + sliceAngle;
       
@@ -192,19 +261,16 @@ export class IncomeComponent implements OnInit{
       
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', pathData);
-      path.setAttribute('fill', colors[index % colors.length]);
+      path.setAttribute('fill', this.getColor(index));
       svg.appendChild(path);
       
       startAngle = endAngle;
     });
   }
 
-  async loadIncomes() {
-    const response = await this.homeService.getIncomes();
-    if (response) {
-      this.incomes = response; // Atualiza a lista
-    }
-  }
+  
+
+  
 
   refreshPage() {
     window.location.reload();
