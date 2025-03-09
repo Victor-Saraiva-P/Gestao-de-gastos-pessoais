@@ -46,6 +46,21 @@ import { OnInit } from '@angular/core';
             </ul>
         </div>
 
+
+      <!-- Grafico de Barras --->
+      <div class = "chart-container">
+       <h2>Receitas por Mês</h2>
+          <div class = "data-filter">
+            <label>Mês Inicial:</label>
+            <input type="month" [(ngModel)]="startMonth" />
+            <label>Mês Inicial:</label>
+            <input type="month" [(ngModel)]="endMonth" />
+
+            <button (click)="applyMonthFilter()">Aplicar Filtro</button>
+            <button (click)="clearMonthFilter()">Aplicar Filtro</button>
+          </div>
+          <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
+      </div>
         
 
       <!-- Lista de Receitas -->
@@ -148,8 +163,10 @@ export class IncomeComponent implements OnInit{
   title = 'income';
   startDate: string = '';  // Data inicial
   endDate: string = '';    // Data final
+  startMonth: string = ''; 
+  endMonth: string = '';
   filteredIncomes: Income[] = [];  // Lista de receitas filtradas
-
+  filteredBarData: Income[] = [];
 
   incomes: Income[] = [];
   isRemoving = false;
@@ -196,7 +213,10 @@ export class IncomeComponent implements OnInit{
     }
   }
   getColor(index: number): string {
-    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
+    "#FF9F40", "#D4AF37", "#8A2BE2", "#20B2AA", "#DC143C",
+    "#FFD700", "#4682B4", "#32CD32", "#FF4500", "#6A5ACD",
+    "#008080", "#8B0000", "#556B2F", "#D2691E", "#1E90FF"];
     return colors[index % colors.length]; // Retorna uma cor com base no índice
   }
   
@@ -206,9 +226,112 @@ export class IncomeComponent implements OnInit{
     if (response) {
       this.incomes = response;
       this.filteredIncomes = [...this.incomes]; // Exibir todas as receitas no início
+      this.filteredBarData = [...this.incomes];
       this.generateChart();
+      this.generateBarChart();
     }
   }
+
+  applyMonthFilter() {
+    if (!this.startMonth || !this.endMonth) return;
+    const startDate = new Date(`${this.startMonth}-01`);
+    const endDate = new Date(`${this.endMonth}-31`);
+
+    this.filteredBarData = this.incomes.filter(income => {
+      const incomeDate = new Date(income.data);
+      return incomeDate >= startDate && incomeDate <= endDate;
+    });
+
+    this.generateBarChart();
+  }
+
+  clearMonthFilter() {
+    this.startMonth = '';
+    this.endMonth = '';
+    this.filteredBarData = [...this.incomes];
+    this.generateBarChart();
+  }
+
+  getMonthNumber(month: string): number {
+    const monthsMap: { [key: string]: number } = {
+      'jan.': 1, 'fev.': 2, 'mar.': 3, 'abr.': 4, 'mai.': 5, 'jun.': 6,
+      'jul.': 7, 'ago.': 8, 'set.': 9, 'out.': 10, 'nov.': 11, 'dez.': 12
+    };
+    return monthsMap[month] || 0;
+  }
+  
+
+  generateBarChart() {
+    const svg = document.getElementById('barChart') as unknown as SVGSVGElement;
+    if (!svg) return;
+    svg.innerHTML = '';
+  
+    const totals: { [key: string]: number } = {};
+    this.filteredBarData.forEach(income => {
+      const date = new Date(income.data);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      if (!totals[monthYear]) totals[monthYear] = 0;
+      totals[monthYear] += income.valor;
+    });
+  
+    const months = Object.keys(totals)
+    .sort((a, b) => {
+      const [monthA, yearA] = a.split(' ');
+      const [monthB, yearB] = b.split(' ');
+
+      const dateA = new Date(`${yearA}-${this.getMonthNumber(monthA)}-01`);
+      const dateB = new Date(`${yearB}-${this.getMonthNumber(monthB)}-01`);
+
+      return dateA.getTime() - dateB.getTime(); // Ordena corretamente os meses
+    });
+
+   
+    const values = months.map(m => totals[m]);
+  
+    const maxValor = Math.max(...values);
+    const barWidth = 25;
+    const barSpacing = 50;
+    const startX = 50;
+    const startY = 350;
+    const chartHeight = 200;
+  
+    months.forEach((month, index) => {
+      const barHeight = (totals[month] / maxValor) * chartHeight;
+      const x = startX + index * barSpacing;
+      const y = startY - barHeight;
+  
+      // Criando a barra
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x.toString());
+      rect.setAttribute("y", y.toString());
+      rect.setAttribute("width", barWidth.toString());
+      rect.setAttribute("height", barHeight.toString());
+      rect.setAttribute("fill", this.getColor(index));
+      svg.appendChild(rect);
+  
+      // Adicionando o rótulo do mês no eixo X
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", (x + barWidth / 2).toString());
+      text.setAttribute("y", (startY + 15).toString()); // Ajuste a posição vertical do texto
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-size", "12px");
+      text.textContent = month;
+  
+      svg.appendChild(text);
+    });
+  
+    // Criando linha do eixo X
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", "40");
+    xAxis.setAttribute("y1", startY.toString());
+    xAxis.setAttribute("x2", (months.length * barSpacing + 50).toString());
+    xAxis.setAttribute("y2", startY.toString());
+    xAxis.setAttribute("stroke", "black");
+    xAxis.setAttribute("stroke-width", "2");
+    svg.appendChild(xAxis);
+  }
+
+ 
 
 
   applyDateFilter() {
@@ -301,13 +424,18 @@ export class IncomeComponent implements OnInit{
     }
   }
     
-  onSubmitRemove(id: string) {
-      this.homeService.removeIncome(id).then(() => {
-        alert('Receita removida com sucesso!')
-      })
-      .catch(err => alert('Error removing income: ' + err));
-      this.refreshPage(); 
-  } 
+  async onSubmitRemove(id: string) {
+    try {
+      await this.homeService.removeIncome(id);
+      alert('Receita removida com sucesso!');
+      
+      //  Atualiza a lista de receitas e os gráficos
+      await this.loadIncomes(); 
+      
+    } catch (err) {
+      alert('Erro ao remover receita: ' + err);
+    }
+  }
     
   async onSubmitEdit(id: string) {
     if (this.editIncomeForm.valid) {
