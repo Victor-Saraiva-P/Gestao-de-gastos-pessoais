@@ -18,6 +18,52 @@ body {
   height: 100vh;
   padding: 20px;
 }
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+svg {
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+.chart-container {
+  display: flex;
+  align-items: center;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin-left: 20px;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  border-radius: 50%;
+}
+.date-filter {
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.date-filter label {
+  font-weight: bold;
+}
+
+
 
 /* Lateral esquerda com os botões */
 .left-section {
