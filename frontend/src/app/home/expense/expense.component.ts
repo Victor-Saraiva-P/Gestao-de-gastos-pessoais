@@ -71,6 +71,52 @@ import { Expense } from '../../entity/expense';
 
     <!-- Lista de Despesas -->
         <div class="expense-list">
+         <!-- FILTROS -->
+<div class="filter-section">
+  <h2>Filtro Avançado</h2>
+  
+  <div class="filter-controls">
+    <div class="filter-group">
+      <label>Valor Mínimo:</label>
+      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Valor Máximo:</label>
+      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Inicial:</label>
+      <input type="date" [(ngModel)]="filterStartDate">
+    </div>
+    
+    <div class="filter-group">
+      <label>Data Final:</label>
+      <input type="date" [(ngModel)]="filterEndDate">
+    </div>
+    
+    <div class="filter-buttons">
+      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
+      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
+    </div>
+  </div>
+
+  <div class="filtered-list">
+    <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
+    <ul>
+      <li *ngFor="let expense of filteredList">
+        <div>
+          <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
+          <strong>Categoria:</strong> {{ expense.categoria }} <br>
+          <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
+          <strong>Destino:</strong> {{ expense.destinoPagamento }} <br>
+          <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
           <h2>Lista de Despesas</h2>
           <ul>
             <li *ngFor="let expense of expenses">
@@ -158,52 +204,7 @@ import { Expense } from '../../entity/expense';
       </div>
     </div>
 
-  <!-- FILTROS -->
-<div class="filter-section">
-  <h2>Filtro Avançado</h2>
-  
-  <div class="filter-controls">
-    <div class="filter-group">
-      <label>Valor Mínimo:</label>
-      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Valor Máximo:</label>
-      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Inicial:</label>
-      <input type="date" [(ngModel)]="filterStartDate">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Final:</label>
-      <input type="date" [(ngModel)]="filterEndDate">
-    </div>
-    
-    <div class="filter-buttons">
-      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
-      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
-    </div>
-  </div>
-
-  <div class="filtered-list">
-    <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
-    <ul>
-      <li *ngFor="let expense of filteredList">
-        <div>
-          <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
-          <strong>Categoria:</strong> {{ expense.categoria }} <br>
-          <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
-          <strong>Destino:</strong> {{ expense.destinoPagamento }} <br>
-          <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
+ 
   </section>
   `,
   styleUrls: ['expense.component.css']
