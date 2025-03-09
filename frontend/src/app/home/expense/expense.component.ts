@@ -44,6 +44,23 @@ import { Expense } from '../../entity/expense';
           </li>
         </ul>
       </div>
+<div class="chart-container">
+  <h2>Despesas por Mês</h2>
+
+  <div class="date-filter">
+    <label>Mês Inicial:</label>
+    <input type="month" [(ngModel)]="startMonth" />
+
+    <label>Mês Final:</label>
+    <input type="month" [(ngModel)]="endMonth" />
+
+    <button (click)="applyMonthFilter()">Aplicar Filtro</button>
+    <button (click)="clearMonthFilter()">Limpar Filtro</button>
+  </div>
+
+  <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
+</div>
+
 
 
     <!-- Lista de Despesas -->
@@ -140,6 +157,10 @@ import { Expense } from '../../entity/expense';
 })
 export class ExpenseComponent {
   title = 'expense'
+  startMonth: string = ''; // Mês inicial selecionado
+  endMonth: string = '';   // Mês final selecionado
+  filteredBarData: Expense[] = [];  // Lista filtrada para o gráfico de barras
+
 
   isRemoving = false;
   isEditing = false;
@@ -200,8 +221,133 @@ export class ExpenseComponent {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses]; // Inicialmente, exibe todas as despesas
       this.gerarGraficoPizza();
+      this.gerarGraficoBarras();
     }
   }
+  clearMonthFilter() {
+    this.startMonth = '';
+    this.endMonth = '';
+    this.filteredBarData = [...this.expenses]; // Restaura todas as despesas
+    this.gerarGraficoBarras(); // Atualiza o gráfico
+  }
+  
+
+  applyMonthFilter() {
+    if (!this.startMonth || !this.endMonth) return;
+  
+    const startDate = new Date(`${this.startMonth}-01`);
+    const endDate = new Date(`${this.endMonth}-31`);
+  
+   
+    this.filteredBarData = this.expenses.filter(expense => {
+      const expenseDate = new Date(expense.data);
+      return expenseDate >= startDate && expenseDate <= endDate;
+    });
+  
+    this.gerarGraficoBarras(); // Atualiza o gráfico de barras apenas
+  }
+
+  getMonthIndex(month: string): number {
+    const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    return months.indexOf(month.toLowerCase());
+  }
+  
+
+  gerarGraficoBarras() {
+    const svg = document.getElementById('barChart') as unknown as SVGSVGElement;
+    if (!svg) return;
+  
+    svg.innerHTML = ''; // Limpa o gráfico antes de redesenhar
+  
+    const data = this.filteredBarData.length > 0 ? this.filteredBarData : this.expenses;
+    if (data.length === 0) return;
+  
+   
+    const totals: { [key: string]: number } = {};
+    data.forEach(expense => {
+      const date = new Date(expense.data);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+  
+      if (!totals[monthYear]) {
+        totals[monthYear] = 0;
+      }
+      totals[monthYear] += expense.valor; 
+    });
+  
+    
+    const months = Object.keys(totals)
+    .map(month => ({ 
+      month, 
+      date: new Date(Number(month.split(' ')[1]), this.getMonthIndex(month.split(' ')[0])) 
+  }))
+  
+      .sort((a, b) => b.date.getTime() - a.date.getTime()) 
+      .map(item => item.month);
+  
+    const values = months.map(m => totals[m]);
+  
+    const maxValor = Math.max(...values);
+    const barWidth = 25;  
+    const barSpacing = 50; 
+    const startX = 50;
+    const startY = 350;
+    const chartHeight = 200;
+  
+    months.forEach((month, index) => {
+      const totalValue = totals[month];
+      const barHeight = (totalValue / maxValor) * chartHeight;
+      const x = startX + index * barSpacing;
+      const y = startY - barHeight;
+  
+      // Criando a barra
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", x.toString());
+      rect.setAttribute("y", y.toString());
+      rect.setAttribute("width", barWidth.toString());
+      rect.setAttribute("height", barHeight.toString());
+      rect.setAttribute("fill", this.getColor(index));
+  
+      svg.appendChild(rect);
+  
+      
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("x", (x + barWidth / 2).toString());
+      text.setAttribute("y", (startY + 15).toString()); 
+      text.setAttribute("text-anchor", "middle");
+      text.setAttribute("font-size", "11px");
+      text.textContent = month;
+  
+      svg.appendChild(text);
+    });
+  
+    
+    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    xAxis.setAttribute("x1", "40");
+    xAxis.setAttribute("y1", startY.toString());
+    xAxis.setAttribute("x2", (months.length * barSpacing + 50).toString());
+    xAxis.setAttribute("y2", startY.toString());
+    xAxis.setAttribute("stroke", "black");
+    xAxis.setAttribute("stroke-width", "2");
+    svg.appendChild(xAxis);
+  }
+  
+  
+   agruparDespesasPorMes(): { [key: string]: number } {
+    const totais: { [key: string]: number } = {};
+
+    this.filteredExpenses.forEach(expense => {
+      const date = new Date(expense.data);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+
+      if (!totais[monthYear]) {
+        totais[monthYear] = 0;
+      }
+      totais[monthYear] += Number(expense.valor);
+    });
+
+    return totais;
+  }
+
 
   applyDateFilter() {
     if (!this.startDate || !this.endDate) {
@@ -262,7 +408,10 @@ export class ExpenseComponent {
   }
 
   getColor(index: number): string {
-    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
+    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
+    "#FF9F40", "#D4AF37", "#8A2BE2", "#20B2AA", "#DC143C",
+    "#FFD700", "#4682B4", "#32CD32", "#FF4500", "#6A5ACD",
+    "#008080", "#8B0000", "#556B2F", "#D2691E", "#1E90FF"];
     return colors[index % colors.length];
   }
 
