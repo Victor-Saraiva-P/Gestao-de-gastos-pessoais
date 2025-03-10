@@ -1,7 +1,9 @@
 package br.com.gestorfinanceiro.services;
 
+import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
@@ -19,4 +21,6 @@ public interface DespesaService {
     void excluirDespesa(String uuid);
 
     GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim);
+
+    GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim);
 }

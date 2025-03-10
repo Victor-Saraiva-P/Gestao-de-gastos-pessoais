@@ -1,10 +1,12 @@
 package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
+import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
+import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -140,5 +143,18 @@ public class DespesaServiceImpl implements DespesaService {
 
         // Retorna o DTO com os dados mensais
         return new GraficoBarraDTO(dadosMensais);
+    }
+
+    @Override
+    public GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim) {
+        List<DespesaEntity> despesas = despesaRepository.findByUserAndDateRange(userId, inicio, fim);
+
+        Map<String, BigDecimal> categorias = despesas.stream()
+                .collect(Collectors.groupingBy(
+                        r -> r.getCategoria().name(),
+                        Collectors.mapping(DespesaEntity::getValor, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                ));
+
+        return new GraficoPizzaDTO(categorias);
     }
 }
