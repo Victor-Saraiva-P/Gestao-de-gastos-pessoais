@@ -157,4 +157,51 @@ public class ReceitaServiceImpl implements ReceitaService {
         // Retorna o DTO com os dados mensais
         return new GraficoBarraDTO(dadosMensais);
     }
+
+    @Override
+    public List<ReceitaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+        }
+
+        if (inicio == null || fim == null) {
+            throw new InvalidDataException("As datas de início e fim não podem ser nulas.");
+        }
+
+        if (inicio.isAfter(fim)) {
+            throw new InvalidDataException("A data de início não pode ser após a data de fim.");
+        }
+
+        try {
+            return receitaRepository.findByUserAndDateRange(userId, inicio, fim);
+        } catch (Exception e) {
+            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de datas. Por favor, tente novamente.", e);
+        }
+    }
+
+    @Override
+    public List<ReceitaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+        }
+
+        if (min == null || max == null) {
+            throw new InvalidDataException("Os valores mínimo e máximo não podem ser nulos.");
+        }
+
+        if (min.compareTo(BigDecimal.ZERO) <= 0 || max.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidDataException("Os valores mínimo e máximo devem ser maiores que zero.");
+        }
+
+        if (min.compareTo(max) > 0) {
+            throw new InvalidDataException("O valor mínimo não pode ser maior que o valor máximo.");
+        }
+
+        try {
+            return receitaRepository.findByUserAndValueBetween(userId, min, max);
+        } catch (Exception e) {
+            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de valores. Por favor, tente novamente.", e);
+        }
+    }
+
 }

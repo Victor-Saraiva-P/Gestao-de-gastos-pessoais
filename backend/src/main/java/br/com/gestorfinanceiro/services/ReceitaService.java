@@ -4,6 +4,7 @@ import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -22,4 +23,8 @@ public interface ReceitaService {
     GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim);
 
     GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim);
+
+    List<ReceitaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim);
+
+    List<ReceitaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max);
 }
