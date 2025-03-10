@@ -2,6 +2,7 @@ package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.dto.DespesaDTO;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
+import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
@@ -95,6 +97,20 @@ public class DespesaController {
         String userId = jwtUtil.extractUserId(token);
 
         return ResponseEntity.ok(despesaService.gerarGraficoBarras(userId, inicio, fim));
+    }
+
+    @GetMapping("/grafico-pizza")
+    public ResponseEntity<GraficoPizzaDTO> gerarGraficoPizza(
+            @RequestParam LocalDate inicio,
+            @RequestParam LocalDate fim,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        GraficoPizzaDTO graficoPizza = despesaService.gerarGraficoPizza(userId, inicio, fim);
+
+        return ResponseEntity.ok(graficoPizza);
     }
 }
 
