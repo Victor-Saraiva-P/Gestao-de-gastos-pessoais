@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -108,5 +109,44 @@ public class ReceitaController {
 
         return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
     }
+
+    @GetMapping("/por-intervalo-de-datas")
+    public ResponseEntity<List<ReceitaDTO>> buscarReceitasPorIntervaloDeDatas(
+            @RequestParam LocalDate inicio,
+            @RequestParam LocalDate fim,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
+
+        // Converte a lista de receitas para DTOs
+        List<ReceitaDTO> receitasDTO = receitas.stream()
+                .map(receitaMapper::mapTo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(receitasDTO);
+    }
+
+    @GetMapping("/por-intervalo-de-valores")
+    public ResponseEntity<List<ReceitaDTO>> buscarReceitasPorIntervaloDeValores(
+            @RequestParam BigDecimal min,
+            @RequestParam BigDecimal max,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeValores(userId, min, max);
+
+        // Converte a lista de receitas para DTOs
+        List<ReceitaDTO> receitasDTO = receitas.stream()
+                .map(receitaMapper::mapTo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(receitasDTO);
+    }
+
 }
 
