@@ -3,8 +3,10 @@ package br.com.gestorfinanceiro.controller;
 import br.com.gestorfinanceiro.dto.DespesaDTO;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.ReceitaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
+import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
 import br.com.gestorfinanceiro.services.JwtUtil;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -111,6 +114,44 @@ public class DespesaController {
         GraficoPizzaDTO graficoPizza = despesaService.gerarGraficoPizza(userId, inicio, fim);
 
         return ResponseEntity.ok(graficoPizza);
+    }
+
+    @GetMapping("/por-intervalo-de-datas")
+    public ResponseEntity<List<DespesaDTO>> buscarReceitasPorIntervaloDeDatas(
+            @RequestParam LocalDate inicio,
+            @RequestParam LocalDate fim,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
+
+        // Converte a lista de receitas para DTOs
+        List<DespesaDTO> despesaDTO = despesas.stream()
+                .map(despesaMapper::mapTo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(despesaDTO);
+    }
+
+    @GetMapping("/por-intervalo-de-valores")
+    public ResponseEntity<List<DespesaDTO>> buscarReceitasPorIntervaloDeValores(
+            @RequestParam BigDecimal min,
+            @RequestParam BigDecimal max,
+            HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeValores(userId, min, max);
+
+        // Converte a lista de receitas para DTOs
+        List<DespesaDTO> despesaDTO = despesas.stream()
+                .map(despesaMapper::mapTo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(despesaDTO);
     }
 }
 
