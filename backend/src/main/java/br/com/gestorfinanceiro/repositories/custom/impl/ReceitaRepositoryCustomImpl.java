@@ -7,6 +7,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
 
     @Override
     public List<ReceitaEntity> findByUserAndYearMonthRange(String userId, YearMonth inicio, YearMonth fim) {
-        String jpql = "SELECT d FROM ReceitaEntity d WHERE d.user.uuid = :userId AND d.data BETWEEN :inicio AND :fim ORDER BY d.data";
+        String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND r.data BETWEEN :inicio AND :fim ORDER BY r.data";
 
         return entityManager.createQuery(jpql, ReceitaEntity.class)
                 .setParameter("userId", userId)
@@ -39,4 +40,16 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
                 .setParameter("fim", fim.atEndOfMonth())
                 .getResultList();
     }
+
+    @Override
+    public List<ReceitaEntity> findByUserAndValueBetween(String userId, BigDecimal min, BigDecimal max) {
+        String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND r.valor BETWEEN :min AND :max";
+
+        return entityManager.createQuery(jpql, ReceitaEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("min", min)
+                .setParameter("max", max)
+                .getResultList();
+    }
+
 }
