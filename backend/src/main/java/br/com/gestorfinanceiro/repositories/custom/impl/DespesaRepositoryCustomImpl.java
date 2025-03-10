@@ -8,6 +8,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -32,7 +33,7 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
     @Override
     public List<DespesaEntity> findByUserAndDateRange(String userId, LocalDate inicio, LocalDate fim){
-        String jpql = "SELECT r FROM DespesaEntity r WHERE r.user.uuid = :userId AND r.data BETWEEN :inicio AND :fim";
+        String jpql = "SELECT d FROM DespesaEntity d WHERE d.user.uuid = :userId AND d.data BETWEEN :inicio AND :fim";
 
         TypedQuery<DespesaEntity> query = entityManager.createQuery(jpql, DespesaEntity.class);
         query.setParameter("userId", userId);
@@ -40,5 +41,16 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
         query.setParameter("fim", fim);
 
         return query.getResultList();
+    }
+
+    @Override
+    public List<DespesaEntity> findByUserAndValueBetween(String userId, BigDecimal min, BigDecimal max) {
+        String jpql = "SELECT r FROM DespesaEntity r WHERE r.user.uuid = :userId AND r.valor BETWEEN :min AND :max";
+
+        return entityManager.createQuery(jpql, DespesaEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("min", min)
+                .setParameter("max", max)
+                .getResultList();
     }
 }

@@ -3,10 +3,12 @@ package br.com.gestorfinanceiro.services;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
+import br.com.gestorfinanceiro.models.ReceitaEntity;
 
 public interface DespesaService {
 
@@ -23,4 +25,8 @@ public interface DespesaService {
     GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim);
 
     GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim);
+
+    List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim);
+
+    List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max);
 }
