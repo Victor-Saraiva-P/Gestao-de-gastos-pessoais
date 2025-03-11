@@ -41,33 +41,72 @@ export class ChartUtils {
       this.pieChart.destroy();
     }
 
-    const labels = slices.map(slice => slice.label);
+    // Calcular o total para as porcentagens
+    const totalValue = slices.reduce((sum, slice) => sum + slice.value, 0);
+
+    // Pré-processar os dados para evitar distorções com poucos valores
+    const labels = slices.map(slice => {
+      const percentage = ((slice.value / totalValue) * 100).toFixed(1);
+      return `${slice.label}: ${percentage}%`;
+    });
     const data = slices.map(slice => slice.value);
     const backgroundColor = slices.map((_, index) => this.getColor(index));
 
     this.pieChart = new Chart(canvas, {
-      type: 'pie',
+      type: 'pie', // Alterado de 'doughnut' para 'pie'
       data: {
         labels: labels,
         datasets: [{
           data: data,
           backgroundColor: backgroundColor,
-          borderWidth: 1
+          borderWidth: 1,
+          borderColor: '#ffffff',
+          hoverOffset: 4
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2.3,
         plugins: {
           legend: {
             position: 'right',
+            labels: {
+              boxWidth: 10,
+              font: {
+                size: 11
+              }
+            }
           },
           title: {
             display: true,
-            text: 'Distribuição de Receitas'
+            text: 'Distribuição de Receitas',
+            font: {
+              size: 14
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const value = context.raw as number;
+                const formattedValue = new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(value);
+                return formattedValue;
+              }
+            }
           }
+        },
+        layout: {
+          padding: 10
         }
+        // Removido o 'cutout' que criava o efeito de rosca
       }
     });
+
+    // Ajustar o tamanho do canvas para tamanho menor
+    canvas.style.height = '220px';
   }
 
   // Desenha o gráfico de barras com dados do backend
