@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { Income } from '../../entity/income';
 import { IncomeService } from './income.service';
-import { ChartUtils } from '../../utils/chart-utils';
+import { ChartUtils } from '../../utils/income-chart-utils';
 
 @Component({
   selector: 'app-home',

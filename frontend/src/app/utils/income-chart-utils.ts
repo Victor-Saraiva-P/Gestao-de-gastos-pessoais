@@ -1,4 +1,5 @@
 import { Income } from '../entity/income';
+import { Expense } from '../entity/expense';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 // Registrar todos os componentes do Chart.js
@@ -247,6 +248,17 @@ export class ChartUtils {
     const categories: { [key: string]: number } = {};
     incomes.forEach(income => {
       categories[income.categoria] = (categories[income.categoria] || 0) + income.valor;
+    });
+
+    return Object.entries(categories).map(([categoria, valor]) => ({ label: categoria, value: valor }));
+  }
+
+  // Prepara dados de despesas para o gráfico de pizza
+  static getPieChartSlicesFromExpenses(expenses: Expense[]): { label: string, value: number }[] {
+    // Agrupar por categoria
+    const categories: { [key: string]: number } = {};
+    expenses.forEach(expense => {
+      categories[expense.categoria] = (categories[expense.categoria] || 0) + expense.valor;
     });
 
     return Object.entries(categories).map(([categoria, valor]) => ({ label: categoria, value: valor }));
