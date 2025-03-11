@@ -152,12 +152,14 @@ font-size: clamp(14px, 2vw, 17px);
 .chart-container {
   flex: 1;
   max-width: 100%;
-  height: auto;
+  height: 600px;
+  width: 100%;
   padding: 15px;
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
+  align-items: center;
 }
 
 #barChart {

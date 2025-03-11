@@ -151,7 +151,8 @@ font-size: clamp(14px, 2vw, 17px);
 .chart-container {
   flex: 1;
   max-width: 100%;
-  height: auto;
+  height: 600px;
+  width: 100%;
   padding: 15px;
   background: #ffffff;
   border-radius: 10px;
