@@ -11,6 +11,7 @@
     </div>
 
     <div class="main-content">
+      <!-- Substituir o SVG do gráfico de pizza -->
       <div class="chart-container">
         <h2>Gráfico de Receitas</h2>
         <div class="date-filter">
@@ -20,23 +21,16 @@
           <label>Data Final:</label>
           <input type="date" [(ngModel)]="endDate" />
 
-          <!-- 🔹 BOTÃO PARA APLICAR O FILTRO -->
           <button (click)="applyDateFilter()">Aplicar Filtro</button>
           <button (click)="clearFilter()">Limpar Filtro</button>
         </div>
 
-        <svg id="incomeChart" width="300" height="300"></svg>
+        <canvas id="incomeChart" width="300" height="300"></canvas>
 
-        <!-- 🔹 Adicionando a legenda -->
-        <ul class="legend">
-          <li *ngFor="let income of filteredIncomes; let i = index">
-            <span class="legend-color" [style.background]="chartUtils.getColor(i)"></span>
-            {{ income.categoria }} - R$ {{ income.valor | number:'1.2-2' }}
-          </li>
-        </ul>
+        <!-- A legenda agora será fornecida pelo Chart.js -->
       </div>
 
-      <!-- Grafico de Barras --->
+      <!-- Substituir o SVG do gráfico de barras -->
       <div class="chart-container">
         <h2>Receitas por Mês</h2>
         <div class="data-filter">
@@ -48,7 +42,7 @@
           <button (click)="applyMonthFilter()">Aplicar Filtro</button>
           <button (click)="clearMonthFilter()">Limpar Filtro</button>
         </div>
-        <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
+        <canvas id="barChart" width="650" height="400"></canvas>
       </div>
 
       <!-- Lista de Receitas -->

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   FormBuilder,
@@ -19,7 +19,7 @@ import { ChartUtils } from '../../utils/chart-utils';
   templateUrl: 'income.component.html',
   styleUrls: ['income.component.css'],
 })
-export class IncomeComponent implements OnInit {
+export class IncomeComponent implements OnInit, OnDestroy {
   public chartUtils = ChartUtils;
   // Propriedades gerais
   title = 'income';
@@ -76,6 +76,15 @@ export class IncomeComponent implements OnInit {
     this.initializeDates();
     await this.loadPieChartData();
     await this.loadBarChartData();
+
+    // Limpar gráficos ao sair da página
+    window.addEventListener('beforeunload', () => {
+      ChartUtils.destroyCharts();
+    });
+  }
+
+  ngOnDestroy() {
+    ChartUtils.destroyCharts();
   }
 
   private initializeDates() {
