@@ -1,0 +1,180 @@
+<section class="expense-container">
+  <button class="home-button" (click)="home()">Home</button>
+  <div class="left-section">
+    <button class="criar-edit-trash" (click)="openModal('create')">Criar Despesa</button>
+    <button class="criar-edit-trash" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
+      {{ isEditing ? 'Cancelar Edição' : 'Editar Despesa' }}
+    </button>
+    <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
+      {{ isRemoving ? 'Cancelar Remoção' : 'Remover Despesa' }}
+    </button>
+  </div>
+
+  <div class="main-content">
+    <div class="chart-container">
+      <h2>Gráfico de Despesas</h2>
+      <div class="date-filter">
+        <label>Data Inicial:</label>
+        <input type="date" [(ngModel)]="startDate" />
+
+        <label>Data Final:</label>
+        <input type="date" [(ngModel)]="endDate" />
+
+        <button (click)="applyDateFilter()">Aplicar Filtro</button>
+        <button (click)="clearFilter()">Limpar Filtro</button>
+      </div>
+
+      <svg id="expenseChart" width="300" height="300"></svg>
+
+      <!-- Legenda Sincronizada -->
+      <ul class="legend">
+        <li *ngFor="let expense of filteredExpenses; let i = index">
+          <span class="legend-color" [style.background]="getColor(i)"></span>
+          {{ expense.categoria }} - R$ {{ expense.valor | number:'1.2-2' }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="chart-container">
+      <h2>Despesas por Mês</h2>
+      <div class="date-filter">
+        <label>Mês Inicial:</label>
+        <input type="month" [(ngModel)]="startMonth" />
+
+        <label>Mês Final:</label>
+        <input type="month" [(ngModel)]="endMonth" />
+
+        <button (click)="applyMonthFilter()">Aplicar Filtro</button>
+        <button (click)="clearMonthFilter()">Limpar Filtro</button>
+      </div>
+      <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
+    </div>
+
+    <!-- Lista de Despesas -->
+    <div class="expense-list">
+      <!-- FILTROS -->
+      <div class="filter-section">
+        <h2>Filtro Avançado</h2>
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label>Valor Mínimo:</label>
+            <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
+          </div>
+          <div class="filter-group">
+            <label>Valor Máximo:</label>
+            <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
+          </div>
+          <div class="filter-group">
+            <label>Data Inicial:</label>
+            <input type="date" [(ngModel)]="filterStartDate">
+          </div>
+          <div class="filter-group">
+            <label>Data Final:</label>
+            <input type="date" [(ngModel)]="filterEndDate">
+          </div>
+          <div class="filter-buttons">
+            <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
+            <button (click)="clearValueDateFilter()">Limpar Filtros</button>
+          </div>
+        </div>
+        <div class="filtered-list">
+          <h3>Despesas Filtradas ({{filteredList.length}} resultados)</h3>
+          <ul>
+            <li *ngFor="let expense of filteredList">
+              <div>
+                <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
+                <strong>Categoria:</strong> {{ expense.categoria }} <br>
+                <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
+                <strong>Destino:</strong> {{ expense.destinoPagamento }} <br>
+                <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <h2>Lista de Despesas</h2>
+      <ul>
+        <li *ngFor="let expense of expenses">
+          <div>
+            <strong>Data:</strong> {{ expense.data | date:'dd/MM/yyyy' }} <br>
+            <strong>Categoria:</strong> {{ expense.categoria }} <br>
+            <strong>Valor:</strong> R$ {{ expense.valor | number:'1.2-2' }} <br>
+            <strong>Destino do pagamento:</strong> {{ expense.destinoPagamento }} <br>
+            <strong>Observações:</strong> {{ expense.observacoes || 'Nenhuma' }}
+          </div>
+          <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
+          <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(expense)"><img src="assets/edit-bnt.png"></button>
+          <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(expense.uuid!)"><img src="assets/trash-bnt.png"></button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Modal Criar Despesa -->
+    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Criar Despesa</h2>
+        <form [formGroup]="createExpenseForm" (ngSubmit)="onSubmitCreate()">
+          <label for="data">Data</label>
+          <input type="date" formControlName="data" placeholder="Digite a data"/>
+
+          <label for="categoria">Categoria</label>
+          <div>
+            <select id="categoria" formControlName="categoria" required>
+              <option value="" disabled selected>Selecione uma categoria</option>
+              <option value="ALIMENTACAO">Alimentação</option>
+              <option value="MORADIA">Moradia</option>
+              <option value="TRANSPORTE">Transporte</option>
+              <option value="LAZER">Lazer</option>
+            </select>
+          </div>
+
+          <label for="valor">Valor</label>
+          <input type="text" formControlName="valor"/>
+
+          <label for="destinoPagamento">Destino do pagamento</label>
+          <input type="text" formControlName="destinoPagamento"/>
+
+          <label>Observação</label>
+          <input type="text" formControlName="observacoes"/>
+
+          <button type="submit" [disabled]="createExpenseForm.invalid">Criar Despesa</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Editar Despesa -->
+    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Editar Despesa</h2>
+        <form [formGroup]="editExpenseForm" (ngSubmit)="onSubmitEdit(editingExpenseId!)">
+          <label>Data</label>
+          <input type="date" formControlName="data"/>
+
+          <label>Categoria</label>
+          <div>
+            <select id="categoria" formControlName="categoria" required>
+              <option value="" disabled selected>Selecione uma categoria</option>
+              <option value="ALIMENTACAO">Alimentação</option>
+              <option value="MORADIA">Moradia</option>
+              <option value="TRANSPORTE">Transporte</option>
+              <option value="LAZER">Lazer</option>
+            </select>
+          </div>
+
+          <label>Valor</label>
+          <input type="number" formControlName="valor"/>
+
+          <label>Destino</label>
+          <input type="text" formControlName="destinoPagamento"/>
+
+          <label>Observação</label>
+          <input type="text" formControlName="observacoes"/>
+
+          <button type="submit" [disabled]="editExpenseForm.invalid">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
