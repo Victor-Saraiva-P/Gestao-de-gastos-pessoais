@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormsModule, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Income } from '../../entity/income';
-import { HomeService } from '../home.service';
 import { OnInit } from '@angular/core';
+import { IncomeService } from './income.service';
 
 
 @Component({
@@ -36,7 +36,7 @@ export class IncomeComponent implements OnInit{
   filterStartDate: string = '';
   filterEndDate: string = '';
 
-  private homeService = inject(HomeService);
+  private incomeService = inject(IncomeService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -74,6 +74,7 @@ export class IncomeComponent implements OnInit{
       this.isEditing = false; 
     }
   }
+
   getColor(index: number): string {
     const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
     "#FF9F40", "#D4AF37", "#8A2BE2", "#20B2AA", "#DC143C",
@@ -84,7 +85,7 @@ export class IncomeComponent implements OnInit{
   
 
   async loadIncomes() {
-    const response = await this.homeService.getIncomes();
+    const response = await this.incomeService.getIncomes();
     if (response) {
       this.incomes = response;
       this.filteredIncomes = [...this.incomes]; // Exibir todas as receitas no início
@@ -195,7 +196,7 @@ export class IncomeComponent implements OnInit{
 
  
   async carregarDespesas() {
-    const response = await this.homeService.getIncomes();
+    const response = await this.incomeService.getIncomes();
     if (response) {
       this.incomes = response;
      this.filteredIncomes = [...this.incomes]; // Inicialmente, exibe todas as despesas
@@ -287,7 +288,7 @@ export class IncomeComponent implements OnInit{
       const { data, categoria, valor, origemDoPagamento, observacoes } = this.createIncomeForm.value;
       const newIncome: Income= { data, categoria, valor, origemDoPagamento, observacoes };
 
-      this.homeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
+      this.incomeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
       this.router.navigate(['/home']).then(() => {
         alert("Receita criada com sucesso!")
       })
@@ -298,7 +299,7 @@ export class IncomeComponent implements OnInit{
     
   async onSubmitRemove(id: string) {
     try {
-      await this.homeService.removeIncome(id);
+      await this.incomeService.removeIncome(id);
       alert('Receita removida com sucesso!');
       
       //  Atualiza a lista de receitas e os gráficos
@@ -315,7 +316,7 @@ export class IncomeComponent implements OnInit{
         const {data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
         const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
         
-        await this.homeService.editIncome(id, updatedIncome).then(() =>{
+        await this.incomeService.editIncome(id, updatedIncome).then(() =>{
           alert('Receita atualizada com sucesso!')
         });
         this.refreshPage();
