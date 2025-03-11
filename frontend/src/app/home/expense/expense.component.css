@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: auto;
+  width: 100%;
   height: auto;
   /*margin-top: 20px;*/
 }
@@ -13,7 +13,6 @@
   padding: 0;
   margin-left: 20px;
   margin-top: 10px;
-  
 }
 
 .legend li {
@@ -48,7 +47,6 @@
   display: flex;
   height: 100vh;
   /*padding: 20px;*/
-  
 }
 
 .left-section {
@@ -65,30 +63,28 @@
 }
 
 .left-section button {
-align-items: center;
-margin-top: 30px;
-width: 65%;
-height: auto;
-font-size: clamp(14px, 2vw, 17px); 
+  align-items: center;
+  margin-top: 30px;
+  width: 65%;
+  height: auto;
+  font-size: clamp(14px, 2vw, 17px);
 }
-
 
 .main-content {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start; 
+  align-items: flex-start;
   gap: 2%;
   width: 130%;
   height: auto;
   margin-top: 50px;
 }
 
-
 .expense-list {
-  width: 100%; 
-  max-width: 800px; 
-  margin-top: 30px; 
+  width: 100%;
+  max-width: 800px;
+  margin-top: 30px;
   padding: 15px;
   background: #ffffff;
   border-radius: 10px;
@@ -97,7 +93,6 @@ font-size: clamp(14px, 2vw, 17px);
   max-height: 800px;
   border: 1px solid #ddd;
 }
-
 
 .expense-list h2 {
   font-size: 1.6rem;
@@ -123,12 +118,10 @@ font-size: clamp(14px, 2vw, 17px);
   transition: transform 0.2s ease-in-out;
 }
 
-
 .expense-list li:hover {
   transform: scale(1.02);
   background: #f1f1f1;
 }
-
 
 .month-filter input {
   padding: 8px;
@@ -148,32 +141,35 @@ font-size: clamp(14px, 2vw, 17px);
   background-color: #ffc107;
   color: black;
 }
+
 .chart-container {
   flex: 1;
   max-width: 100%;
-  height: auto;
+  height: 600px;
+  width: 600px;
   padding: 15px;
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
+  align-items: center;
 }
 
 #barChart {
   display: block;
   width: 90%;
   height: auto;
-  border-radius: 0; 
+  border-radius: 0;
 }
 
 .main-content {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: flex-start;
   align-items: center;
   padding: 20px;
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 /* Modal */
@@ -213,7 +209,6 @@ font-size: clamp(14px, 2vw, 17px);
   color: #888;
   transition: color 0.3s;
 }
-
 
 h2 {
   font-size: 24px;
@@ -255,7 +250,7 @@ button {
   border: none;
   border-radius: 15px;
   padding: 18px;
-  font-size: 14x;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -266,7 +261,7 @@ button:hover {
   transform: scale(1.02);
 }
 
-.criar-edit-trash, .home-button{
+.criar-edit-trash, .home-button {
   background-color: #35B276;
   color: white;
   border: none;
@@ -284,17 +279,24 @@ button:hover {
 }
 
 .home-button {
-  all: unset;
-  background-color: #35b276;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #6CBF88;
   color: white;
-  padding: 5px 10px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 400;
+  font-weight: 600;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transform: none !important;
-  box-shadow: none !important;
+}
+
+.home-button:hover {
+  background-color: #34A853;
+  transform: scale(1.05);
 }
 
 select {
@@ -304,7 +306,7 @@ select {
   font-size: 16px;
   transition: border-color 0.3s;
   background-color: #f9f9f9;
-  width: 100%; 
+  width: 100%;
 }
 
 select:focus {
@@ -335,7 +337,7 @@ select:focus {
   background-color: #f0f0f0;
 }
 
-.edit-remove{
+.edit-remove {
   background: none !important;
   border: none !important;
   padding: 0 !important;
@@ -358,7 +360,86 @@ select:focus {
   background-color: #cc0000 !important;
 }
 
-/* Layout Responsivo */
+.filter-section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-tabs {
+  margin-bottom: 15px;
+}
+
+.tab-navigation {
+  display: flex;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tab-navigation button {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+}
+
+.tab-navigation button.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.clear-button {
+  margin-top: 10px;
+  background-color: #6c757d;
+  color: white;
+}
+
+.no-results {
+  padding: 15px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.filtered-list {
+  margin-top: 20px;
+}
+
+.filtered-list h3 {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #dee2e6;
+}
+
 @media (max-width: 768px) {
   .expense-container {
     flex-direction: column;

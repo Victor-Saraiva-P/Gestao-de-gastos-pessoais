@@ -1,530 +1,384 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormsModule, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormsModule,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Income } from '../../entity/income';
-import { HomeService } from '../home.service';
-import { OnInit } from '@angular/core';
-
+import { IncomeService } from './income.service';
+import { ChartUtils } from '../../utils/income-chart-utils';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  template: `
-<section class="expense-container">
-      <button class ="home-button"(click)="home()">Home</button>
-<div class="left-section">
-  <button class="criar-edit-trash" (click)="openModal('create')">Criar Receita</button>
-  <button 
-    class="criar-edit-trash" 
-    [class.cancel-mode]="isEditing" 
-    (click)="toggleEditMode()">
-    {{ isEditing ? 'Cancelar Edição' : 'Editar Receita' }}
-  </button>
-  <button 
-    class="criar-edit-trash" 
-    [class.cancel-mode]="isRemoving" 
-    (click)="toggleRemoveMode()">
-    {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
-  </button>
-</div>
-
-      <div class="main-content">
-        <div class="chart-container">
-          <h2>Gráfico de Receitas</h2>
-          <div class="date-filter">
-        <label>Data Inicial:</label>
-        <input type="date" [(ngModel)]="startDate" />
-
-        <label>Data Final:</label>
-        <input type="date" [(ngModel)]="endDate" />
-
-        <!-- 🔹 BOTÃO PARA APLICAR O FILTRO -->
-        <button (click)="applyDateFilter()">Aplicar Filtro</button>
-        <button (click)="clearFilter()">Limpar Filtro</button>
-      </div>
-
-        <svg id="incomeChart" width="300" height="300"></svg>
-
-           <!-- 🔹 Adicionando a legenda -->
-            <ul class="legend">
-              <li *ngFor="let income of filteredIncomes; let i = index">
-                <span class="legend-color" [style.background]="getColor(i)"></span>
-                {{ income.categoria }} - R$ {{ income.valor | number:'1.2-2' }}
-              </li>
-            </ul>
-        </div>
-
-
-      <!-- Grafico de Barras --->
-      <div class = "chart-container">
-       <h2>Receitas por Mês</h2>
-          <div class = "data-filter">
-            <label>Mês Inicial:  </label>
-            <input type="month" [(ngModel)]="startMonth" />
-            <label>Mês Final:  </label>
-            <input type="month" [(ngModel)]="endMonth" />
-
-            <button (click)="applyMonthFilter()">Aplicar Filtro</button>
-            <button (click)="clearMonthFilter()">Limpar Filtro</button>
-          </div>
-          <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
-      </div>
-        
-
-      <!-- Lista de Receitas -->
-        <div class="income-list">
-        <!-- FILTROS -->
-<div class="filter-section">
-  <h2>Filtro Avançado</h2>
-  
-  <div class="filter-controls">
-    <div class="filter-group">
-      <label>Valor Mínimo:</label>
-      <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Valor Máximo:</label>
-      <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Inicial:</label>
-      <input type="date" [(ngModel)]="filterStartDate">
-    </div>
-    
-    <div class="filter-group">
-      <label>Data Final:</label>
-      <input type="date" [(ngModel)]="filterEndDate">
-    </div>
-    
-    <div class="filter-buttons">
-      <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
-      <button (click)="clearValueDateFilter()">Limpar Filtros</button>
-    </div>
-  </div>
-
-  <div class="filtered-list">
-    <h3>Receitas Filtradas ({{filteredList.length}} resultados)</h3>
-    <ul>
-      <li *ngFor="let income of filteredList">
-        <div>
-          <strong>Data:</strong> {{ income.data | date:'dd/MM/yyyy' }} <br>
-          <strong>Categoria:</strong> {{ income.categoria }} <br>
-          <strong>Valor:</strong> R$ {{ income.valor | number:'1.2-2' }} <br>
-          <strong>Destino:</strong> {{ income.origemDoPagamento }} <br>
-          <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
-          <h2>Receitas Cadastradas</h2>
-          <ul>
-            <li *ngFor="let income of incomes">
-              <div>
-                <strong>Data:</strong> {{ income.data | date:'dd/MM/yyyy' }} <br>
-                <strong>Categoria:</strong> {{ income.categoria }} <br>
-                <strong>Valor:</strong> R$ {{ income.valor | number:'1.2-2' }} <br>
-                <strong>Origem do Pagamento:</strong> {{ income.origemDoPagamento }} <br>
-                <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
-              </div>
-
-              <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
-              <button class="edit-remove"*ngIf="isEditing" (click)="openEditModal(income)"><img src="assets/edit-bnt.png"></button>
-              <button class="edit-remove"*ngIf="isRemoving" (click)="onSubmitRemove(income.uuid!)"><img src="assets/trash-bnt.png"></button>
-            </li>
-          </ul>
-        </div>
-  
-      <!-- Modal Criar Receita -->
-        <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
-        <div class="modal-content">
-          <button class="close" (click)="closeModal()">&times;</button>
-          <h2>Criar Receitas</h2>
-          <form [formGroup]="createIncomeForm" (ngSubmit)="onSubmitCreate()">
-            <label for="data">Data</label>
-            <input type="date" formControlName="data" placeholder="Digite a data"/>
-
-            <label for="categoria">Categoria</label>
-            <div>
-              <select id="categoria" formControlName="categoria" required>
-                <option value="" disabled selected>Selecione uma categoria</option>
-                <option value="SALARIO">Salário</option>
-                <option value="RENDIMENTO_DE_INVESTIMENTO">Rendimento de investimentos</option>
-                <option value="COMISSOES">Comissões</option>
-                <option value="BONUS">Bônus</option>
-                <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
-              </select>
-            </div>
-
-            <label for="valor">Valor</label>
-            <input type="text" formControlName="valor"/>
-
-            <label for="origemDoPagamento">Origem</label>
-            <input type="text" formControlName="origemDoPagamento"/>
-
-            <label>Observação</label>
-            <input type="text" formControlName="observacoes"/>
-
-            <button type="submit" [disabled]="createIncomeForm.invalid">Criar Receita</button>
-          </form>
-        </div>
-      </div>
-
-        <!-- Modal Editar Despesa -->
-      <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
-        <div class="modal-content">
-          <button class="close" (click)="closeModal()">&times;</button>
-          <h2>Editar Despesa</h2>
-          <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit(editingIncomeId!)">
-
-            <label>Data</label>
-            <input type="date" formControlName="data"/>
-
-            <label>Categoria</label>
-            <div>
-              <select id="categoria" formControlName="categoria" required>
-                <option value="" disabled selected>Selecione uma categoria</option>
-                <option value="SALARIO">Salario</option>
-                <option value="RENDIMENTO_DE_INVESTIMENTO">Rendimento de investimentos</option>
-                <option value="COMISSOES">Comissões</option>
-                <option value="BONUS">Bonus</option>
-                <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
-              </select>
-            </div>
-
-            <label>Valor</label>
-            <input type="number" formControlName="valor"/>
-
-            <label>Origem</label>
-            <input type="text" formControlName="origemDoPagamento"/>
-
-            <label>Observação</label>
-            <input type="text" formControlName="observacoes"/>
-
-            <button type="submit" [disabled]="editIncomeForm.invalid">Salvar Alterações</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-
-</section>
-  `,
-  styleUrls: ['income.component.css']
-  
+  templateUrl: 'income.component.html',
+  styleUrls: ['income.component.css'],
 })
-export class IncomeComponent implements OnInit{
+export class IncomeComponent implements OnInit, OnDestroy {
+  public chartUtils = ChartUtils;
+  // Propriedades gerais
   title = 'income';
-  startDate: string = '';  // Data inicial
-  endDate: string = '';    // Data final
-  startMonth: string = ''; 
-  endMonth: string = '';
-  filteredIncomes: Income[] = [];  // Lista de receitas filtradas
-  filteredBarData: Income[] = [];
-
   incomes: Income[] = [];
+  filteredIncomes: Income[] = [];
+  filteredBarData: Income[] = [];
+  filteredList: Income[] = []; // Lista para filtro de valor e data
+
+  // Propriedades para datas e gráficos
+  startDate: string = '';
+  endDate: string = '';
+  startMonth: string = '';
+  endMonth: string = '';
+  pieChartData: { categorias: { [key: string]: number } } | null = null;
+  barChartData: { dadosMensais: { [key: string]: number } } | null = null;
+
+  // Propriedades para modos e modais
   isRemoving = false;
   isEditing = false;
-  editingIncomeId: string | null = null; 
+  editingIncomeId: string | null = null;
   modalType: 'create' | 'edit' | null = null;
 
-  filteredList: Income[] = []; // Nova lista filtrada
+  // Filtros de valor e data
   minValue: number | null = null;
   maxValue: number | null = null;
   filterStartDate: string = '';
   filterEndDate: string = '';
 
-  private homeService = inject(HomeService);
+  // Propriedades para filtros avançados
+  filterType: 'value' | 'date' | null = null;
+
+  // Injeção de dependências
+  private incomeService = inject(IncomeService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
+  // Formulários reativos
   createIncomeForm: FormGroup = this.fb.group({
     data: ['', Validators.required],
     categoria: ['', Validators.required],
     valor: ['', Validators.required],
     origemDoPagamento: ['', Validators.required],
-    observacoes: ['', [Validators.required]],
+    observacoes: ['', Validators.required],
   });
 
-  
   editIncomeForm: FormGroup = this.fb.group({
     data: ['', Validators.required],
     categoria: ['', Validators.required],
     valor: ['', Validators.required],
     origemDoPagamento: ['', Validators.required],
-    observacoes: ['', Validators.required]
+    observacoes: ['', Validators.required],
   });
 
+  // ---------------------- Ciclo de Vida ----------------------
   async ngOnInit() {
-    await this.loadIncomes();  // Carrega as receitas do backend
+    await this.loadIncomes();
+    this.initializeDates();
+    await this.loadPieChartData();
+    await this.loadBarChartData();
+
+    // Limpar gráficos ao sair da página
+    window.addEventListener('beforeunload', () => {
+      ChartUtils.destroyCharts();
+    });
   }
-  
+
+  ngOnDestroy() {
+    ChartUtils.destroyCharts();
+  }
+
+  private initializeDates() {
+    const today = new Date();
+    // Para o gráfico de pizza, continua do primeiro dia do mês até hoje
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.startDate = firstDayOfMonth.toISOString().split('T')[0];
+    this.endDate = today.toISOString().split('T')[0];
+
+    // Para o gráfico de barras, define o filtro para o ano atual inteiro
+    const currentYear = today.getFullYear();
+    this.startMonth = `${currentYear}-01`;
+    this.endMonth = `${currentYear}-12`;
+  }
+
+  // ---------------------- Métodos de Carregamento ----------------------
+  async loadIncomes() {
+    const response = await this.incomeService.getIncomes();
+    if (response) {
+      this.incomes = response;
+      this.filteredIncomes = [...this.incomes];
+      this.filteredBarData = [...this.incomes];
+    }
+  }
+
+  async loadPieChartData() {
+    if (this.startDate && this.endDate) {
+      this.pieChartData = await this.incomeService.getIncomePizzaChart(
+        this.startDate,
+        this.endDate
+      );
+      ChartUtils.drawPieChart(
+        ChartUtils.getPieChartSlicesFromBackend(this.pieChartData),
+        'incomeChart'
+      );
+      this.filteredIncomes = ChartUtils.getPieChartLegend(this.pieChartData);
+    }
+  }
+
+  async loadBarChartData() {
+    if (this.startMonth && this.endMonth) {
+      this.barChartData = await this.incomeService.getIncomeBarChart(
+        this.startMonth,
+        this.endMonth
+      );
+      ChartUtils.drawBarChartFromBackend(this.barChartData, 'barChart');
+    }
+  }
+
+  // ---------------------- Métodos de Modo e Navegação ----------------------
   toggleRemoveMode() {
     this.isRemoving = !this.isRemoving;
     if (this.isEditing) {
-      this.isRemoving = false; 
+      this.isRemoving = false;
     }
   }
 
   toggleEditMode() {
     this.isEditing = !this.isEditing;
     if (this.isRemoving) {
-      this.isEditing = false; 
-    }
-  }
-  getColor(index: number): string {
-    const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", 
-    "#FF9F40", "#D4AF37", "#8A2BE2", "#20B2AA", "#DC143C",
-    "#FFD700", "#4682B4", "#32CD32", "#FF4500", "#6A5ACD",
-    "#008080", "#8B0000", "#556B2F", "#D2691E", "#1E90FF"];
-    return colors[index % colors.length]; // Retorna uma cor com base no índice
-  }
-  
-
-  async loadIncomes() {
-    const response = await this.homeService.getIncomes();
-    if (response) {
-      this.incomes = response;
-      this.filteredIncomes = [...this.incomes]; // Exibir todas as receitas no início
-      this.filteredBarData = [...this.incomes];
-      this.generateChart();
-      this.generateBarChart();
+      this.isEditing = false;
     }
   }
 
-  applyMonthFilter() {
-    if (!this.startMonth || !this.endMonth) return;
-    const startDate = new Date(`${this.startMonth}-01`);
-    const endDate = new Date(`${this.endMonth}-31`);
-
-    this.filteredBarData = this.incomes.filter(income => {
-      const incomeDate = new Date(income.data);
-      return incomeDate >= startDate && incomeDate <= endDate;
-    });
-
-    this.generateBarChart();
+  home() {
+    this.router.navigate(['/home']);
   }
-
-  clearMonthFilter() {
-    this.startMonth = '';
-    this.endMonth = '';
-    this.filteredBarData = [...this.incomes];
-    this.generateBarChart();
-  }
-
-  getMonthNumber(month: string): number {
-    const monthsMap: { [key: string]: number } = {
-      'jan.': 1, 'fev.': 2, 'mar.': 3, 'abr.': 4, 'mai.': 5, 'jun.': 6,
-      'jul.': 7, 'ago.': 8, 'set.': 9, 'out.': 10, 'nov.': 11, 'dez.': 12
-    };
-    return monthsMap[month] || 0;
-  }
-  
-
-  generateBarChart() {
-    const svg = document.getElementById('barChart') as unknown as SVGSVGElement;
-    if (!svg) return;
-    svg.innerHTML = '';
-  
-    const totals: { [key: string]: number } = {};
-    this.filteredBarData.forEach(income => {
-      const date = new Date(income.data);
-      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-      if (!totals[monthYear]) totals[monthYear] = 0;
-      totals[monthYear] += income.valor;
-    });
-  
-    const months = Object.keys(totals)
-    .sort((a, b) => {
-      const [monthA, yearA] = a.split(' ');
-      const [monthB, yearB] = b.split(' ');
-
-      const dateA = new Date(`${yearA}-${this.getMonthNumber(monthA)}-01`);
-      const dateB = new Date(`${yearB}-${this.getMonthNumber(monthB)}-01`);
-
-      return dateA.getTime() - dateB.getTime(); // Ordena corretamente os meses
-    });
-
-   
-    const values = months.map(m => totals[m]);
-  
-    const maxValor = Math.max(...values);
-    const barWidth = 25;
-    const barSpacing = 50;
-    const startX = 50;
-    const startY = 350;
-    const chartHeight = 200;
-  
-    months.forEach((month, index) => {
-      const barHeight = (totals[month] / maxValor) * chartHeight;
-      const x = startX + index * barSpacing;
-      const y = startY - barHeight;
-  
-      // Criando a barra
-      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      rect.setAttribute("x", x.toString());
-      rect.setAttribute("y", y.toString());
-      rect.setAttribute("width", barWidth.toString());
-      rect.setAttribute("height", barHeight.toString());
-      rect.setAttribute("fill", this.getColor(index));
-      svg.appendChild(rect);
-  
-      // Adicionando o rótulo do mês no eixo X
-      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-      text.setAttribute("x", (x + barWidth / 2).toString());
-      text.setAttribute("y", (startY + 15).toString()); // Ajuste a posição vertical do texto
-      text.setAttribute("text-anchor", "middle");
-      text.setAttribute("font-size", "12px");
-      text.textContent = month;
-  
-      svg.appendChild(text);
-    });
-  
-    // Criando linha do eixo X
-    const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    xAxis.setAttribute("x1", "40");
-    xAxis.setAttribute("y1", startY.toString());
-    xAxis.setAttribute("x2", (months.length * barSpacing + 50).toString());
-    xAxis.setAttribute("y2", startY.toString());
-    xAxis.setAttribute("stroke", "black");
-    xAxis.setAttribute("stroke-width", "2");
-    svg.appendChild(xAxis);
-  }
-
- 
-  async carregarDespesas() {
-    const response = await this.homeService.getIncomes();
-    if (response) {
-      this.incomes = response;
-     this.filteredIncomes = [...this.incomes]; // Inicialmente, exibe todas as despesas
-     //this.filteredList = [...this.expenses]; // Inicialmente, exibe todas as despesas
-      this.generateBarChart();
-      this.generateChart();
-    }
-  }
-
-
-
-  applyDateFilter() {
-    if (!this.startDate || !this.endDate) {
-      this.filteredIncomes = [...this.incomes]; // Usa todas as receitas se não houver filtro
-    } else {
-      const start = new Date(this.startDate);
-      const end = new Date(this.endDate);
-      
-      this.filteredIncomes = this.incomes.filter(income => {
-        const incomeDate = new Date(income.data);
-        return incomeDate >= start && incomeDate <= end;
-      });
-    }
-    this.generateChart();
-  }
-  
-  clearFilter() {
-    this.startDate = '';
-    this.endDate = '';
-    this.filteredIncomes = [...this.incomes]; // Restaurar todas as receitas
-    this.generateChart(); // Atualizar o gráfico para exibir todos os dados
-  }
-  
-
-  generateChart() {
-    const svg = document.getElementById('incomeChart') as unknown as SVGSVGElement;
-    if (!svg) return;
-
-    svg.innerHTML = ''; // Limpa o gráfico antes de redesenhá-lo
-
-    if (this.filteredIncomes.length === 0) return;
-
-    const total = this.filteredIncomes.reduce((sum, income) => sum + income.valor, 0);
-    let startAngle = 0;
-    const radius = 100;
-    const centerX = 150, centerY = 150;
-
-    this.filteredIncomes.forEach((income, index) => {
-      const sliceAngle = (income.valor / total) * 2 * Math.PI;
-      const endAngle = startAngle + sliceAngle;
-      
-      const x1 = centerX + radius * Math.cos(startAngle);
-      const y1 = centerY + radius * Math.sin(startAngle);
-      const x2 = centerX + radius * Math.cos(endAngle);
-      const y2 = centerY + radius * Math.sin(endAngle);
-      
-      const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
-      const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-      
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', pathData);
-      path.setAttribute('fill', this.getColor(index));
-      svg.appendChild(path);
-      
-      startAngle = endAngle;
-    });
-  }
-
-  
-
-  
 
   refreshPage() {
     window.location.reload();
   }
 
+  // ---------------------- Métodos de Filtro ----------------------
+  async applyDateFilter() {
+    if (!this.startDate || !this.endDate) {
+      this.filteredIncomes = [...this.incomes];
+      ChartUtils.drawPieChart(
+        ChartUtils.getPieChartSlicesFromIncomes(this.filteredIncomes),
+        'incomeChart'
+      );
+      ChartUtils.generateBarChart(this.filteredBarData, 'barChart');
+    } else {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+      this.filteredIncomes = this.incomes.filter((income) => {
+        const incomeDate = new Date(income.data);
+        return incomeDate >= start && incomeDate <= end;
+      });
+      await this.loadPieChartData();
+      await this.loadBarChartData();
+    }
+  }
 
-  openModal(type: 'create' | 'edit' ) {
+  async clearFilter() {
+    // 1. Zera as datas
+    this.startDate = '';
+    this.endDate = '';
+
+    // 2. Restaura as receitas filtradas para TODAS as receitas
+    this.filteredIncomes = [...this.incomes];
+
+    // 3. Limpa os dados dos gráficos para "forçar" o redesenho
+    this.pieChartData = null;
+    this.barChartData = null;
+
+    // 4. Desenha novamente o gráfico de pizza com todas as receitas
+    ChartUtils.drawPieChart(
+      ChartUtils.getPieChartSlicesFromIncomes(this.filteredIncomes),
+      'incomeChart'
+    );
+
+    // 5. Desenha novamente o gráfico de barras com o array `filteredBarData`
+    ChartUtils.generateBarChart(this.filteredBarData, 'barChart');
+  }
+
+
+  async applyMonthFilter() {
+    if (!this.startMonth || !this.endMonth) return;
+    await this.loadBarChartData();
+    this.filteredBarData = this.incomes.filter((income) => {
+      const incomeDate = new Date(income.data);
+      const incomeYearMonth = `${incomeDate.getFullYear()}-${String(
+        incomeDate.getMonth() + 1
+      ).padStart(2, '0')}`;
+      return (
+        incomeYearMonth >= this.startMonth && incomeYearMonth <= this.endMonth
+      );
+    });
+  }
+
+  clearMonthFilter() {
+    this.startMonth = '';
+    this.endMonth = '';
+    this.barChartData = null;
+    this.filteredBarData = [...this.incomes];
+    ChartUtils.generateBarChart(this.filteredBarData, 'barChart');
+  }
+
+  applyValueDateFilter() {
+    if (
+      this.minValue ||
+      this.maxValue ||
+      this.filterStartDate ||
+      this.filterEndDate
+    ) {
+      this.filteredList = this.incomes.filter((income) => {
+        const incomeDate = new Date(income.data);
+        return (
+          this.isDateInFilterRange(incomeDate) &&
+          this.isValueInFilterRange(income.valor)
+        );
+      });
+    } else {
+      this.filteredList = [];
+    }
+  }
+
+  private isValueInFilterRange(value: number): boolean {
+    if (this.minValue !== null && value < this.minValue) return false;
+    if (this.maxValue !== null && value > this.maxValue) return false;
+    return true;
+  }
+
+  private isDateInFilterRange(date: Date): boolean {
+    if (!this.filterStartDate && !this.filterEndDate) return true;
+    const start = this.filterStartDate ? new Date(this.filterStartDate) : null;
+    const end = this.filterEndDate ? new Date(this.filterEndDate) : null;
+    if (start && date < start) return false;
+    if (end && date > end) return false;
+    return true;
+  }
+
+  clearValueDateFilter() {
+    this.minValue = null;
+    this.maxValue = null;
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filteredList = [];
+  }
+
+  // Método para aplicar filtro de valores
+  async applyValueFilter() {
+    if (this.minValue !== null && this.maxValue !== null) {
+      this.filterType = 'value';
+      this.filterStartDate = '';
+      this.filterEndDate = '';
+
+      try {
+        const response = await this.incomeService.getIncomesByValueInterval(this.minValue, this.maxValue);
+        this.filteredList = response || [];
+      } catch (error) {
+        console.error("Erro ao filtrar por valores:", error);
+        this.filteredList = [];
+      }
+    } else {
+      alert('Por favor, informe os valores mínimo e máximo para filtrar.');
+    }
+  }
+
+  // Método para aplicar filtro de datas
+  async applyDateRangeFilter() {
+    if (this.filterStartDate && this.filterEndDate) {
+      this.filterType = 'date';
+      this.minValue = null;
+      this.maxValue = null;
+
+      try {
+        const response = await this.incomeService.getIncomesByDateInterval(
+          this.filterStartDate,
+          this.filterEndDate
+        );
+        this.filteredList = response || [];
+      } catch (error) {
+        console.error("Erro ao filtrar por datas:", error);
+        this.filteredList = [];
+      }
+    } else {
+      alert('Por favor, informe as datas inicial e final para filtrar.');
+    }
+  }
+
+  // Limpar todos os filtros avançados
+  clearAdvancedFilters() {
+    this.minValue = null;
+    this.maxValue = null;
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filterType = null;
+    this.filteredList = [];
+  }
+
+  // ---------------------- Métodos de Manipulação de Receitas ----------------------
+  openModal(type: 'create' | 'edit') {
     this.modalType = type;
   }
 
-  // Fechar o modal
   closeModal() {
     this.modalType = null;
   }
 
-
   onSubmitCreate() {
     if (this.createIncomeForm.valid) {
-      const { data, categoria, valor, origemDoPagamento, observacoes } = this.createIncomeForm.value;
-      const newIncome: Income= { data, categoria, valor, origemDoPagamento, observacoes };
+      const { data, categoria, valor, origemDoPagamento, observacoes } =
+        this.createIncomeForm.value;
+      const newIncome: Income = {
+        data,
+        categoria,
+        valor,
+        origemDoPagamento,
+        observacoes,
+      };
 
-      this.homeService.createIncome(newIncome).catch(err => alert('Error registering income: ' + err));
-      this.router.navigate(['/home']).then(() => {
-        alert("Receita criada com sucesso!")
-      })
-      .catch(err => alert('Erro ao criar receita: ' + err));
-      this.refreshPage();
+      this.incomeService
+        .createIncome(newIncome)
+        .then(() => {
+          alert('Receita criada com sucesso!');
+          this.refreshPage();
+        })
+        .catch((err) => alert('Erro ao criar receita: ' + err));
     }
   }
-    
+
   async onSubmitRemove(id: string) {
     try {
-      await this.homeService.removeIncome(id);
+      await this.incomeService.removeIncome(id);
       alert('Receita removida com sucesso!');
-      
-      //  Atualiza a lista de receitas e os gráficos
-      await this.loadIncomes(); 
-      
+      await this.loadIncomes();
+      await this.loadPieChartData();
+      await this.loadBarChartData();
     } catch (err) {
       alert('Erro ao remover receita: ' + err);
     }
   }
-    
+
   async onSubmitEdit(id: string) {
     if (this.editIncomeForm.valid) {
       try {
-        const {data, categoria, valor, origemDoPagamento, observacoes } = this.editIncomeForm.value;
-        const updatedIncome: Income = { data, categoria, valor, origemDoPagamento, observacoes };
-        
-        await this.homeService.editIncome(id, updatedIncome).then(() =>{
-          alert('Receita atualizada com sucesso!')
-        });
+        const { data, categoria, valor, origemDoPagamento, observacoes } =
+          this.editIncomeForm.value;
+        const updatedIncome: Income = {
+          data,
+          categoria,
+          valor,
+          origemDoPagamento,
+          observacoes,
+        };
+        await this.incomeService.editIncome(id, updatedIncome);
+        alert('Receita atualizada com sucesso!');
         this.refreshPage();
-
       } catch (err) {
-        alert('Error updating income: ' + err);
+        alert('Erro ao atualizar receita: ' + err);
       }
     }
   }
@@ -537,53 +391,7 @@ export class IncomeComponent implements OnInit{
       categoria: income.categoria,
       valor: income.valor,
       origemDoPagamento: income.origemDoPagamento,
-      observacoes: income.observacoes
+      observacoes: income.observacoes,
     });
-  }
-// Método para aplicar filtro combinado de valor e data
-applyValueDateFilter() {
-  if (this.minValue || this.maxValue || this.filterStartDate || this.filterEndDate) {
-    this.filteredList = this.incomes.filter(income => {
-      const incomeDate = new Date(income.data);
-      return this.isDateInFilterRange(incomeDate) && 
-             this.isValueInFilterRange(income.valor);
-    });
-  } else {
-    this.filteredList = []; // Mantém vazio se nenhum filtro estiver aplicado
-  }
-}
-
-
-// Método para verificar se o valor está na faixa
-private isValueInFilterRange(value: number): boolean {
-  if (this.minValue !== null && value < this.minValue) return false;
-  if (this.maxValue !== null && value > this.maxValue) return false;
-  return true;
-}
-
-// Método para verificar se a data está no intervalo
-private isDateInFilterRange(date: Date): boolean {
-  if (!this.filterStartDate && !this.filterEndDate) return true;
-  
-  const start = this.filterStartDate ? new Date(this.filterStartDate) : null;
-  const end = this.filterEndDate ? new Date(this.filterEndDate) : null;
-  
-  if (start && date < start) return false;
-  if (end && date > end) return false;
-  return true;
-}
-
-// Método para limpar filtros da nova lista
-clearValueDateFilter() {
-  this.minValue = null;
-  this.maxValue = null;
-  this.filterStartDate = '';
-  this.filterEndDate = '';
-  /*this.filteredList = [...this.expenses];*/
-  this.filteredList = [];
-}
-
-  home(){
-    this.router.navigate(['/home']);
   }
 }
