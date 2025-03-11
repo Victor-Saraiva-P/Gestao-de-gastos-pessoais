@@ -48,6 +48,9 @@ export class IncomeComponent implements OnInit, OnDestroy {
   filterStartDate: string = '';
   filterEndDate: string = '';
 
+  // Propriedades para filtros avançados
+  filterType: 'value' | 'date' | null = null;
+
   // Injeção de dependências
   private incomeService = inject(IncomeService);
   private router = inject(Router);
@@ -262,6 +265,57 @@ export class IncomeComponent implements OnInit, OnDestroy {
     this.maxValue = null;
     this.filterStartDate = '';
     this.filterEndDate = '';
+    this.filteredList = [];
+  }
+
+  // Método para aplicar filtro de valores
+  async applyValueFilter() {
+    if (this.minValue !== null && this.maxValue !== null) {
+      this.filterType = 'value';
+      this.filterStartDate = '';
+      this.filterEndDate = '';
+
+      try {
+        const response = await this.incomeService.getIncomesByValueInterval(this.minValue, this.maxValue);
+        this.filteredList = response || [];
+      } catch (error) {
+        console.error("Erro ao filtrar por valores:", error);
+        this.filteredList = [];
+      }
+    } else {
+      alert('Por favor, informe os valores mínimo e máximo para filtrar.');
+    }
+  }
+
+  // Método para aplicar filtro de datas
+  async applyDateRangeFilter() {
+    if (this.filterStartDate && this.filterEndDate) {
+      this.filterType = 'date';
+      this.minValue = null;
+      this.maxValue = null;
+
+      try {
+        const response = await this.incomeService.getIncomesByDateInterval(
+          this.filterStartDate,
+          this.filterEndDate
+        );
+        this.filteredList = response || [];
+      } catch (error) {
+        console.error("Erro ao filtrar por datas:", error);
+        this.filteredList = [];
+      }
+    } else {
+      alert('Por favor, informe as datas inicial e final para filtrar.');
+    }
+  }
+
+  // Limpar todos os filtros avançados
+  clearAdvancedFilters() {
+    this.minValue = null;
+    this.maxValue = null;
+    this.filterStartDate = '';
+    this.filterEndDate = '';
+    this.filterType = null;
     this.filteredList = [];
   }
 
