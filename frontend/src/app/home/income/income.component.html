@@ -9,33 +9,33 @@
         {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
       </button>
     </div>
-  
+
     <div class="main-content">
       <div class="chart-container">
         <h2>Gráfico de Receitas</h2>
         <div class="date-filter">
           <label>Data Inicial:</label>
           <input type="date" [(ngModel)]="startDate" />
-  
+
           <label>Data Final:</label>
           <input type="date" [(ngModel)]="endDate" />
-  
+
           <!-- 🔹 BOTÃO PARA APLICAR O FILTRO -->
           <button (click)="applyDateFilter()">Aplicar Filtro</button>
           <button (click)="clearFilter()">Limpar Filtro</button>
         </div>
-  
+
         <svg id="incomeChart" width="300" height="300"></svg>
-  
+
         <!-- 🔹 Adicionando a legenda -->
         <ul class="legend">
           <li *ngFor="let income of filteredIncomes; let i = index">
-            <span class="legend-color" [style.background]="getColor(i)"></span>
+            <span class="legend-color" [style.background]="chartUtils.getColor(i)"></span>
             {{ income.categoria }} - R$ {{ income.valor | number:'1.2-2' }}
           </li>
         </ul>
       </div>
-  
+
       <!-- Grafico de Barras --->
       <div class="chart-container">
         <h2>Receitas por Mês</h2>
@@ -44,46 +44,46 @@
           <input type="month" [(ngModel)]="startMonth" />
           <label>Mês Final:</label>
           <input type="month" [(ngModel)]="endMonth" />
-  
+
           <button (click)="applyMonthFilter()">Aplicar Filtro</button>
           <button (click)="clearMonthFilter()">Limpar Filtro</button>
         </div>
         <svg id="barChart" width="650" height="400" viewBox="0 0 650 400"></svg>
       </div>
-  
+
       <!-- Lista de Receitas -->
       <div class="income-list">
         <!-- FILTROS -->
         <div class="filter-section">
           <h2>Filtro Avançado</h2>
-  
+
           <div class="filter-controls">
             <div class="filter-group">
               <label>Valor Mínimo:</label>
               <input type="number" [(ngModel)]="minValue" placeholder="R$ 0,00" step="0.01">
             </div>
-  
+
             <div class="filter-group">
               <label>Valor Máximo:</label>
               <input type="number" [(ngModel)]="maxValue" placeholder="R$ 10000,00" step="0.01">
             </div>
-  
+
             <div class="filter-group">
               <label>Data Inicial:</label>
               <input type="date" [(ngModel)]="filterStartDate">
             </div>
-  
+
             <div class="filter-group">
               <label>Data Final:</label>
               <input type="date" [(ngModel)]="filterEndDate">
             </div>
-  
+
             <div class="filter-buttons">
               <button (click)="applyValueDateFilter()">Aplicar Filtros</button>
               <button (click)="clearValueDateFilter()">Limpar Filtros</button>
             </div>
           </div>
-  
+
           <div class="filtered-list">
             <h3>Receitas Filtradas ({{filteredList.length}} resultados)</h3>
             <ul>
@@ -109,14 +109,14 @@
               <strong>Origem do Pagamento:</strong> {{ income.origemDoPagamento }} <br>
               <strong>Observações:</strong> {{ income.observacoes || 'Nenhuma' }}
             </div>
-  
+
             <!-- Mostrar botão de remoção apenas se o modo de remoção ou edição estiver ativo -->
             <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(income)"><img src="assets/edit-bnt.png"></button>
             <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(income.uuid!)"><img src="assets/trash-bnt.png"></button>
           </li>
         </ul>
       </div>
-  
+
       <!-- Modal Criar Receita -->
       <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
         <div class="modal-content">
@@ -125,7 +125,7 @@
           <form [formGroup]="createIncomeForm" (ngSubmit)="onSubmitCreate()">
             <label for="data">Data</label>
             <input type="date" formControlName="data" placeholder="Digite a data"/>
-  
+
             <label for="categoria">Categoria</label>
             <div>
               <select id="categoria" formControlName="categoria" required>
@@ -137,21 +137,21 @@
                 <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
               </select>
             </div>
-  
+
             <label for="valor">Valor</label>
             <input type="text" formControlName="valor"/>
-  
+
             <label for="origemDoPagamento">Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
-  
+
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
-  
+
             <button type="submit" [disabled]="createIncomeForm.invalid">Criar Receita</button>
           </form>
         </div>
       </div>
-  
+
       <!-- Modal Editar Despesa -->
       <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
         <div class="modal-content">
@@ -160,7 +160,7 @@
           <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit(editingIncomeId!)">
             <label>Data</label>
             <input type="date" formControlName="data"/>
-  
+
             <label>Categoria</label>
             <div>
               <select id="categoria" formControlName="categoria" required>
@@ -172,16 +172,16 @@
                 <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
               </select>
             </div>
-  
+
             <label>Valor</label>
             <input type="number" formControlName="valor"/>
-  
+
             <label>Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
-  
+
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
-  
+
             <button type="submit" [disabled]="editIncomeForm.invalid">Salvar Alterações</button>
           </form>
         </div>
