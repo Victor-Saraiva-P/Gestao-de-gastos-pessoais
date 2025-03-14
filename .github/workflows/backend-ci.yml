@@ -23,8 +23,5 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Navegar para o diretório backend
-        run: cd backend
-
       - name: Compilar e rodar testes com perfil de testes
-        run: mvn clean verify -Dspring.profiles.active=test
+        run: cd backend && mvn clean verify -Dspring.profiles.active=test
