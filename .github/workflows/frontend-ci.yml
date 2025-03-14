@@ -1,4 +1,4 @@
-name: Deploy Angular App  
+name: CI/CD Frontend 
 
 on:
     push:
