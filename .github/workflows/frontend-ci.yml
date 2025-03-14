@@ -1,0 +1,31 @@
+name: Deploy Angular App  
+
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
+
+jobs:
+  build-and-deploy: 
+    runs-on: ubuntu-latest  
+
+    steps:
+      - name: Checkout do código  # faz o checkout do código do repositório
+        uses: actions/checkout@v4  
+
+      - name: Instalar Node.js  # instala a versão do Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  
+     
+      - name: Instalar dependências do projeto Angular  # instala os pacotes do projeto
+        run: 
+            cd frontend && npm ci 
+            
+      - name: Build do projeto Angular  
+        run: cd frontend && npm run build -- --configuration=production  # executa o build em modo produção
+
+        
