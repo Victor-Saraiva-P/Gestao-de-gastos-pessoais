@@ -8,7 +8,8 @@ import { BarsGraphic } from '../../entity/response/barsResponse';
   providedIn: 'root',
 })
 export class IncomeService {
-  private apiUrl = 'http://localhost:8080/receitas';
+  //private apiUrl = 'http://localhost:8080/receitas'; trocar a url comentada para essa quando for testar localmente
+  private apiUrl = 'https://backend-gestao-gastos.onrender.com/receitas'; //ao subir o commit para o github, deixar essa url descomentada
   private authService = inject(AuthService);
 
   //------------------------ Receitas -----------------------------------------
