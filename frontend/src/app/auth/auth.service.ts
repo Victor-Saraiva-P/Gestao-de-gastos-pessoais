@@ -6,7 +6,9 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+
+  //private apiUrl = 'http://localhost:8080/auth'; trocar a url comentada para essa quando for testar localmente
+  private apiUrl = 'https://backend-gestao-gastos.onrender.com/auth'; //ao subir o commit para o github, deixar essa url descomentada
 
   async register(newUser: User): Promise<User | null> {
     try {
