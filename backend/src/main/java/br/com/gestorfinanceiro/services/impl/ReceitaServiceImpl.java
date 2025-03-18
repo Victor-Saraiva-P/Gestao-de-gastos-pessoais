@@ -142,7 +142,7 @@ public class ReceitaServiceImpl implements ReceitaService {
         List<ReceitaEntity> receitas = receitaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
 
         // Formata datas para o padrão "Mês Ano" em português
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("pt-BR"));
 
         // Cria um mapa ordenado com os dados mensais
         Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();

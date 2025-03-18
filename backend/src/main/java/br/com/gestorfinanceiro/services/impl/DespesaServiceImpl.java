@@ -2,12 +2,11 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
-import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -130,7 +129,7 @@ public class DespesaServiceImpl implements DespesaService {
         List<DespesaEntity> despesas = despesaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
 
         // Formata datas para o padrão "Mês Ano" em português
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("pt-BR"));
 
         // Cria um mapa ordenado com os dados mensais
         Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
