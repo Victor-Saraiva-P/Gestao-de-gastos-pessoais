@@ -8,7 +8,6 @@ import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +31,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger customLogger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Handler para erros internos inesperados do sistema que não possuem tratamento específico
     @ExceptionHandler(Exception.class)
@@ -155,11 +154,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // Metodo auxiliar para logar a exceção
     private void logException(String messagePrefix, Exception ex) {
         // Mensagem sempre exibida no nível ERROR (sem stack trace)
-        logger.error("{}: {}", messagePrefix, ex.getMessage());
+        customLogger.error("{}: {}", messagePrefix, ex.getMessage());
 
         // O stack trace só será mostrado se o nível de log for DEBUG
-        if (logger.isDebugEnabled()) {
-            logger.debug("Detalhes da exceção:", ex);
+        if (customLogger.isDebugEnabled()) {
+            customLogger.debug("Detalhes da exceção:", ex);
         }
     }
 
