@@ -56,7 +56,7 @@ public class ReceitaController {
         List<ReceitaDTO> receitas = receitaService.listarReceitasUsuario(userId)
                 .stream()
                 .map(receitaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(receitas);
     }

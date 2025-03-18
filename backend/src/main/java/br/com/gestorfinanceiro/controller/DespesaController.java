@@ -3,27 +3,21 @@ package br.com.gestorfinanceiro.controller;
 import br.com.gestorfinanceiro.dto.DespesaDTO;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
-import br.com.gestorfinanceiro.dto.ReceitaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
-import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
 import br.com.gestorfinanceiro.services.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.List;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -62,7 +56,7 @@ public class DespesaController {
         List<DespesaDTO> despesas = despesaService.listarDespesasUsuario(userId)
                 .stream()
                 .map(despesaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(despesas);
     }
