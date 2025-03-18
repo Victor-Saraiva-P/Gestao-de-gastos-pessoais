@@ -25,3 +25,9 @@ jobs:
 
       - name: Compilar e rodar testes com perfil de testes
         run: cd backend && mvn clean verify -Dspring.profiles.active=test
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/index.html
