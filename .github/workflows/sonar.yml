@@ -39,7 +39,9 @@ jobs:
       
       - name: Build and analyze
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Acessa o secret definido no ambiente 'actions'
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd backend
-          mvn -B verify -Dspring.profiles.active=test org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ES-Project-2024-2_Gestao-de-gastos-pessoais
+            cd backend
+            mvn -B verify -Dspring.profiles.active=test org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+              -Dsonar.projectKey=ES-Project-2024-2_Gestao-de-gastos-pessoais \
+              -Dsonar.organization=es-project-2024-2        
