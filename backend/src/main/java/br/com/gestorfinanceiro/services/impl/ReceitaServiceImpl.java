@@ -3,6 +3,7 @@ package br.com.gestorfinanceiro.services.impl;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.MissingUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
@@ -71,7 +72,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public ReceitaEntity buscarReceitaPorId(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         return receitaRepository.findById(uuid)
@@ -83,7 +84,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public ReceitaEntity atualizarReceita(String uuid, ReceitaEntity receitaAtualizada) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         if (receitaAtualizada == null) {
@@ -111,7 +112,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public void excluirReceita(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         try {

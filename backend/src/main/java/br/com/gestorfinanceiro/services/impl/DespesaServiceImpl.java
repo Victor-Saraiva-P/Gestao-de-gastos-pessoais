@@ -3,6 +3,7 @@ package br.com.gestorfinanceiro.services.impl;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.MissingUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
@@ -59,7 +60,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> listarDespesasUsuario(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         try {
@@ -161,7 +162,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         if (inicio == null || fim == null) {
@@ -182,7 +183,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         if (min == null || max == null) {
