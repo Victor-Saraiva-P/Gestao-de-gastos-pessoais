@@ -76,7 +76,7 @@ public class DespesaServiceImpl implements DespesaService {
         }
 
         return despesaRepository.findById(uuid)
-                .orElseThrow(() -> new DespesaNotFoundException("Despesa com UUID " + uuid + " não encontrada"));
+                .orElseThrow(() -> new DespesaNotFoundException(uuid));
     }
 
 
@@ -93,7 +93,7 @@ public class DespesaServiceImpl implements DespesaService {
 
         try {
             DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException("Despesa com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
             despesa.setData(despesaAtualizada.getData());
             despesa.setCategoria(despesaAtualizada.getCategoria());
@@ -116,7 +116,7 @@ public class DespesaServiceImpl implements DespesaService {
 
         try {
             DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException("Despesa com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
             despesaRepository.delete(despesa);
         } catch (Exception e) {

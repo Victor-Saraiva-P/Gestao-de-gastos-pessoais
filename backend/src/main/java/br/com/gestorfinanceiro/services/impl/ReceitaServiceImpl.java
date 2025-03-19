@@ -75,7 +75,7 @@ public class ReceitaServiceImpl implements ReceitaService {
         }
 
         return receitaRepository.findById(uuid)
-                .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                .orElseThrow(() -> new ReceitaNotFoundException(uuid));
     }
 
 
@@ -92,7 +92,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
             receita.setData(receitaAtualizada.getData());
             receita.setCategoria(receitaAtualizada.getCategoria());
@@ -116,7 +116,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
             receitaRepository.delete(receita);
         } catch (Exception e) {
