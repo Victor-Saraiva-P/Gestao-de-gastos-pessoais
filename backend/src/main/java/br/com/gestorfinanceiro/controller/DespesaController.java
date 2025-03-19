@@ -28,6 +28,7 @@ public class DespesaController {
     private final Mapper<DespesaEntity, DespesaDTO> despesaMapper;
     private final JwtUtil jwtUtil;
     private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     public DespesaController(DespesaService despesaService, Mapper<DespesaEntity, DespesaDTO> despesaMapper, JwtUtil jwtUtil) {
         this.despesaService = despesaService;
@@ -37,7 +38,7 @@ public class DespesaController {
 
     @PostMapping
     public ResponseEntity<DespesaDTO> criarDespesa(@Valid @RequestBody DespesaDTO despesaDTO, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         DespesaEntity despesa = despesaMapper.mapFrom(despesaDTO);
@@ -51,7 +52,7 @@ public class DespesaController {
 
     @GetMapping
     public ResponseEntity<List<DespesaDTO>> listarDespesas(HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<DespesaDTO> despesas = despesaService.listarDespesasUsuario(userId)
@@ -64,7 +65,7 @@ public class DespesaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<DespesaDTO> buscarDespesaPorId(@PathVariable String id, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
         DespesaEntity despesa = despesaService.buscarDespesaPorId(id);
 
@@ -91,7 +92,7 @@ public class DespesaController {
 
     @GetMapping("/grafico-barras")
     public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         return ResponseEntity.ok(despesaService.gerarGraficoBarras(userId, inicio, fim));
@@ -103,7 +104,7 @@ public class DespesaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         GraficoPizzaDTO graficoPizza = despesaService.gerarGraficoPizza(userId, inicio, fim);
@@ -117,7 +118,7 @@ public class DespesaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
@@ -136,7 +137,7 @@ public class DespesaController {
             @RequestParam BigDecimal max,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeValores(userId, min, max);

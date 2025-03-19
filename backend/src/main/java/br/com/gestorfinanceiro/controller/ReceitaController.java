@@ -28,6 +28,7 @@ public class ReceitaController {
     private final Mapper<ReceitaEntity, ReceitaDTO> receitaMapper;
     private final JwtUtil jwtUtil;
     private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     public ReceitaController(ReceitaService receitaService, Mapper<ReceitaEntity, ReceitaDTO> receitaMapper, JwtUtil jwtUtil) {
         this.receitaService = receitaService;
@@ -37,7 +38,7 @@ public class ReceitaController {
 
     @PostMapping
     public ResponseEntity<ReceitaDTO> criarReceita(@Valid @RequestBody ReceitaDTO receitaDTO, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         ReceitaEntity receita = receitaMapper.mapFrom(receitaDTO);
@@ -51,7 +52,7 @@ public class ReceitaController {
 
     @GetMapping
     public ResponseEntity<List<ReceitaDTO>> listarReceitas(HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaDTO> receitas = receitaService.listarReceitasUsuario(userId)
@@ -64,7 +65,7 @@ public class ReceitaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReceitaDTO> buscarReceitaPorId(@PathVariable String id, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
         ReceitaEntity receita = receitaService.buscarReceitaPorId(id);
 
@@ -95,7 +96,7 @@ public class ReceitaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         GraficoPizzaDTO graficoPizza = receitaService.gerarGraficoPizza(userId, inicio, fim);
@@ -105,7 +106,7 @@ public class ReceitaController {
 
     @GetMapping("/grafico-barras")
     public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
@@ -117,7 +118,7 @@ public class ReceitaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
@@ -136,7 +137,7 @@ public class ReceitaController {
             @RequestParam BigDecimal max,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace("Bearer ", "");
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeValores(userId, min, max);
