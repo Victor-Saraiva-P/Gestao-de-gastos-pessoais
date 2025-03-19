@@ -25,9 +25,9 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn clean verify sonar:sonar \
-            -Dspring.profiles.active=test
+          mvn -B verify -Dspring.profiles.active=test \
             -Dsonar.projectKey=ES-Project-2024-2_Gestao-de-gastos-pessoais \
             -Dsonar.organization=es-project-2024-2 \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=$SONAR_TOKEN \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
