@@ -3,6 +3,7 @@ package br.com.gestorfinanceiro.services.impl;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.MissingUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
@@ -71,11 +72,11 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public ReceitaEntity buscarReceitaPorId(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         return receitaRepository.findById(uuid)
-                .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                .orElseThrow(() -> new ReceitaNotFoundException(uuid));
     }
 
 
@@ -83,7 +84,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public ReceitaEntity atualizarReceita(String uuid, ReceitaEntity receitaAtualizada) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         if (receitaAtualizada == null) {
@@ -92,7 +93,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
             receita.setData(receitaAtualizada.getData());
             receita.setCategoria(receitaAtualizada.getCategoria());
@@ -111,12 +112,12 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public void excluirReceita(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new MissingUuidException();
         }
 
         try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException("Receita com UUID " + uuid + " não encontrada"));
+                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
             receitaRepository.delete(receita);
         } catch (Exception e) {
@@ -142,7 +143,7 @@ public class ReceitaServiceImpl implements ReceitaService {
         List<ReceitaEntity> receitas = receitaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
 
         // Formata datas para o padrão "Mês Ano" em português
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("pt", "BR"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("pt-BR"));
 
         // Cria um mapa ordenado com os dados mensais
         Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
