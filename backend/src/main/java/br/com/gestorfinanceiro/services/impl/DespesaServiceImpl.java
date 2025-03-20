@@ -3,7 +3,8 @@ package br.com.gestorfinanceiro.services.impl;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.MissingUuidException;
+import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
@@ -60,7 +61,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> listarDespesasUsuario(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUserIdException();
         }
 
         try {
@@ -73,7 +74,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public DespesaEntity buscarDespesaPorId(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new InvalidUuidException();
         }
 
         return despesaRepository.findById(uuid)
@@ -85,7 +86,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Transactional
     public DespesaEntity atualizarDespesa(String uuid, DespesaEntity despesaAtualizada) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new InvalidUuidException();
         }
 
         if (despesaAtualizada == null) {
@@ -112,7 +113,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Transactional
     public void excluirDespesa(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new InvalidDataException("O UUID não pode ser nulo ou vazio.");
+            throw new InvalidUuidException();
         }
 
         try {
@@ -162,7 +163,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUserIdException();
         }
 
         if (inicio == null || fim == null) {
@@ -183,7 +184,7 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUserIdException();
         }
 
         if (min == null || max == null) {
