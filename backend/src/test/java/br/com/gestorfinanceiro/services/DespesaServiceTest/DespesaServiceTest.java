@@ -70,16 +70,19 @@ class DespesaServiceTest {
         @Test
         void erroAoCriarDespesaNula() {
             UserEntity user = criarUsuarioTest();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, user.getUuid()));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, userId));
         }
+
 
         @Test
         void erroAoCriarDespesaComValorInvalido() {
             UserEntity user = criarUsuarioTest();
             DespesaEntity despesa = new DespesaEntity();
             despesa.setValor(BigDecimal.ZERO);
+            String userId = user.getUuid();
 
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
@@ -87,8 +90,9 @@ class DespesaServiceTest {
             UserEntity user = criarUsuarioTest();
             DespesaEntity despesa = new DespesaEntity();
             despesa.setValor(BigDecimal.valueOf(-100));
+            String userId = user.getUuid();
 
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
@@ -132,7 +136,8 @@ class DespesaServiceTest {
 
         @Test
         void erroAoBuscarDespesaPorIdInexistente() {
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.buscarDespesaPorId(UUID.randomUUID().toString()));
+            String uuid = UUID.randomUUID().toString();
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.buscarDespesaPorId(uuid));
         }
     }
 
