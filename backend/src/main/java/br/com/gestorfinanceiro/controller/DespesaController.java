@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/despesas")
@@ -126,7 +125,7 @@ public class DespesaController {
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()
                 .map(despesaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(despesaDTO);
     }
@@ -145,7 +144,7 @@ public class DespesaController {
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()
                 .map(despesaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(despesaDTO);
     }
