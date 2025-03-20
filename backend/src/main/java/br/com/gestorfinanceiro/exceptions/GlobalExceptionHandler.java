@@ -35,8 +35,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ERROR_DETAIL_FIELD = "Detalhes do erro";
     private static final String DEFAULT_ERROR_MESSAGE = "Erro desconhecido";
 
-
-
     // Handler para erros internos inesperados do sistema que não possuem tratamento específico
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(Exception ex) {
