@@ -33,6 +33,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger customLogger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String ERROR_DETAIL_FIELD = "Detalhes do erro";
+    private static final String DEFAULT_ERROR_MESSAGE = "Erro desconhecido";
+
+
 
     // Handler para erros internos inesperados do sistema que não possuem tratamento específico
     @ExceptionHandler(Exception.class)
@@ -75,7 +78,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logException("Erro na operação com receita", ex);
 
         Map<String, String> errors = Map.of(
-                ERROR_DETAIL_FIELD, ex.getCause() != null ? ex.getCause().getMessage() : "Erro desconhecido"
+                ERROR_DETAIL_FIELD, ex.getCause() != null ? ex.getCause().getMessage() : DEFAULT_ERROR_MESSAGE
         );
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Erro ao atualizar receita. Por favor, tente novamente.", errors);
@@ -101,7 +104,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logException("Erro na operação com despesa", ex);
 
         Map<String, String> errors = Map.of(
-                ERROR_DETAIL_FIELD, ex.getCause() != null ? ex.getCause().getMessage() : "Erro desconhecido"
+                ERROR_DETAIL_FIELD, ex.getCause() != null ? ex.getCause().getMessage() : DEFAULT_ERROR_MESSAGE
         );
 
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao processar a operação na despesa. Por favor, tente novamente.", errors);
@@ -142,7 +145,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse("Erro desconhecido"),
+                        fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(DEFAULT_ERROR_MESSAGE),
                         (existing, replacement) -> existing // Se houver duplicatas, mantém a primeira mensagem
                 ));
 
