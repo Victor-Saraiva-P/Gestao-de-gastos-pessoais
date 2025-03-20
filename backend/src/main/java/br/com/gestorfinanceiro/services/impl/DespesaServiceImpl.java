@@ -93,10 +93,11 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidDataException("Os dados da despesa não podem ser nulos.");
         }
 
-        try {
-            DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
+        DespesaEntity despesa = despesaRepository.findById(uuid)
+                .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
+
+        try {
             despesa.setData(despesaAtualizada.getData());
             despesa.setCategoria(despesaAtualizada.getCategoria());
             despesa.setValor(despesaAtualizada.getValor());
@@ -116,10 +117,10 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidUuidException();
         }
 
-        try {
-            DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
+        DespesaEntity despesa = despesaRepository.findById(uuid)
+                .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
+        try {
             despesaRepository.delete(despesa);
         } catch (Exception e) {
             throw new DespesaOperationException("Erro ao excluir despesa. Por favor, tente novamente.", e);
