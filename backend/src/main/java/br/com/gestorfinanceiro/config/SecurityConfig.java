@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private static final String ADMIN_ROLE = "ADMIN";
+    private static final String USER_ROLE = "USER";
 
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
@@ -34,10 +36,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll() // Rotas públicas
-                        .requestMatchers("/users/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/users/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/users/**").authenticated() // Rotas protegidas
-                        .requestMatchers("/receitas/**").hasAnyRole("ADMIN", "USER") // Apenas USER e ADMIN podem acessar as rotas de receitas
-                        .requestMatchers("/despesas/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE) // Apenas USER e ADMIN podem acessar as rotas de receitas
+                        .requestMatchers("/despesas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
