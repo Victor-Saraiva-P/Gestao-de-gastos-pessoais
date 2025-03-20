@@ -15,6 +15,8 @@ import java.util.List;
 @Repository
 public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
 
+    private static final String USER_ID = "userId";
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -23,7 +25,7 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
         String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND r.data BETWEEN :inicio AND :fim";
 
         TypedQuery<ReceitaEntity> query = entityManager.createQuery(jpql, ReceitaEntity.class);
-        query.setParameter("userId", userId);
+        query.setParameter(USER_ID, userId);
         query.setParameter("inicio", inicio);
         query.setParameter("fim", fim);
 
@@ -35,7 +37,7 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
         String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND r.data BETWEEN :inicio AND :fim ORDER BY r.data";
 
         return entityManager.createQuery(jpql, ReceitaEntity.class)
-                .setParameter("userId", userId)
+                .setParameter(USER_ID, userId)
                 .setParameter("inicio", inicio.atDay(1))
                 .setParameter("fim", fim.atEndOfMonth())
                 .getResultList();
@@ -46,7 +48,7 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
         String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND r.valor BETWEEN :min AND :max";
 
         return entityManager.createQuery(jpql, ReceitaEntity.class)
-                .setParameter("userId", userId)
+                .setParameter(USER_ID, userId)
                 .setParameter("min", min)
                 .setParameter("max", max)
                 .getResultList();

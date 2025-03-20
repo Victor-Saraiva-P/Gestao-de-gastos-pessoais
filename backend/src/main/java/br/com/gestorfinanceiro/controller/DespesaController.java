@@ -1,12 +1,12 @@
 package br.com.gestorfinanceiro.controller;
 
+import br.com.gestorfinanceiro.config.security.JwtUtil;
 import br.com.gestorfinanceiro.dto.DespesaDTO;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
-import br.com.gestorfinanceiro.services.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/despesas")
@@ -126,7 +125,7 @@ public class DespesaController {
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()
                 .map(despesaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(despesaDTO);
     }
@@ -145,7 +144,7 @@ public class DespesaController {
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()
                 .map(despesaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(despesaDTO);
     }

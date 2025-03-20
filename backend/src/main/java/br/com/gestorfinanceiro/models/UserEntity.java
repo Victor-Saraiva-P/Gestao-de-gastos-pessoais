@@ -34,8 +34,6 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Roles role;
 
-    public UserEntity() {}
-
     public String getUuid() {
         return uuid;
     }
