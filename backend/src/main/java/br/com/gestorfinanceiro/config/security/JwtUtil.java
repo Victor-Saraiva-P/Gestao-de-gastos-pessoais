@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.services;
+package br.com.gestorfinanceiro.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

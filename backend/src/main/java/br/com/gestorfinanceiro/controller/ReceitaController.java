@@ -1,11 +1,11 @@
 package br.com.gestorfinanceiro.controller;
 
+import br.com.gestorfinanceiro.config.security.JwtUtil;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.dto.ReceitaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
-import br.com.gestorfinanceiro.services.JwtUtil;
 import br.com.gestorfinanceiro.services.ReceitaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/receitas")
@@ -126,7 +125,7 @@ public class ReceitaController {
         // Converte a lista de receitas para DTOs
         List<ReceitaDTO> receitasDTO = receitas.stream()
                 .map(receitaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(receitasDTO);
     }
@@ -145,7 +144,7 @@ public class ReceitaController {
         // Converte a lista de receitas para DTOs
         List<ReceitaDTO> receitasDTO = receitas.stream()
                 .map(receitaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(receitasDTO);
     }

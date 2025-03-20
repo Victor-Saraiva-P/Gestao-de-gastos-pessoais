@@ -1,7 +1,6 @@
 package br.com.gestorfinanceiro.repositories.custom;
 
 import br.com.gestorfinanceiro.models.DespesaEntity;
-import br.com.gestorfinanceiro.models.ReceitaEntity;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;

@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.services;
 
+import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 
@@ -7,8 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
-import br.com.gestorfinanceiro.models.ReceitaEntity;
 
 public interface DespesaService {
 
