@@ -1,7 +1,6 @@
 package br.com.gestorfinanceiro.repositories.custom.impl;
 
 import br.com.gestorfinanceiro.models.DespesaEntity;
-import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.repositories.custom.DespesaRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
