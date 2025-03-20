@@ -3,7 +3,8 @@ package br.com.gestorfinanceiro.services.impl;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.MissingUuidException;
+import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
@@ -59,7 +60,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public List<ReceitaEntity> listarReceitasUsuario(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new InvalidUserIdException();
         }
 
         try {
@@ -72,7 +73,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public ReceitaEntity buscarReceitaPorId(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUuidException();
         }
 
         return receitaRepository.findById(uuid)
@@ -84,7 +85,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public ReceitaEntity atualizarReceita(String uuid, ReceitaEntity receitaAtualizada) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUuidException();
         }
 
         if (receitaAtualizada == null) {
@@ -112,7 +113,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Transactional
     public void excluirReceita(String uuid) {
         if (uuid == null || uuid.trim().isEmpty()) {
-            throw new MissingUuidException();
+            throw new InvalidUuidException();
         }
 
         try {
@@ -162,7 +163,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public List<ReceitaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new InvalidUserIdException();
         }
 
         if (inicio == null || fim == null) {
@@ -183,7 +184,7 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public List<ReceitaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
         if (userId == null || userId.trim().isEmpty()) {
-            throw new InvalidDataException("O userId não pode ser nulo ou vazio.");
+            throw new InvalidUserIdException();
         }
 
         if (min == null || max == null) {
