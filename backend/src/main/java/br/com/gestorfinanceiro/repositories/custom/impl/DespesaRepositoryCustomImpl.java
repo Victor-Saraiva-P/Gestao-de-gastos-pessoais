@@ -15,27 +15,28 @@ import java.util.List;
 @Repository
 public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
+    private final static String USER_ID = "userId";
+
     @PersistenceContext
     private EntityManager entityManager;
-
 
     @Override
     public List<DespesaEntity> findByUserAndYearMonthRange(String userId, YearMonth inicio, YearMonth fim) {
         String jpql = "SELECT d FROM DespesaEntity d WHERE d.user.uuid = :userId AND d.data BETWEEN :inicio AND :fim ORDER BY d.data";
 
         return entityManager.createQuery(jpql, DespesaEntity.class)
-                .setParameter("userId", userId)
+                .setParameter(USER_ID, userId)
                 .setParameter("inicio", inicio.atDay(1))
                 .setParameter("fim", fim.atEndOfMonth())
                 .getResultList();
     }
 
     @Override
-    public List<DespesaEntity> findByUserAndDateRange(String userId, LocalDate inicio, LocalDate fim){
+    public List<DespesaEntity> findByUserAndDateRange(String userId, LocalDate inicio, LocalDate fim) {
         String jpql = "SELECT d FROM DespesaEntity d WHERE d.user.uuid = :userId AND d.data BETWEEN :inicio AND :fim";
 
         TypedQuery<DespesaEntity> query = entityManager.createQuery(jpql, DespesaEntity.class);
-        query.setParameter("userId", userId);
+        query.setParameter(USER_ID, userId);
         query.setParameter("inicio", inicio);
         query.setParameter("fim", fim);
 
@@ -47,7 +48,7 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
         String jpql = "SELECT r FROM DespesaEntity r WHERE r.user.uuid = :userId AND r.valor BETWEEN :min AND :max";
 
         return entityManager.createQuery(jpql, DespesaEntity.class)
-                .setParameter("userId", userId)
+                .setParameter(USER_ID, userId)
                 .setParameter("min", min)
                 .setParameter("max", max)
                 .getResultList();
