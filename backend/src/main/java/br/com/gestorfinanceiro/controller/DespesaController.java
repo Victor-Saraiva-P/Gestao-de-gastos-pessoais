@@ -1,12 +1,12 @@
 package br.com.gestorfinanceiro.controller;
 
+import br.com.gestorfinanceiro.config.security.JwtUtil;
 import br.com.gestorfinanceiro.dto.DespesaDTO;
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
-import br.com.gestorfinanceiro.services.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

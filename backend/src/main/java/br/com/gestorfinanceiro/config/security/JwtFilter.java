@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.services;
+package br.com.gestorfinanceiro.config.security;
 
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,8 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(token, email)) {
                     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(userEntity, null, authorities);
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userEntity, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }

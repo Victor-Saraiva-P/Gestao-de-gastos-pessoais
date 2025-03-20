@@ -1,7 +1,6 @@
-package br.com.gestorfinanceiro.config;
+package br.com.gestorfinanceiro.config.security;
 
 import br.com.gestorfinanceiro.exceptions.ApiError;
-import br.com.gestorfinanceiro.services.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
