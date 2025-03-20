@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
-    private final static String USER_ID = "userId";
+    private static final String USER_ID = "userId";
 
     @PersistenceContext
     private EntityManager entityManager;
