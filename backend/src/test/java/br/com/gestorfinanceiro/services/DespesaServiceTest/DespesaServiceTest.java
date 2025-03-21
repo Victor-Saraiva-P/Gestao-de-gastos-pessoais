@@ -89,50 +89,56 @@ class DespesaServiceTest {
 
         @Test
         void erroAoCriarDespesaNula() {
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, user.getUuid()));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, userId));
         }
 
         @Test
         void erroAoCriarDespesaComValorInvalido() {
             despesa.setValor(BigDecimal.ZERO);
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
         void erroAoCriarDespesaComValorNulo() {
             despesa.setValor(null);
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
         void erroAoCriarDespesaComValorNegativo() {
             despesa.setValor(BigDecimal.valueOf(-100));
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
         void erroAoCriarDespesaUsuarioNaoEncontrado() {
             when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+            String userId = UUID.randomUUID().toString();
 
-            assertThrows(RuntimeException.class, () -> despesaService.criarDespesa(despesa, UUID.randomUUID().toString()));
+            assertThrows(RuntimeException.class, () -> despesaService.criarDespesa(despesa, userId));
         }
 
         @Test
         void criarDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
             // Arrange
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setValor(BigDecimal.valueOf(100));
-            despesa.setData(LocalDate.now());
-            despesa.setCategoria(DespesasCategorias.ALIMENTACAO);
+            DespesaEntity despesaTest = new DespesaEntity();
+            despesaTest.setValor(BigDecimal.valueOf(100));
+            despesaTest.setData(LocalDate.now());
+            despesaTest.setCategoria(DespesasCategorias.ALIMENTACAO);
 
-            UserEntity user = new UserEntity();
-            user.setUuid(UUID.randomUUID().toString());
+            UserEntity userTest = new UserEntity();
+            String userId = UUID.randomUUID().toString();
+            userTest.setUuid(userId);
 
-            when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(despesaRepository.save(any(DespesaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
 
             // Act & Assert
-            assertThrows(DespesaOperationException.class, () -> despesaService.criarDespesa(despesa, user.getUuid()));
+            assertThrows(DespesaOperationException.class, () -> despesaService.criarDespesa(despesaTest, userId));
         }
     }
 
@@ -141,9 +147,10 @@ class DespesaServiceTest {
 
         @Test
         void deveListarDespesasUsuario() {
-            when(despesaRepository.findAllByUserUuid(user.getUuid())).thenReturn(List.of(despesa));
+            String userId = user.getUuid();
+            when(despesaRepository.findAllByUserUuid(userId)).thenReturn(List.of(despesa));
 
-            List<DespesaEntity> despesas = despesaService.listarDespesasUsuario(user.getUuid());
+            List<DespesaEntity> despesas = despesaService.listarDespesasUsuario(userId);
             assertFalse(despesas.isEmpty());
         }
 
@@ -155,9 +162,10 @@ class DespesaServiceTest {
 
         @Test
         void erroAoListarDespesasVazia() {
+            String userId = UUID.randomUUID().toString();
             when(despesaRepository.findAllByUserUuid(anyString())).thenReturn(List.of());
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.listarDespesasUsuario(UUID.randomUUID().toString()));
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.listarDespesasUsuario(userId));
         }
     }
 
@@ -174,9 +182,10 @@ class DespesaServiceTest {
 
         @Test
         void erroAoBuscarDespesaPorIdInexistente() {
+            String userId = UUID.randomUUID().toString();
             when(despesaRepository.findById(anyString())).thenReturn(Optional.empty());
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.buscarDespesaPorId(UUID.randomUUID().toString()));
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.buscarDespesaPorId(userId));
         }
 
         @Test
@@ -202,14 +211,16 @@ class DespesaServiceTest {
 
         @Test
         void erroAoAtualizarDespesaInexistente() {
+            String userId = UUID.randomUUID().toString();
             when(despesaRepository.findById(anyString())).thenReturn(Optional.empty());
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.atualizarDespesa(UUID.randomUUID().toString(), despesa));
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.atualizarDespesa(userId, despesa));
         }
 
         @Test
         void erroAoAtualizarDespesaNula() {
-            assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(UUID.randomUUID().toString(), null));
+            String userId = UUID.randomUUID().toString();
+            assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(userId, null));
         }
 
         @Test
@@ -221,20 +232,22 @@ class DespesaServiceTest {
         @Test
         void atualizarDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
             // Arrange
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setUuid(UUID.randomUUID().toString());
-            despesa.setValor(BigDecimal.valueOf(100));
-            despesa.setData(LocalDate.now());
-            despesa.setCategoria(DespesasCategorias.ALIMENTACAO);
+            DespesaEntity despesaTest = new DespesaEntity();
+            despesaTest.setUuid(UUID.randomUUID().toString());
+            despesaTest.setValor(BigDecimal.valueOf(100));
+            despesaTest.setData(LocalDate.now());
+            despesaTest.setCategoria(DespesasCategorias.ALIMENTACAO);
+
+            String despesaId = despesaTest.getUuid();
 
             DespesaEntity despesaAtualizada = new DespesaEntity();
             despesaAtualizada.setValor(BigDecimal.valueOf(200));
 
-            when(despesaRepository.findById(despesa.getUuid())).thenReturn(Optional.of(despesa));
+            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesaTest));
             when(despesaRepository.save(any(DespesaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
 
             // Act & Assert
-            assertThrows(DespesaOperationException.class, () -> despesaService.atualizarDespesa(despesa.getUuid(), despesaAtualizada));
+            assertThrows(DespesaOperationException.class, () -> despesaService.atualizarDespesa(despesaId, despesaAtualizada));
         }
     }
 
@@ -243,18 +256,20 @@ class DespesaServiceTest {
 
         @Test
         void deveExcluirDespesa() {
-            when(despesaRepository.findById(despesa.getUuid())).thenReturn(Optional.of(despesa));
+            String despesaId = despesa.getUuid();
+            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesa));
             doNothing().when(despesaRepository).delete(despesa); // Verifica o método delete
 
-            despesaService.excluirDespesa(despesa.getUuid());
+            despesaService.excluirDespesa(despesaId);
             verify(despesaRepository, times(1)).delete(despesa); // Verifica o método delete
         }
 
         @Test
         void erroAoExcluirDespesaInexistente() {
+            String despesaId = UUID.randomUUID().toString();
             when(despesaRepository.findById(anyString())).thenReturn(Optional.empty());
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.excluirDespesa(UUID.randomUUID().toString()));
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.excluirDespesa(despesaId));
         }
 
         @Test
@@ -266,14 +281,16 @@ class DespesaServiceTest {
         @Test
         void excluirDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
             // Arrange
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setUuid(UUID.randomUUID().toString());
+            DespesaEntity despesaTest = new DespesaEntity();
+            despesaTest.setUuid(UUID.randomUUID().toString());
 
-            when(despesaRepository.findById(despesa.getUuid())).thenReturn(Optional.of(despesa));
-            doThrow(new RuntimeException("Erro no repositório")).when(despesaRepository).delete(despesa);
+            String despesaId = despesaTest.getUuid();
+
+            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesaTest));
+            doThrow(new RuntimeException("Erro no repositório")).when(despesaRepository).delete(despesaTest);
 
             // Act & Assert
-            assertThrows(DespesaOperationException.class, () -> despesaService.excluirDespesa(despesa.getUuid()));
+            assertThrows(DespesaOperationException.class, () -> despesaService.excluirDespesa(despesaId));
         }
     }
 
@@ -339,16 +356,18 @@ class DespesaServiceTest {
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComDatasNulas() {
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), null, LocalDate.of(2024, 2, 18)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), LocalDate.of(2024, 1, 1), null));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, null, LocalDate.of(2024, 2, 18)));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, LocalDate.of(2024, 1, 1), null));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComInicioDepoisDoFim() {
+            String userId = user.getUuid();
             LocalDate inicio = LocalDate.of(2024, 1, 10);
             LocalDate fim = LocalDate.of(2024, 1, 5);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim));
         }
 
         @Test
@@ -390,22 +409,25 @@ class DespesaServiceTest {
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresNulos() {
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), null, BigDecimal.valueOf(150)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), BigDecimal.valueOf(100), null));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, null, BigDecimal.valueOf(150)));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.valueOf(100), null));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresMenoresOuIguaisAZero() {
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), BigDecimal.ZERO, BigDecimal.valueOf(150)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), BigDecimal.valueOf(100), BigDecimal.ZERO));
+            String userId = user.getUuid();
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.ZERO, BigDecimal.valueOf(150)));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.valueOf(100), BigDecimal.ZERO));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComMinMaiorQueMax() {
+            String userId = user.getUuid();
             BigDecimal min = BigDecimal.valueOf(200);
             BigDecimal max = BigDecimal.valueOf(100);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max));
         }
 
         @Test
