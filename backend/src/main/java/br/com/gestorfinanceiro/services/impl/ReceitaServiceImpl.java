@@ -117,10 +117,10 @@ public class ReceitaServiceImpl implements ReceitaService {
             throw new InvalidUuidException();
         }
 
-        try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
                     .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
+        try {
             receitaRepository.delete(receita);
         } catch (Exception e) {
             throw new ReceitaOperationException("Erro ao excluir receita. Por favor, tente novamente.", e);
