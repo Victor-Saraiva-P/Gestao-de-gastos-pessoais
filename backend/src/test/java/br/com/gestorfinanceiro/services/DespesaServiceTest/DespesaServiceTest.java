@@ -282,6 +282,7 @@ class DespesaServiceTest {
         @Test
         void deveBuscarDespesasPorIntervaloDeDatas() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
 
             // Criando despesas em datas diferentes
             criarDespesaComValorEData(user, BigDecimal.valueOf(100), LocalDate.of(2024, 1, 10));
@@ -291,7 +292,7 @@ class DespesaServiceTest {
             LocalDate inicio = LocalDate.of(2024, 1, 1);
             LocalDate fim = LocalDate.of(2024, 2, 18);
 
-            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim);
+            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim);
 
             // Verifica se as despesas estão corretas
             assertNotNull(despesas);
@@ -312,27 +313,30 @@ class DespesaServiceTest {
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComDatasNulas() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
             LocalDate inicio = null;
             LocalDate inicio2 = LocalDate.of(2024, 1, 1);
             LocalDate fim = null;
             LocalDate fim2 = LocalDate.of(2024, 2, 18);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio2, fim));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio2, fim));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComInicioDepoisDoFim() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
             LocalDate inicio = LocalDate.of(2024, 1, 10);
             LocalDate fim = LocalDate.of(2024, 1, 5);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim));
         }
 
         @Test
         void deveBuscarDespesasPorIntervaloDeValores() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
 
             // Criando despesas com valores diferentes
             criarDespesaComValorEData(user, BigDecimal.valueOf(100), LocalDate.of(2024, 1, 10));
@@ -342,7 +346,7 @@ class DespesaServiceTest {
             BigDecimal min = BigDecimal.valueOf(100);
             BigDecimal max = BigDecimal.valueOf(150);
 
-            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max);
+            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max);
 
             // Verifica se as despesas estão corretas
             assertNotNull(despesas);
@@ -363,33 +367,36 @@ class DespesaServiceTest {
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresNulos() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
             BigDecimal min = null;
             BigDecimal min2 = BigDecimal.valueOf(100);
             BigDecimal max = null;
             BigDecimal max2 = BigDecimal.valueOf(150);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min2, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min2, max));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresMenoresOuIguaisAZero() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
             BigDecimal min = BigDecimal.ZERO;
             BigDecimal min2 = BigDecimal.valueOf(100);
             BigDecimal max = BigDecimal.ZERO;
             BigDecimal max2 = BigDecimal.valueOf(150);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min2, max));        }
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min2, max));        }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComMinMaiorQueMax() {
             UserEntity user = criarUsuarioTest();
+            String userId = user.getUuid();
             BigDecimal min = BigDecimal.valueOf(200);
             BigDecimal max = BigDecimal.valueOf(100);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max));
         }
     }
 
