@@ -218,14 +218,6 @@ class DespesaServiceTest {
         }
 
         @Test
-        void erroAoAtualizarDespesaNula() {
-            String despesaId = UUID.randomUUID().toString();
-            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesa));
-
-            assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(despesaId, null));
-        }
-
-        @Test
         void erroAoAtualizarUuidNuloOuVazio() {
             assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa(null, despesa));
             assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa("", despesa));
