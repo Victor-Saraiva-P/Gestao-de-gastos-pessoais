@@ -162,7 +162,7 @@ public class DespesaServiceImpl implements DespesaService {
     }
 
     @Override
-    public List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
+    public List<DespesaEntity> buscarDespesasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -183,7 +183,7 @@ public class DespesaServiceImpl implements DespesaService {
     }
 
     @Override
-    public List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
+    public List<DespesaEntity> buscarDespesasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new InvalidUserIdException();
         }
