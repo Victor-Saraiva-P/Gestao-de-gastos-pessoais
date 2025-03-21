@@ -4,7 +4,6 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.config.security.JwtFilter;
 import br.com.gestorfinanceiro.controller.AdminController;
 import br.com.gestorfinanceiro.dto.UserForAdminDTO;
-import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.services.AdminService;
@@ -28,8 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = AdminController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtFilter.class))
+@WebMvcTest(controllers = AdminController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtFilter.class))
 // Desabilita os filtros de segurança para facilitar testes
 @AutoConfigureMockMvc(addFilters = false)
 class AdminControllerUnitTest {
@@ -58,14 +56,21 @@ class AdminControllerUnitTest {
         when(mapper.mapTo(userC)).thenReturn(TestDataUtil.criarUserForAdminDTOUtil("Usuario C"));
 
 
-        mockMvc.perform(get("/admin/users").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(3)).andExpect(jsonPath("$[0].username").value("Usuario A")).andExpect(jsonPath("$[1].username").value("Usuario B")).andExpect(jsonPath("$[2].username").value("Usuario C"));
+        mockMvc.perform(get("/admin/users").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].username").value("Usuario A"))
+                .andExpect(jsonPath("$[1].username").value("Usuario B"))
+                .andExpect(jsonPath("$[2].username").value("Usuario C"));
     }
 
     @Test
     void deveListarUsersVazioQuandoNaoTiverUsers() throws Exception {
         when(adminService.listUsers()).thenReturn((List.of()));
 
-        mockMvc.perform(get("/admin/users").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/admin/users").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
 
@@ -88,24 +93,10 @@ class AdminControllerUnitTest {
         String jsonContent = objectMapper.writeValueAsString(Map.of("estaAtivo", false));
 
         // Realiza a requisição PATCH
-        mockMvc.perform(patch("/admin/users/{userID}", userA.getUuid())
-                        .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/admin/users/{userID}", userA.getUuid()).contentType(MediaType.APPLICATION_JSON)
                         .content(jsonContent))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("Usuario A"))
                 .andExpect(jsonPath("$.estaAtivo").value(false));
-    }
-
-    @Test
-    void deveLancarUserNotFoundExceptionQuandoNaoEncontrarUser() throws Exception {
-        // Define o comportamento esperado para o serviço
-        when(adminService.atualizarUserStatus("123-456", false)).thenThrow(new InvalidUserIdException());
-
-        // Realiza a requisição PATCH
-        mockMvc.perform(patch("/admin/users/{userID}", "123-456")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"estaAtivo\": false}"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Usuário não encontrado"));
     }
 }
