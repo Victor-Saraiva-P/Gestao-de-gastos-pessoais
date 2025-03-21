@@ -37,7 +37,7 @@ public class AdminController {
     }
 
     @PatchMapping("/users/{userID}")
-    public ResponseEntity<UserForAdminDTO> updateUserStatus(@PathVariable String userID, @RequestBody @Valid EstaAtivoDTO estaAtivo) {
+    public ResponseEntity<UserForAdminDTO> updateUserEstaAtivo(@PathVariable String userID, @RequestBody @Valid EstaAtivoDTO estaAtivo) {
         UserEntity user = adminService.atualizarUserStatus(userID, estaAtivo.getEstaAtivo());
         return ResponseEntity.ok(userForAdminDTOMapper.mapTo(user));
     }
