@@ -357,8 +357,10 @@ class DespesaServiceTest {
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComDatasNulas() {
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, null, LocalDate.of(2024, 2, 18)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, LocalDate.of(2024, 1, 1), null));
+            LocalDate inicio = LocalDate.of(2024, 1, 1);
+            LocalDate fim = LocalDate.of(2024, 2, 18);
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, null, fim));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, null));
         }
 
         @Test
@@ -410,15 +412,21 @@ class DespesaServiceTest {
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresNulos() {
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, null, BigDecimal.valueOf(150)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.valueOf(100), null));
+            BigDecimal min = BigDecimal.valueOf(100);
+            BigDecimal max = BigDecimal.valueOf(150);
+
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, null, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, null));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresMenoresOuIguaisAZero() {
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.ZERO, BigDecimal.valueOf(150)));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.valueOf(100), BigDecimal.ZERO));
+            BigDecimal min = BigDecimal.valueOf(100);
+            BigDecimal max = BigDecimal.valueOf(150);
+
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, BigDecimal.ZERO, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, BigDecimal.ZERO));
         }
 
         @Test
