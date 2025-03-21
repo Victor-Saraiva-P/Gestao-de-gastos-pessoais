@@ -120,7 +120,7 @@ public class DespesaController {
         String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
-        List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
+        List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim);
 
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()
@@ -139,7 +139,7 @@ public class DespesaController {
         String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
-        List<DespesaEntity> despesas = despesaService.buscarReceitasPorIntervaloDeValores(userId, min, max);
+        List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max);
 
         // Converte a lista de receitas para DTOs
         List<DespesaDTO> despesaDTO = despesas.stream()

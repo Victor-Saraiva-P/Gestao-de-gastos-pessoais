@@ -25,7 +25,7 @@ public interface DespesaService {
 
     GraficoPizzaDTO gerarGraficoPizza(String userId, LocalDate inicio, LocalDate fim);
 
-    List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim);
+    List<DespesaEntity> buscarDespesasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim);
 
-    List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max);
+    List<DespesaEntity> buscarDespesasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max);
 }
