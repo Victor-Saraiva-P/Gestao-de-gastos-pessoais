@@ -5,14 +5,16 @@ public class UserForAdminDTO {
     private String username;
     private String email;
     private String role;
-    private String status;
+    private Boolean estaAtivo;
 
-    public String getStatus() {
-        return status;
+    // getters e setters
+
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getUsername() {
@@ -39,11 +41,11 @@ public class UserForAdminDTO {
         this.role = role;
     }
 
-    public String getUuid() {
-        return uuid;
+    public Boolean getEstaAtivo() {
+        return estaAtivo;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setEstaAtivo(Boolean estaAtivo) {
+        this.estaAtivo = estaAtivo;
     }
 }

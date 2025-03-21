@@ -1,7 +1,6 @@
 package br.com.gestorfinanceiro.models;
 
 import br.com.gestorfinanceiro.models.enums.Roles;
-import br.com.gestorfinanceiro.models.enums.Status;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,9 +34,8 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Roles role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
-    private Status status = Status.ACTIVE;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean estaAtivo = true;
 
     // Getters e Setters
 
@@ -83,12 +81,12 @@ public class UserEntity implements UserDetails {
         this.role = role;
     }
 
-    public Status getStatus() {
-        return status;
+    public Boolean getEstaAtivo() {
+        return estaAtivo;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setEstaAtivo(Boolean isActive) {
+        this.estaAtivo = isActive;
     }
 
     // Métodos da interface UserDetails
