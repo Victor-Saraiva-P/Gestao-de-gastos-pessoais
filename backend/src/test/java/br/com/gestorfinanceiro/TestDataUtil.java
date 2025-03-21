@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro;
 
 import br.com.gestorfinanceiro.dto.UserDTO;
+import br.com.gestorfinanceiro.dto.UserForAdminDTO;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.Roles;
 
@@ -36,5 +37,14 @@ public class TestDataUtil {
         userDTO.setRole("USER");
 
         return userDTO;
+    }
+
+    public static UserForAdminDTO criarUserForAdminDTOUtil(String nome) {
+        UserForAdminDTO userForAdminDTO = new UserForAdminDTO();
+        userForAdminDTO.setUsername(nome);
+        userForAdminDTO.setEmail(nome + "@gmail.com");
+        userForAdminDTO.setEstaAtivo(true);
+
+        return userForAdminDTO;
     }
 }
