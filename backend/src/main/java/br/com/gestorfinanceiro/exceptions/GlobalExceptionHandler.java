@@ -83,7 +83,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
-        // Handler para quando a despesa não for encontrada
+    // Handler para quando a despesa não for encontrada
     @ExceptionHandler(DespesaNotFoundException.class)
     public ResponseEntity<ApiError> handleDespesaNotFoundException(DespesaNotFoundException ex) {
         logException("Despesa não encontrada", ex);
@@ -107,6 +107,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao processar a operação na despesa. Por favor, tente novamente.", errors);
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // Handler para quando um usuario não for encontrado
+    @ExceptionHandler(InvalidUserIdException.class)
+    public ResponseEntity<ApiError> handleInvalidUserIdException(InvalidUserIdException ex) {
+        logException("Usuário não encontrado", ex);
+
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Usuário não encontrado");
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
     // Handler para erros de parse de JSON na requisição (ex: JSON malformado, formato de data inválido, tipos incompatíveis)

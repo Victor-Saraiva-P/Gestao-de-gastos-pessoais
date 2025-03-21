@@ -34,6 +34,11 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Roles role;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean estaAtivo = true;
+
+    // Getters e Setters
+
     public String getUuid() {
         return uuid;
     }
@@ -74,6 +79,14 @@ public class UserEntity implements UserDetails {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    public Boolean getEstaAtivo() {
+        return estaAtivo;
+    }
+
+    public void setEstaAtivo(Boolean isActive) {
+        this.estaAtivo = isActive;
     }
 
     // Métodos da interface UserDetails
