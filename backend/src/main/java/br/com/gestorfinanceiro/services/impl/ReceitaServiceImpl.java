@@ -63,10 +63,12 @@ public class ReceitaServiceImpl implements ReceitaService {
             throw new InvalidUserIdException();
         }
 
-        try {
-            return receitaRepository.findAllByUserUuid(userId);
-        } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao listar receitas. Por favor, tente novamente.", e);
+        List<ReceitaEntity> receitas = receitaRepository.findAllByUserUuid(userId);
+
+        if (receitas.isEmpty()) {
+            throw new ReceitaNotFoundException(userId);
+        } else {
+            return receitas;
         }
     }
 
