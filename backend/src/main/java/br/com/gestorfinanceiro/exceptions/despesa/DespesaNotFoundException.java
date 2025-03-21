@@ -2,6 +2,6 @@ package br.com.gestorfinanceiro.exceptions.despesa;
 
 public class DespesaNotFoundException extends RuntimeException {
     public DespesaNotFoundException(String uuid) {
-        super("Despesa com UUID " + uuid + " não encontrada");
+        super("Nenhuma despesa encontrada para o usuário de ID: " + uuid + ".");
     }
 }
