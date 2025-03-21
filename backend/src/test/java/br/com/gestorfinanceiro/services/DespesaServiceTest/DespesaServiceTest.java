@@ -118,8 +118,10 @@ class DespesaServiceTest {
         }
 
         @Test
-        void erroAoListarDespesasUsuarioComIdNulo() {
-            assertThrows(InvalidUserIdException.class, () -> despesaService.listarDespesasUsuario(null));
+        void erroAoListarDespesasUsuarioComIdNuloOuVazio() {
+            String uuid = null;
+            assertThrows(InvalidUserIdException.class, () -> despesaService.listarDespesasUsuario(uuid));
+            assertThrows(InvalidUserIdException.class, () -> despesaService.listarDespesasUsuario(""));
         }
     }
 
@@ -142,9 +144,11 @@ class DespesaServiceTest {
         }
 
         @Test
-        void erroAoBuscarDespesaPorIdNulo() {
+        void erroAoBuscarDespesaPorIdNuloOuVazio() {
             String uuid = null;
+
             assertThrows(InvalidUuidException.class, () -> despesaService.buscarDespesaPorId(uuid));
+            assertThrows(InvalidUuidException.class, () -> despesaService.buscarDespesaPorId(""));
         }
     }
 
@@ -177,6 +181,15 @@ class DespesaServiceTest {
 
             assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(uuid, despesa));
         }
+
+        @Test
+        void erroAoAtualizarUuidNuloOuVazio() {
+            DespesaEntity despesa = criarDespesaTest();
+            String uuid = null;
+
+            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa(uuid, despesa));
+            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa("", despesa));
+        }
     }
 
     @Nested
@@ -199,10 +212,11 @@ class DespesaServiceTest {
         }
 
         @Test
-        void erroAoExcluirDespesaComUuidNulo() {
+        void erroAoExcluirDespesaComUuidNuloOuVazio() {
             String uuidNull = null;
 
             assertThrows(InvalidUuidException.class, () -> despesaService.excluirDespesa(uuidNull));
+            assertThrows(InvalidUuidException.class, () -> despesaService.excluirDespesa(""));
         }
     }
 
@@ -299,9 +313,12 @@ class DespesaServiceTest {
         void erroAoBuscarDespesasPorIntervaloDeDatasComDatasNulas() {
             UserEntity user = criarUsuarioTest();
             LocalDate inicio = null;
+            LocalDate inicio2 = LocalDate.of(2024, 1, 1);
             LocalDate fim = null;
+            LocalDate fim2 = LocalDate.of(2024, 2, 18);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio, fim2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), inicio2, fim));
         }
 
         @Test
@@ -347,19 +364,24 @@ class DespesaServiceTest {
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresNulos() {
             UserEntity user = criarUsuarioTest();
             BigDecimal min = null;
+            BigDecimal min2 = BigDecimal.valueOf(100);
             BigDecimal max = null;
+            BigDecimal max2 = BigDecimal.valueOf(150);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min2, max));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresMenoresOuIguaisAZero() {
             UserEntity user = criarUsuarioTest();
             BigDecimal min = BigDecimal.ZERO;
+            BigDecimal min2 = BigDecimal.valueOf(100);
             BigDecimal max = BigDecimal.ZERO;
+            BigDecimal max2 = BigDecimal.valueOf(150);
 
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max));
-        }
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min, max2));
+            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), min2, max));        }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComMinMaiorQueMax() {
