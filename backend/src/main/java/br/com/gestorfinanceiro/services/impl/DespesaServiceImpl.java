@@ -7,7 +7,6 @@ import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
@@ -64,10 +63,12 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidUserIdException();
         }
 
-        try {
-            return despesaRepository.findAllByUserUuid(userId);
-        } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao listar despesas. Por favor, tente novamente.", e);
+        List<DespesaEntity> despesas = despesaRepository.findAllByUserUuid(userId);
+
+        if (despesas.isEmpty()) {
+            throw new DespesaNotFoundException(userId);
+        } else {
+            return despesas;
         }
     }
 
@@ -178,7 +179,7 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndDateRange(userId, inicio, fim);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de datas. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de datas. Por favor, tente novamente.", e);
         }
     }
 
@@ -203,7 +204,7 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndValueBetween(userId, min, max);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de valores. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de valores. Por favor, tente novamente.", e);
         }
     }
 }
