@@ -94,16 +94,15 @@ public class ReceitaServiceImpl implements ReceitaService {
             throw new InvalidDataException("Os dados da receita não podem ser nulos.");
         }
 
-        try {
             ReceitaEntity receita = receitaRepository.findById(uuid)
                     .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
+        try {
             receita.setData(receitaAtualizada.getData());
             receita.setCategoria(receitaAtualizada.getCategoria());
             receita.setValor(receitaAtualizada.getValor());
             receita.setOrigemDoPagamento(receitaAtualizada.getOrigemDoPagamento());
             receita.setObservacoes(receitaAtualizada.getObservacoes());
-
 
             return receitaRepository.save(receita);
         } catch (Exception e) {
