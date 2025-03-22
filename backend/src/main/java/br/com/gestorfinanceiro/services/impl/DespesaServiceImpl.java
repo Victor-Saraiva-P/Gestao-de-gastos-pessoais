@@ -7,7 +7,6 @@ import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
@@ -64,10 +63,12 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidUserIdException();
         }
 
-        try {
-            return despesaRepository.findAllByUserUuid(userId);
-        } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao listar despesas. Por favor, tente novamente.", e);
+        List<DespesaEntity> despesas = despesaRepository.findAllByUserUuid(userId);
+
+        if (despesas.isEmpty()) {
+            throw new DespesaNotFoundException(userId);
+        } else {
+            return despesas;
         }
     }
 
@@ -93,10 +94,11 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidDataException("Os dados da despesa não podem ser nulos.");
         }
 
-        try {
-            DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
+        DespesaEntity despesa = despesaRepository.findById(uuid)
+                .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
+
+        try {
             despesa.setData(despesaAtualizada.getData());
             despesa.setCategoria(despesaAtualizada.getCategoria());
             despesa.setValor(despesaAtualizada.getValor());
@@ -116,10 +118,10 @@ public class DespesaServiceImpl implements DespesaService {
             throw new InvalidUuidException();
         }
 
-        try {
-            DespesaEntity despesa = despesaRepository.findById(uuid)
-                    .orElseThrow(() -> new DespesaNotFoundException(uuid));
+        DespesaEntity despesa = despesaRepository.findById(uuid)
+                .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
+        try {
             despesaRepository.delete(despesa);
         } catch (Exception e) {
             throw new DespesaOperationException("Erro ao excluir despesa. Por favor, tente novamente.", e);
@@ -161,7 +163,7 @@ public class DespesaServiceImpl implements DespesaService {
     }
 
     @Override
-    public List<DespesaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
+    public List<DespesaEntity> buscarDespesasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -177,12 +179,12 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndDateRange(userId, inicio, fim);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de datas. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de datas. Por favor, tente novamente.", e);
         }
     }
 
     @Override
-    public List<DespesaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
+    public List<DespesaEntity> buscarDespesasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -202,7 +204,7 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndValueBetween(userId, min, max);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de valores. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de valores. Por favor, tente novamente.", e);
         }
     }
 }

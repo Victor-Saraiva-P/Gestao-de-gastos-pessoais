@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**").permitAll() // Rotas públicas
                         .requestMatchers("/users/admin/**").hasRole(ADMIN_ROLE)
+                        .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/users/**").authenticated() // Rotas protegidas
                         .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE) // Apenas USER e ADMIN podem acessar as rotas de receitas
                         .requestMatchers("/despesas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
