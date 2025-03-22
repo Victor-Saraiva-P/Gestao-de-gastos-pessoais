@@ -226,6 +226,13 @@ class ReceitaServiceTest {
         }
 
         @Test
+        void erroAoAtualizarReceitaNula() {
+            String receitaId = UUID.randomUUID().toString();
+
+            assertThrows(InvalidDataException.class, () -> receitaService.atualizarReceita(receitaId, null));
+        }
+
+        @Test
         void atualizarReceita_DeveLancarReceitaOperationException_QuandoRepositorioFalhar() {
             // Arrange
             ReceitaEntity receitaTest = new ReceitaEntity();

@@ -13,6 +13,7 @@ import br.com.gestorfinanceiro.models.enums.Roles;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.ReceitaService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,13 @@ class ReceitaServiceIntegrationTest {
         userRepository.deleteAll();
     }
 
+    @AfterEach
+    void tearDown() {
+        receitaRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+
     @Test
     void deveCarregarReceitaService() {
         assertNotNull(receitaService, "O ReceitaService não deveria ser nulo!");
@@ -77,7 +85,7 @@ class ReceitaServiceIntegrationTest {
         @Test
         void erroAoCriarReceitaComValorInvalido() {
             UserEntity user = criarUsuarioTest();
-            ReceitaEntity receita = new ReceitaEntity();
+            ReceitaEntity receita = criarReceitaTest();
             receita.setValor(BigDecimal.ZERO);
             String userId = user.getUuid();
 
@@ -87,7 +95,7 @@ class ReceitaServiceIntegrationTest {
         @Test
         void erroAoCriarReceitaComValorNulo() {
             UserEntity user = criarUsuarioTest();
-            ReceitaEntity receita = new ReceitaEntity();
+            ReceitaEntity receita = criarReceitaTest();
             receita.setValor(null);
             String userId = user.getUuid();
 
@@ -97,7 +105,7 @@ class ReceitaServiceIntegrationTest {
         @Test
         void erroAoCriarReceitaComValorNegativo() {
             UserEntity user = criarUsuarioTest();
-            ReceitaEntity receita = new ReceitaEntity();
+            ReceitaEntity receita = criarReceitaTest();
             receita.setValor(BigDecimal.valueOf(-100));
             String userId = user.getUuid();
 

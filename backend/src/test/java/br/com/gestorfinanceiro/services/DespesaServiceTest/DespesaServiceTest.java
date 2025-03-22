@@ -224,6 +224,14 @@ class DespesaServiceTest {
         }
 
         @Test
+        void erroAoAtualizarDespesaNula() {
+            String despesaId = UUID.randomUUID().toString();
+
+            assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(despesaId, null));
+        }
+
+
+        @Test
         void atualizarDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
             // Arrange
             DespesaEntity despesaTest = new DespesaEntity();
