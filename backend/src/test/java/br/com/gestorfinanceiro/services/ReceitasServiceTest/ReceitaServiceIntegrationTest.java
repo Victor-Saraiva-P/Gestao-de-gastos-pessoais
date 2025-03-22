@@ -50,9 +50,10 @@ class ReceitaServiceIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        receitaRepository.deleteAll();
-        userRepository.deleteAll();
+        receitaRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
+
 
 
     @Test
