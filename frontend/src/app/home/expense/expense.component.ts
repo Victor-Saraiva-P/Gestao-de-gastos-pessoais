@@ -156,6 +156,11 @@ export class ExpenseComponent implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
+  costTarget() {
+    this.router.navigate(['/home/expense/cost-targets']);
+  }
+
+
   refreshPage() {
     window.location.reload();
   }
