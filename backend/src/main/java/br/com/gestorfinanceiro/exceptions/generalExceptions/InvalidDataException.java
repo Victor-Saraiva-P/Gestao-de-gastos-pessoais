@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.exceptions;
+package br.com.gestorfinanceiro.exceptions.generalExceptions;
 
 public class InvalidDataException extends RuntimeException {
     public InvalidDataException(String message) {

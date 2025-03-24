@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.exceptions.admin;
+package br.com.gestorfinanceiro.exceptions.user;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String uuid) {
