@@ -3,7 +3,9 @@ package br.com.gestorfinanceiro.exceptions;
 public enum ProblemaType {
     ERRO_DE_AUTENTICACAO("Erro de autenticação", "/erro-de-autenticacao"),
     ERRO_DE_SISTEMA("Erro de sistema", "/erro-de-sistema"),
-    DADOS_INVALIDOS("Dados inválidos", "/dados-invalidos");
+    DADOS_INVALIDOS("Dados inválidos", "/dados-invalidos"),
+    PARAMETRO_INVALIDO("Parâmetro inválido", "/parametro-invalido"),
+    ;
 
 
     private final String title;
