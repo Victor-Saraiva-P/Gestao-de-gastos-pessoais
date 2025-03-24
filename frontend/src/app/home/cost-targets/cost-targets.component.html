@@ -1,1 +1,30 @@
-<p>cost-targets works!</p>
+<div class="container">
+  <h2>Definir Limite de Despesas Mensais</h2>
+
+  <!-- Seletor de Categoria -->
+  <div class="input-group">
+    <label for="categoria">Selecione uma categoria</label>
+    <select id="categoria" (change)="onCategoriaChange($event)">
+      <option *ngFor="let categoria of categorias" [value]="categoria.nome">
+        {{ categoria.nome }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Campo para limite de despesa (será mostrado após selecionar a categoria) -->
+  <div *ngIf="categoriaSelecionada">
+    <div class="input-group">
+      <label for="limiteDespesa">{{ categoriaSelecionada }} - Limite:</label>
+      <input
+        id="limiteDespesa"
+        [(ngModel)]="categoriaSelecionadaLimite"
+        type="number"
+        min="0"
+        (input)="atualizarLimite()"
+      />
+    </div>
+  </div>
+
+  <!-- Botão para salvar o limite -->
+  <button (click)="salvarLimite()">Salvar Limite</button>
+</div>
