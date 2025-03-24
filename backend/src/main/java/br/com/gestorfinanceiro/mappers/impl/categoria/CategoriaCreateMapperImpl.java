@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.mappers.impl.categoria;
 
-import br.com.gestorfinanceiro.dto.CategoriaCreateDTO;
+import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import org.modelmapper.ModelMapper;
