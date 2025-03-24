@@ -7,6 +7,8 @@ import { authGuard } from "./auth/auth.guard";
 import { IncomeComponent } from "./home/income/income.component";
 import { RootComponent } from "./root/root.component";
 import { ExpenseComponent } from "./home/expense/expense.component";
+import { AdminComponent } from "./admin/admin.component";
+import { CostTargetsComponent } from "./home/cost-targets/cost-targets.component";
 
 
 const routeConfig: Routes = [
@@ -28,10 +30,10 @@ const routeConfig: Routes = [
         title: 'Home' 
     },
     { 
-        path: 'home/admin', component: HomeComponent, 
+        path: 'home/admin', component: AdminComponent, 
         canActivate: [authGuard],
         data: {role: 'ADMIN'},
-        title: 'Teste filtro de role' 
+        title: 'Admin' 
     },
     {
         path: 'unauthorized', component: UnauthorizedComponent, title: 'Unauthorized'
@@ -45,6 +47,11 @@ const routeConfig: Routes = [
         path: 'home/expense', component: ExpenseComponent, 
         canActivate: [authGuard],
         title: 'Despesas' 
+    },
+    { 
+        path: 'home/expense/cost-targets', component: CostTargetsComponent, 
+        canActivate: [authGuard],
+        title: 'Metas de despesas' 
     },
 ]; 
 
