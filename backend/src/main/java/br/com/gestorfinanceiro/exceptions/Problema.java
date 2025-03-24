@@ -2,8 +2,6 @@ package br.com.gestorfinanceiro.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.time.LocalDateTime;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Problema {
 
@@ -17,7 +15,7 @@ public class Problema {
     }
 
     // Construtor completo
-    public Problema(int status, String type, String title, String detail, LocalDateTime dataHora) {
+    public Problema(int status, String type, String title, String detail) {
         this.status = status;
         this.type = type;
         this.title = title;
@@ -34,7 +32,6 @@ public class Problema {
         private String type;
         private String title;
         private String detail;
-        private LocalDateTime dataHora;
 
         public ProblemaBuilder status(int status) {
             this.status = status;
@@ -56,18 +53,13 @@ public class Problema {
             return this;
         }
 
-        public ProblemaBuilder dataHora(LocalDateTime dataHora) {
-            this.dataHora = dataHora;
-            return this;
-        }
-
         public ProblemaBuilder mensagem(String mensagem) {
             this.detail = mensagem;
             return this;
         }
 
         public Problema build() {
-            return new Problema(status, type, title, detail, dataHora);
+            return new Problema(status, type, title, detail);
         }
     }
 

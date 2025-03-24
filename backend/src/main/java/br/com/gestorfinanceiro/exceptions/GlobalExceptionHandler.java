@@ -1,9 +1,9 @@
 package br.com.gestorfinanceiro.exceptions;
 
+import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.generalExceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.generalExceptions.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.*;
@@ -21,9 +21,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-
-
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -33,7 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para erros internos inesperados do sistema que não possuem tratamento específico
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGenericException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleGenericException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ProblemaType problemaType = ProblemaType.ERRO_DE_SISTEMA;
 
@@ -48,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para falhas de autenticação: EmailNotFoundException e InvalidPasswordException
     @ExceptionHandler({EmailNotFoundException.class, InvalidPasswordException.class})
-    public ResponseEntity<?> handleLoginException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleLoginException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.ERRO_DE_AUTENTICACAO;
         // Mensagem genérica para credenciais inválidas para não expor o sistema
@@ -59,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para EmailAlreadyExistsException
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<?> handleEmailDuplicadoException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleEmailDuplicadoException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "E-mail já cadastrado";
@@ -69,7 +66,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para InvalidUserIdException
     @ExceptionHandler(InvalidUserIdException.class)
-    public ResponseEntity<?> handleInvalidUserIdException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleInvalidUserIdException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "O userId não pode ser nulo ou vazio";
@@ -79,7 +76,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para UsernameAlreadyExistsException
     @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<?> handleUsernameAlreadyExistsException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleUsernameAlreadyExistsException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Nome de usuário já cadastrado";
@@ -89,7 +86,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para UserNotFoundException
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> handleUserNotFoundException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleUserNotFoundException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Usuário não encontrado";
@@ -99,7 +96,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para UserOperationException
     @ExceptionHandler(UserOperationException.class)
-    public ResponseEntity<?> handleUserOperationException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleUserOperationException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Operação inválida para o usuário";
@@ -113,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para ReceitaNotFoundException
     @ExceptionHandler(ReceitaNotFoundException.class)
-    public ResponseEntity<?> handleReceitaNotFoundException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleReceitaNotFoundException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Receita não encontrada";
@@ -123,7 +120,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para ReceitaOperationException
     @ExceptionHandler(ReceitaOperationException.class)
-    public ResponseEntity<?> handleReceitaOperationException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleReceitaOperationException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Operação inválida para a receita";
@@ -137,7 +134,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para DespesaNotFoundException
     @ExceptionHandler(DespesaNotFoundException.class)
-    public ResponseEntity<?> handleDespesaNotFoundException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleDespesaNotFoundException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Despesa não encontrada";
@@ -147,7 +144,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para DespesaOperationException
     @ExceptionHandler(DespesaOperationException.class)
-    public ResponseEntity<?> handleDespesaOperationException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleDespesaOperationException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Operação inválida para a despesa";
@@ -161,7 +158,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para InvalidDataException
     @ExceptionHandler(InvalidDataException.class)
-    public ResponseEntity<?> handleInvalidDataException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleInvalidDataException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Dados inválidos";
@@ -171,7 +168,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handler para InvalidUuidException
     @ExceptionHandler(InvalidUuidException.class)
-    public ResponseEntity<?> handleInvalidUuidException(RuntimeException ex, WebRequest webRequest) {
+    public ResponseEntity<Object> handleInvalidUuidException(RuntimeException ex, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "UUID inválido";
@@ -236,14 +233,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (body == null) {
             body = Problema.builder()
-                    .dataHora(LocalDateTime.now())
                     .mensagem(HttpStatus.valueOf(status.value())
                             .getReasonPhrase())
                     .build();
-        } else if (body instanceof String) {
+        } else if (body instanceof String string) {
             body = Problema.builder()
-                    .dataHora(LocalDateTime.now())
-                    .mensagem((String) body)
+                    .mensagem(string)
                     .build();
         }
 
