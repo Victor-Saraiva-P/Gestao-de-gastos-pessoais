@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.controller;
 
-import br.com.gestorfinanceiro.dto.EstaAtivoDTO;
-import br.com.gestorfinanceiro.dto.UserForAdminDTO;
+import br.com.gestorfinanceiro.dto.user.EstaAtivoDTO;
+import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.services.AdminService;

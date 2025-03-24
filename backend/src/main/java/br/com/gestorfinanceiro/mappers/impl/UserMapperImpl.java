@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.mappers.impl;
 
-import br.com.gestorfinanceiro.dto.UserDTO;
+import br.com.gestorfinanceiro.dto.user.UserDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
 import org.modelmapper.ModelMapper;

@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.dto;
+package br.com.gestorfinanceiro.dto.despesa;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -8,14 +8,15 @@ import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class ReceitaDTO {
+public class DespesaDTO {
+
     @NotNull(message = "A data é obrigatória.")
     private LocalDate data;
 
     @NotBlank(message = "A categoria é obrigatória.")
     @Pattern(
-            regexp = "SALARIO|RENDIMENTO_DE_INVESTIMENTO|COMISSOES|BONUS|BOLSA_DE_ESTUDOS",
-            message = "Categoria inválida. Valores permitidos: SALARIO, RENDIMENTO_DE_INVESTIMENTO, COMISSOES, BONUS, BOLSA_DE_ESTUDOS."
+            regexp = "ALIMENTACAO|MORADIA|TRANSPORTE|LAZER",
+            message = "Categoria inválida. Valores permitidos: ALIMENTACAO, MORADIA, TRANSPORTE, LAZER."
     )
     private String categoria;
 
@@ -23,22 +24,13 @@ public class ReceitaDTO {
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
     private BigDecimal valor;
 
-    @NotBlank(message = "A origem do pagamento é obrigatória.")
-    private String origemDoPagamento;
+    @NotBlank(message = "O destino do pagamento é obrigatória.")
+    private String destinoPagamento;
 
     @NotBlank(message = "As observações são obrigatórias.")
     private String observacoes;
 
-    private String uuid; // Pegar o ID para rotas específicas
-
-    // Getters and Setters
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
+    private String uuid;
 
     public LocalDate getData() {
         return data;
@@ -64,12 +56,12 @@ public class ReceitaDTO {
         this.valor = valor;
     }
 
-    public String getOrigemDoPagamento() {
-        return origemDoPagamento;
+    public String getDestinoPagamento() {
+        return destinoPagamento;
     }
 
-    public void setOrigemDoPagamento(String origemDoPagamento) {
-        this.origemDoPagamento = origemDoPagamento;
+    public void setDestinoPagamento(String destinoPagamento) {
+        this.destinoPagamento = destinoPagamento;
     }
 
     public String getObservacoes() {
@@ -79,4 +71,8 @@ public class ReceitaDTO {
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
     }
+
+    public String getUuid() {return uuid;}
+
+    public void setUuid(String uuid) {this.uuid = uuid;}
 }

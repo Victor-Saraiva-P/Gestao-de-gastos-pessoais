@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.services.impl;
 
-import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
-import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
