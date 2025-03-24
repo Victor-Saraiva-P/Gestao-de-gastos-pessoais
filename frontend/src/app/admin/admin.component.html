@@ -1,1 +1,27 @@
-<p>admin works!</p>
+<section class="admin-container">
+    <button class="home-button" (click)="home()">Home</button>
+
+    <div class="left-section">
+      <button class="edit" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
+        {{ isEditing ? 'Cancelar Edição' : 'Editar Usuários' }}
+      </button>
+    </div>
+  
+    <div class="main-content">
+      <!-- Lista de Usuarios -->
+      <div class="admin-list">
+        <h2>Usuarios Cadastrados</h2>
+        <ul>
+            <li *ngFor="let user of users">
+              <div>
+                <strong>Username:</strong> {{ user.username }} <br>
+                <strong>Email:</strong> {{ user.email }} <br>
+                <strong>Role:</strong> {{ user.role }} <br>
+                <strong>Está ativo:</strong> {{ user.estaAtivo }} <br>
+              </div>
+            </li>
+          </ul>
+      </div> 
+    </div>
+</section>
+  
