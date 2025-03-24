@@ -3,13 +3,14 @@ import { AuthService } from '../../auth/auth.service';
 import { Expense } from '../../entity/expense';
 import { PizzaGraphic } from '../../entity/response/pizzaResponse';
 import { BarsGraphic } from '../../entity/response/barsResponse';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseService {
-  //private apiUrl = 'http://localhost:8080/despesas'; trocar a url comentada para essa quando for testar localmente
-  private apiUrl = 'https://backend-gestao-gastos.onrender.com/despesas'; //ao subir o commit para o github, deixar essa url descomentada
+  
+  private apiUrl = environment.apiUrl + '/despesas'; 
   private authService = inject(AuthService);
 
    //------------------------ Despesas -----------------------------------------

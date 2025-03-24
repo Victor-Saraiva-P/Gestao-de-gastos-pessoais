@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class AuthService {
 
-  private apiUrl = environment.apiUrl; 
+  private apiUrl = environment.apiUrl + '/auth'; 
   
 
   async register(newUser: User): Promise<User | null> {
@@ -32,7 +32,6 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<boolean> {
     try {
-      console.log(this.apiUrl)
       const response = await fetch(`${this.apiUrl}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,7 +41,6 @@ export class AuthService {
       if (!response.ok) {
         throw new Error('Login falhou');
       }
-      console.log(response)
       const data = await response.json();
 
       //salva o token JWT recebido
