@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { User } from '../entity/user';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  //private apiUrl = 'http://localhost:8080/auth'; trocar a url comentada para essa quando for testar localmente
-  private apiUrl = 'https://backend-gestao-gastos.onrender.com/auth'; //ao subir o commit para o github, deixar essa url descomentada
+  private apiUrl = environment.apiUrl; 
+  
 
   async register(newUser: User): Promise<User | null> {
     try {
@@ -31,6 +32,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<boolean> {
     try {
+      console.log(this.apiUrl)
       const response = await fetch(`${this.apiUrl}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,6 +42,7 @@ export class AuthService {
       if (!response.ok) {
         throw new Error('Login falhou');
       }
+      console.log(response)
       const data = await response.json();
 
       //salva o token JWT recebido
