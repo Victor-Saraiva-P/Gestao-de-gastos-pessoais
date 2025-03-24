@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
@@ -177,7 +178,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // ----------------------------------------
-    // EXCEÇÕES DE VALIDAÇÃO DE PARÂMETROS (OVERRIDES)
+    // EXCEÇÕES DE VALIDAÇÃO DE OVERRIDES
     // ----------------------------------------
 
     // Handler para erros do metodo de validação de argumentos do controller
@@ -216,6 +217,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 ex.getValue());
         Problema problema = createProblemaBuilder(status, problemaType, detail).build();
         return handleExceptionInternal(ex, problema, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(
+            @NonNull NoHandlerFoundException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
+
+        ProblemaType problemaType = ProblemaType.URI_INVALIDA;
+        String detail = String.format("A URI informada '%s' não existe! Por favor corrija e tente novamente",
+                ex.getRequestURL());
+
+        Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+
+        return this.handleExceptionInternal(ex, problema, headers, status, request);
     }
 
     // ----------------------------------------
