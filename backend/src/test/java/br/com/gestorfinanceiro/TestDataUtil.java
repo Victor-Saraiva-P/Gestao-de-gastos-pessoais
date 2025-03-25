@@ -2,6 +2,9 @@ package br.com.gestorfinanceiro;
 
 import br.com.gestorfinanceiro.dto.user.UserDTO;
 import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
+import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
+import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.Roles;
 
@@ -46,5 +49,22 @@ public class TestDataUtil {
         userForAdminDTO.setEstaAtivo(true);
 
         return userForAdminDTO;
+    }
+
+    //------------------------------- UTILS DE CATEGORIAS -------------------------------//
+    public static CategoriaEntity criarCategoriaEntityUtil(String nome, String tipo) {
+        return new CategoriaEntity(nome, tipo);
+    }
+
+    public static CategoriaCreateDTO criarCategoriaCreateDTOUtil(String nome, String tipo) {
+        return new CategoriaCreateDTO(nome, tipo);
+    }
+
+    public static CategoriaEntity criarCategoriaEntityComUserUtil(String nome, String tipo, UserEntity user) {
+        return new CategoriaEntity(nome, tipo, user, "123-456-789");
+    }
+
+    public static CategoriaUpdateDTO criarCategoriaUpdateDTOUtil(String nome) {
+        return new CategoriaUpdateDTO(nome);
     }
 }
