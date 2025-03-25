@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.dto.categoria;
 
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -15,6 +16,12 @@ public class CategoriaCreateDTO {
     )
     private String tipo;
 
+    // Construtores
+    public CategoriaCreateDTO(String nome, String tipo) {
+        this.nome = nome;
+        this.tipo = tipo;
+    }
+
     // Getters and Setters
     public String getNome() {
         return nome;
@@ -26,6 +33,10 @@ public class CategoriaCreateDTO {
 
     public String getTipo() {
         return tipo;
+    }
+
+    public CategoriaType getTipoEnum() {
+        return CategoriaType.valueOf(tipo);
     }
 
     public void setTipo(String tipo) {
