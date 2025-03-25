@@ -174,4 +174,35 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new CategoriaOperationException();
         }
     }
+
+    @Override
+    public CategoriaEntity criarSemCategoria(String userId, String tipo) {
+        // Verifica se o usuário existe
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // Verifica se o tipo é válido
+        if (tipo == null || tipo.isBlank()) {
+            throw new InvalidDataException("O tipo é obrigatório.");
+        }
+
+        // Verifica se a categoria 'sem categoria' já existe com o boolean isSemCategoria = true
+        categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.valueOf(tipo), userId)
+                .ifPresent(c -> {
+                    throw new CategoriaAlreadyExistsException("Sem Categoria");
+                });
+
+        // Cria a categoria 'sem categoria'
+        try {
+            CategoriaEntity semCategoria = new CategoriaEntity(
+                    "Sem Categoria",
+                    CategoriaType.valueOf(tipo),
+                    user
+            );
+            semCategoria.setSemCategoria(true);
+            return categoriaRepository.save(semCategoria);
+        } catch (Exception e) {
+            throw new CategoriaOperationException();
+        }
+    }
 }

@@ -14,4 +14,6 @@ public interface CategoriaRepository extends JpaRepository<CategoriaEntity, Stri
     Optional<CategoriaEntity> findByNomeAndTipoAndUserUuid(String nome, CategoriaType tipo, String userId);
 
     List<CategoriaEntity> findAllByUserUuidAndTipo(String user_uuid, CategoriaType tipo);
+
+    Optional<CategoriaEntity> findByIsSemCategoriaAndTipoAndUserUuid(boolean isSemCategoria, CategoriaType tipo, String userId);
 }

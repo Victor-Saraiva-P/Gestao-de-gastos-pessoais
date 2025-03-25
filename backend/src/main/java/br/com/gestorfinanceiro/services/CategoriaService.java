@@ -18,4 +18,6 @@ public interface CategoriaService {
     CategoriaEntity atualizarCategoria(String uuid, CategoriaUpdateDTO novaCategoria, String userId);
 
     void excluirCategoria(String uuid, String userId);
+
+    CategoriaEntity criarSemCategoria(String userId, String tipo);
 }
