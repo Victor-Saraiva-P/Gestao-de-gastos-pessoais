@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.exceptions.auth.login;
+package br.com.gestorfinanceiro.exceptions.user;
 
 public class EmailNotFoundException extends RuntimeException {
     public EmailNotFoundException(String email) {

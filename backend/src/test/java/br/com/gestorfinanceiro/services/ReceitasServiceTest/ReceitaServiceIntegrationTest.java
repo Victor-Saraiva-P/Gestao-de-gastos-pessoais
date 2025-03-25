@@ -2,10 +2,10 @@ package br.com.gestorfinanceiro.services.ReceitasServiceTest;
 
 import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
-import br.com.gestorfinanceiro.exceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
-import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
+import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
