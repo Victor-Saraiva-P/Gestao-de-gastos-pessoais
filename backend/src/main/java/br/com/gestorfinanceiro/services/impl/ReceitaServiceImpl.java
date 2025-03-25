@@ -2,11 +2,11 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
-import br.com.gestorfinanceiro.exceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
-import br.com.gestorfinanceiro.exceptions.InvalidUuidException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
+import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;

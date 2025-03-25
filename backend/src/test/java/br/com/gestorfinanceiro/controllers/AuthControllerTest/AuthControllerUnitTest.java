@@ -4,7 +4,7 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.controller.AuthController;
 import br.com.gestorfinanceiro.dto.user.LoginDTO;
 import br.com.gestorfinanceiro.dto.user.UserDTO;
-import br.com.gestorfinanceiro.exceptions.auth.register.EmailAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.user.EmailAlreadyExistsException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

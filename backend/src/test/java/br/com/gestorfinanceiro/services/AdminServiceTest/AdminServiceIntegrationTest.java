@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.services.AdminServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
-import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AdminService;

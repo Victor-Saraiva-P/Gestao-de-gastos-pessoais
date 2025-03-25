@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.services.impl;
 
-import br.com.gestorfinanceiro.exceptions.InvalidUserIdException;
-import br.com.gestorfinanceiro.exceptions.admin.UserNotFoundException;
+import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AdminService;

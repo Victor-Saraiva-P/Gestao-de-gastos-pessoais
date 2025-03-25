@@ -1,11 +1,7 @@
 package br.com.gestorfinanceiro.config.security;
 
-import br.com.gestorfinanceiro.exceptions.ApiError;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,7 +29,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/**")
+                        .permitAll()
                         .requestMatchers("/auth/**").permitAll() // Rotas públicas
                         .requestMatchers("/users/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
@@ -41,25 +38,6 @@ public class SecurityConfig {
                         .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE) // Apenas USER e ADMIN podem acessar as rotas de receitas
                         .requestMatchers("/despesas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .anyRequest().authenticated()
-                )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        // Trata 401 Unauthorized (usuário não autenticado)
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setContentType("application/json");
-
-                            ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED,
-                                    "Você não está autenticado para acessar este recurso.");
-                            response.getWriter().write(apiError.toJson());
-                        })
-
-                        // Trata 403 Forbidden (usuário autenticado, mas sem permissão)
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, "Acesso negado para este recurso.");
-                            response.getWriter().write(apiError.toJson());
-                        })
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
