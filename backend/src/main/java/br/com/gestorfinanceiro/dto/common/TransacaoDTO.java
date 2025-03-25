@@ -1,37 +1,28 @@
-package br.com.gestorfinanceiro.dto;
+package br.com.gestorfinanceiro.dto.common;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class DespesaDTO {
-
+public abstract class TransacaoDTO {
     @NotNull(message = "A data é obrigatória.")
-    private LocalDate data;
+    protected LocalDate data;
 
-    @NotBlank(message = "A categoria é obrigatória.")
-    @Pattern(
-            regexp = "ALIMENTACAO|MORADIA|TRANSPORTE|LAZER",
-            message = "Categoria inválida. Valores permitidos: ALIMENTACAO, MORADIA, TRANSPORTE, LAZER."
-    )
-    private String categoria;
+    protected String categoria; // Sem validação aqui, será implementada nas classes filhas
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
-    private BigDecimal valor;
-
-    @NotBlank(message = "O destino do pagamento é obrigatória.")
-    private String destinoPagamento;
+    protected BigDecimal valor;
 
     @NotBlank(message = "As observações são obrigatórias.")
-    private String observacoes;
+    protected String observacoes;
 
-    private String uuid;
+    protected String uuid;
 
+    // Getters e setters comuns
     public LocalDate getData() {
         return data;
     }
@@ -56,14 +47,6 @@ public class DespesaDTO {
         this.valor = valor;
     }
 
-    public String getDestinoPagamento() {
-        return destinoPagamento;
-    }
-
-    public void setDestinoPagamento(String destinoPagamento) {
-        this.destinoPagamento = destinoPagamento;
-    }
-
     public String getObservacoes() {
         return observacoes;
     }
@@ -72,7 +55,11 @@ public class DespesaDTO {
         this.observacoes = observacoes;
     }
 
-    public String getUuid() {return uuid;}
+    public String getUuid() {
+        return uuid;
+    }
 
-    public void setUuid(String uuid) {this.uuid = uuid;}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 }

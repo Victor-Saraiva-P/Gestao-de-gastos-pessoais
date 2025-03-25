@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.mappers.impl;
 
-import br.com.gestorfinanceiro.dto.DespesaDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.enums.DespesasCategorias;

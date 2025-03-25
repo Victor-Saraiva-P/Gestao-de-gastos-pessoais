@@ -1,9 +1,9 @@
 package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.config.security.JwtUtil;
-import br.com.gestorfinanceiro.dto.DespesaDTO;
-import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
-import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
