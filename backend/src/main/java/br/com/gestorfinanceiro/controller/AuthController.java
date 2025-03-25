@@ -1,8 +1,8 @@
 package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.config.security.JwtUtil;
-import br.com.gestorfinanceiro.dto.LoginDTO;
-import br.com.gestorfinanceiro.dto.UserDTO;
+import br.com.gestorfinanceiro.dto.user.LoginDTO;
+import br.com.gestorfinanceiro.dto.user.UserDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.services.AuthService;

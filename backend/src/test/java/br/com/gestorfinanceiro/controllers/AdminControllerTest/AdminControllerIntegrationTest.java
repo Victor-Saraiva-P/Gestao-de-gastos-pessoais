@@ -2,7 +2,7 @@ package br.com.gestorfinanceiro.controllers.AdminControllerTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.controller.AdminController;
-import br.com.gestorfinanceiro.dto.UserForAdminDTO;
+import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AdminService;

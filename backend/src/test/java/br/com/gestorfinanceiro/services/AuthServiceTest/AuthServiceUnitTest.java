@@ -1,11 +1,7 @@
 package br.com.gestorfinanceiro.services.AuthServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
-import br.com.gestorfinanceiro.exceptions.auth.UserOperationException;
-import br.com.gestorfinanceiro.exceptions.auth.login.EmailNotFoundException;
-import br.com.gestorfinanceiro.exceptions.auth.login.InvalidPasswordException;
-import br.com.gestorfinanceiro.exceptions.auth.register.EmailAlreadyExistsException;
-import br.com.gestorfinanceiro.exceptions.auth.register.UsernameAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.user.*;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.Roles;
 import br.com.gestorfinanceiro.repositories.UserRepository;

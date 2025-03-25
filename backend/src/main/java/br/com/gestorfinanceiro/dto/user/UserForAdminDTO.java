@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.dto;
+package br.com.gestorfinanceiro.dto.user;
 
 public class UserForAdminDTO {
     private String uuid;
