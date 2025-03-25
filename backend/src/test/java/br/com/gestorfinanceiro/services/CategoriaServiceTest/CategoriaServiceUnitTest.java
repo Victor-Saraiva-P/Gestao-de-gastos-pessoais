@@ -240,6 +240,6 @@ class CategoriaServiceUnitTest {
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
 
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException.class,
-                () -> categoriaService.excluirCategoria(categoria.getUuid(), "id-usuario-qualquer"));
+                () -> categoriaService.excluirCategoria(categoria.getUuid(), "123-456"));
     }
 }
