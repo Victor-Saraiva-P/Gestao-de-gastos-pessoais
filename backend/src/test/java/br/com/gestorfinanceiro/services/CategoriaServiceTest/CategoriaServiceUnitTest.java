@@ -113,14 +113,14 @@ class CategoriaServiceUnitTest {
 
     //------------------TESTES DO listarCategoriasUsuario ----------------------//
     @Test
-    void deveListarCategoriasUsuario() {
+    void deveListarCategorias() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
 
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findAllByUserUuid(user.getUuid())).thenReturn(java.util.List.of(categoria));
 
-        assertEquals(java.util.List.of(categoria), categoriaService.listarCategoriasUsuario(user.getUuid()));
+        assertEquals(java.util.List.of(categoria), categoriaService.listarCategorias(user.getUuid()));
     }
 
     @Test
@@ -131,14 +131,14 @@ class CategoriaServiceUnitTest {
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findAllByUserUuid(user.getUuid())).thenReturn(java.util.List.of());
 
-        assertEquals(java.util.List.of(), categoriaService.listarCategoriasUsuario(userId));
+        assertEquals(java.util.List.of(), categoriaService.listarCategorias(userId));
     }
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoExistirAoListarCategorias() {
         when(userRepository.findById("123-456")).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategoriasUsuario("123-456"));
+        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategorias("123-456"));
     }
 
     //------------------TESTES DO atualizarCategoria ----------------------//

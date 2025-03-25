@@ -128,11 +128,11 @@ class CategoriaServiceIntegrationTest {
 
     //------------------TESTES DO listarCategoriasUsuario ----------------------//
     @Test
-    void deveListarCategoriasUsuario() {
+    void deveListarCategorias() {
         UserEntity user = adicionarUsuario("Usuario A");
         adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
 
-        List<CategoriaEntity> categorias = categoriaService.listarCategoriasUsuario(user.getUuid());
+        List<CategoriaEntity> categorias = categoriaService.listarCategorias(user.getUuid());
 
         assertEquals(1, categorias.size());
         CategoriaEntity categoriaRetornada = categorias.get(0);
@@ -146,12 +146,12 @@ class CategoriaServiceIntegrationTest {
     void deveListarCategoriasVaziaQuandoNaoHouverCategorias() {
         UserEntity user = adicionarUsuario("Usuario A");
 
-        assertEquals(java.util.List.of(), categoriaService.listarCategoriasUsuario(user.getUuid()));
+        assertEquals(java.util.List.of(), categoriaService.listarCategorias(user.getUuid()));
     }
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoExistirAoListarCategorias() {
-        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategoriasUsuario("id-invalido"));
+        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategorias("id-invalido"));
     }
 
     //------------------TESTES DO atualizarCategoria ----------------------//
