@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro;
 
-import br.com.gestorfinanceiro.dto.UserDTO;
-import br.com.gestorfinanceiro.dto.UserForAdminDTO;
+import br.com.gestorfinanceiro.dto.user.UserDTO;
+import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.models.CategoriaEntity;

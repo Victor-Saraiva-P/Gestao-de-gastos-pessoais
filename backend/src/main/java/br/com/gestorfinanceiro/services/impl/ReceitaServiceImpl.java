@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.services.impl;
 
-import br.com.gestorfinanceiro.dto.GraficoBarraDTO;
-import br.com.gestorfinanceiro.dto.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
+import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;

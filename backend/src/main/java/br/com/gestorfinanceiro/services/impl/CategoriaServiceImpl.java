@@ -2,11 +2,11 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
-import br.com.gestorfinanceiro.exceptions.InvalidDataException;
-import br.com.gestorfinanceiro.exceptions.admin.UserNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
+import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;

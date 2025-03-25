@@ -1,10 +1,10 @@
 package br.com.gestorfinanceiro.mappers.impl;
 
-import br.com.gestorfinanceiro.dto.ReceitaDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
-import org.modelmapper.ModelMapper;
 import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
