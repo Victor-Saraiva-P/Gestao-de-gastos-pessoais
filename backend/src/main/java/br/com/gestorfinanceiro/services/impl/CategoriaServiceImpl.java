@@ -10,6 +10,7 @@ import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.CategoriaService;
@@ -73,14 +74,34 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
     }
 
+    // TODO: ver se o frontend realmente necessita de todas as categorias
     @Override
-    public List<CategoriaEntity> listarCategoriasUsuario(String userId) {
+    public List<CategoriaEntity> listarCategorias(String userId) {
         // Verificar se o usuário existe
         userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         return categoriaRepository.findAllByUserUuid(userId);
     }
+
+    @Override
+    public List<CategoriaEntity> listarCategoriasDespesas(String userId) {
+        // Verificar se o usuário existe
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return categoriaRepository.findAllByUserUuidAndTipo(userId, CategoriaType.DESPESAS);
+    }
+
+    @Override
+    public List<CategoriaEntity> listarCategoriasReceitas(String userId) {
+        // Verificar se o usuário existe
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return categoriaRepository.findAllByUserUuidAndTipo(userId, CategoriaType.RECEITAS);
+    }
+
 
     @Override
     public CategoriaEntity atualizarCategoria(String categoriaId, CategoriaUpdateDTO novaCategoria, String userId) {
