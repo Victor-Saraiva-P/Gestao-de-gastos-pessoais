@@ -56,7 +56,33 @@ public class CategoriaController {
                 .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
-        List<CategoriaEntity> categorias = categoriaService.listarCategoriasUsuario(userId);
+        List<CategoriaEntity> categorias = categoriaService.listarCategorias(userId);
+        List<CategoriaDTO> response = categorias.stream()
+                .map(categoriaMapper::mapTo)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/despesas")
+    public ResponseEntity<List<CategoriaDTO>> listarCategoriasDespesas(HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<CategoriaEntity> categorias = categoriaService.listarCategoriasDespesas(userId);
+        List<CategoriaDTO> response = categorias.stream()
+                .map(categoriaMapper::mapTo)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/receitas")
+    public ResponseEntity<List<CategoriaDTO>> listarCategoriasReceitas(HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<CategoriaEntity> categorias = categoriaService.listarCategoriasReceitas(userId);
         List<CategoriaDTO> response = categorias.stream()
                 .map(categoriaMapper::mapTo)
                 .collect(Collectors.toList());
