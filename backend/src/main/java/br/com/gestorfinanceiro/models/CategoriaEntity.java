@@ -44,12 +44,12 @@ public class CategoriaEntity {
         this.tipo = CategoriaType.valueOf(tipo);
     }
 
-    public CategoriaEntity(String uuid, String nome, CategoriaType tipo, UserEntity user, boolean isDefault, boolean isRemovable) {
+    public CategoriaEntity(String uuid, String nome, CategoriaType tipo, UserEntity user, boolean isSemCategoria) {
         this.uuid = uuid;
         this.nome = nome;
         this.tipo = tipo;
         this.user = user;
-        this.isSemCategoria = isDefault;
+        this.isSemCategoria = isSemCategoria;
     }
 
     public CategoriaEntity() {
