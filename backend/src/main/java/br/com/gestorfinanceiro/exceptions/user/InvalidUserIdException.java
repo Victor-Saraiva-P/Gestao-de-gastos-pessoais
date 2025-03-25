@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.exceptions;
+package br.com.gestorfinanceiro.exceptions.user;
 
 public class InvalidUserIdException extends RuntimeException {
     public InvalidUserIdException() {
