@@ -161,7 +161,7 @@ class CategoriaServiceIntegrationTest {
         CategoriaEntity categoria = adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
 
         CategoriaEntity categoriaAtualizada = categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil("Categoria B"));
+                TestDataUtil.criarCategoriaUpdateDTOUtil("Categoria B"), user.getUuid());
 
         assertEquals("Categoria B", categoriaAtualizada.getNome());
         assertEquals("DESPESAS", categoriaAtualizada.getTipo()
@@ -173,7 +173,7 @@ class CategoriaServiceIntegrationTest {
     void deveLancarExcecaoQuandoCategoriaInexistente() {
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
-                        TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome")));
+                        TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome"), "id-de-usuario-qualquer"));
     }
 
     @Test
@@ -183,7 +183,7 @@ class CategoriaServiceIntegrationTest {
 
         CategoriaUpdateDTO categoriaVazia = TestDataUtil.criarCategoriaUpdateDTOUtil("");
         assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId,
-                categoriaVazia));
+                categoriaVazia, userId));
     }
 
     @Test
@@ -193,7 +193,7 @@ class CategoriaServiceIntegrationTest {
 
         CategoriaUpdateDTO categoriaNula = TestDataUtil.criarCategoriaUpdateDTOUtil(null);
         assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId,
-                categoriaNula));
+                categoriaNula, userId));
     }
 
     //------------------TESTES DO excluirCategoria ----------------------//
@@ -202,7 +202,7 @@ class CategoriaServiceIntegrationTest {
         UserEntity user = adicionarUsuario("Usuario A");
         CategoriaEntity categoria = adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
 
-        categoriaService.excluirCategoria(categoria.getUuid());
+        categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
 
         assertEquals(0, categoriaRepository.findAll()
                 .size());
@@ -210,18 +210,18 @@ class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaIdForNuloAoExcluir() {
-        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(null));
+        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(null, "id-de-usuario-qualquer"));
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaIdForVazioAoExcluir() {
-        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(""));
+        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria("", "id-de-usuario-qualquer"));
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistenteAoExcluir() {
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
-                () -> categoriaService.excluirCategoria("uuid-inexistente"));
+                () -> categoriaService.excluirCategoria("uuid-inexistente", "id-de-usuario-qualquer"));
     }
 
     @Test
@@ -234,7 +234,7 @@ class CategoriaServiceIntegrationTest {
         categoriaRepository.save(categoria);
 
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException.class,
-                () -> categoriaService.excluirCategoria(categoria.getUuid()));
+                () -> categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid()));
     }
 
     //-------------------------------MÉTODOS AUXILIARES-------------------------------//

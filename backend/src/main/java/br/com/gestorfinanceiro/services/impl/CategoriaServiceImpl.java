@@ -2,6 +2,7 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAcessDeniedException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException;
@@ -82,7 +83,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public CategoriaEntity atualizarCategoria(String categoriaId, CategoriaUpdateDTO novaCategoria) {
+    public CategoriaEntity atualizarCategoria(String categoriaId, CategoriaUpdateDTO novaCategoria, String userId) {
         // Validações de entrada
 
         // Valida o DTO
@@ -100,6 +101,19 @@ public class CategoriaServiceImpl implements CategoriaService {
         CategoriaEntity categoria = categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new CategoriaNotFoundException(categoriaId));
 
+        // Valida se o usuário é o dono da categoria
+        if (!categoria.getUser()
+                .getUuid()
+                .equals(userId)) {
+            throw new CategoriaAcessDeniedException(categoriaId);
+        }
+
+        // Valida se o novo nome já existe
+        categoriaRepository.findByNomeAndTipoAndUserUuid(novaCategoria.getNome(), categoria.getTipo(), userId)
+                .ifPresent(c -> {
+                    throw new CategoriaAlreadyExistsException(novaCategoria.getNome());
+                });
+
         // Atualiza a categoria
         try {
             categoria.setNome(novaCategoria.getNome());
@@ -110,7 +124,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public void excluirCategoria(String categoriaId) {
+    public void excluirCategoria(String categoriaId, String userId) {
         // Verifica se o categoriaId é valido
         if (categoriaId == null || categoriaId.isBlank()) {
             throw new InvalidDataException("O id da categoria é obrigatório.");
@@ -119,6 +133,13 @@ public class CategoriaServiceImpl implements CategoriaService {
         // Verifica se a categoria existe
         CategoriaEntity categoria = categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new CategoriaNotFoundException(categoriaId));
+
+        // Verifica se o usuário é o dono da categoria
+        if (!categoria.getUser()
+                .getUuid()
+                .equals(userId)) {
+            throw new CategoriaAcessDeniedException(categoriaId);
+        }
 
         // Verifica se ela é a sem categoria
         if (categoria.isSemCategoria()) {

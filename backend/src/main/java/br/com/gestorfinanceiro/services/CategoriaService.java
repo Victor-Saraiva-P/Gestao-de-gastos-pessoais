@@ -11,7 +11,7 @@ public interface CategoriaService {
 
     List<CategoriaEntity> listarCategoriasUsuario(String userId);
 
-    CategoriaEntity atualizarCategoria(String uuid, CategoriaUpdateDTO novaCategoria);
+    CategoriaEntity atualizarCategoria(String uuid, CategoriaUpdateDTO novaCategoria, String userId);
 
-    void excluirCategoria(String uuid);
+    void excluirCategoria(String uuid, String userId);
 }
