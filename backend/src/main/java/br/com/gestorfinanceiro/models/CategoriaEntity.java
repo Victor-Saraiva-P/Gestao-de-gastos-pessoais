@@ -10,7 +10,7 @@ public class CategoriaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String uuid;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nome;
 
     @Column(nullable = false)
@@ -22,10 +22,38 @@ public class CategoriaEntity {
     private UserEntity user;
 
     @Column(nullable = false)
-    private boolean isDefault = false;
+    private boolean isSemCategoria = false;
 
-    @Column(nullable = false)
-    private boolean isRemovable = true;
+    // Construtores
+
+    public CategoriaEntity(String nome, String tipo, UserEntity user, String uuid) {
+        this.nome = nome;
+        this.tipo = CategoriaType.valueOf(tipo);
+        this.user = user;
+        this.uuid = uuid;
+    }
+
+    public CategoriaEntity(String nome, CategoriaType tipo, UserEntity user) {
+        this.nome = nome;
+        this.tipo = tipo;
+        this.user = user;
+    }
+
+    public CategoriaEntity(String nome, String tipo) {
+        this.nome = nome;
+        this.tipo = CategoriaType.valueOf(tipo);
+    }
+
+    public CategoriaEntity(String uuid, String nome, CategoriaType tipo, UserEntity user, boolean isDefault, boolean isRemovable) {
+        this.uuid = uuid;
+        this.nome = nome;
+        this.tipo = tipo;
+        this.user = user;
+        this.isSemCategoria = isDefault;
+    }
+
+    public CategoriaEntity() {
+    }
 
     // Getters and Setters
     public String getUuid() {
@@ -60,19 +88,11 @@ public class CategoriaEntity {
         this.user = user;
     }
 
-    public boolean isDefault() {
-        return isDefault;
+    public boolean isSemCategoria() {
+        return isSemCategoria;
     }
 
-    public void setDefault(boolean aDefault) {
-        isDefault = aDefault;
-    }
-
-    public boolean isRemovable() {
-        return isRemovable;
-    }
-
-    public void setRemovable(boolean removable) {
-        isRemovable = removable;
+    public void setSemCategoria(boolean semCategoria) {
+        isSemCategoria = semCategoria;
     }
 }
