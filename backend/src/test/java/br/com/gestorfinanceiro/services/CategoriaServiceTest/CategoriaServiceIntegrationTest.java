@@ -2,6 +2,7 @@ package br.com.gestorfinanceiro.services.CategoriaServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
+import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.admin.UserNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class CategoriaServiceIntegrationTest {
+class CategoriaServiceIntegrationTest {
     @Autowired
     private CategoriaService categoriaService;
 
@@ -64,25 +65,25 @@ public class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaForNula() {
-        UserEntity user = adicionarUsuario("Usuario A");
+        String userId = adicionarUsuario("Usuario A").getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(null, user.getUuid()));
+        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(null, userId));
     }
 
     @Test
     void deveLancarExcecaoQuandoNomeCategoriaForVazio() {
-        UserEntity user = adicionarUsuario("Usuario A");
+        String userId = adicionarUsuario("Usuario A").getUuid();
         CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("", "DESPESAS");
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, userId));
     }
 
     @Test
     void deveLancarExcecaoQuandoNomeCategoriaForNulo() {
-        UserEntity user = adicionarUsuario("Usuario A");
+        String userId = adicionarUsuario("Usuario A").getUuid();
         CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil(null, "DESPESAS");
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, userId));
     }
 
     @Test
@@ -95,15 +96,15 @@ public class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaJaExistir() {
-        UserEntity user = adicionarUsuario("Usuario A");
+        String userId = adicionarUsuario("Usuario A").getUuid();
         CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("Categoria A", "DESPESAS");
 
         // Salva uma primeira vez
-        categoriaService.criarCategoria(categoriaDto, user.getUuid());
+        categoriaService.criarCategoria(categoriaDto, userId);
 
         // Tenta salvar a mesma categoria
         assertThrows(CategoriaAlreadyExistsException.class,
-                () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+                () -> categoriaService.criarCategoria(categoriaDto, userId));
     }
 
     @Test
@@ -177,20 +178,22 @@ public class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoNovoNomeCategoriaAtualizarForVazio() {
-        UserEntity user = adicionarUsuario("Usuario A");
-        CategoriaEntity categoria = adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
+        String userId = adicionarUsuario("Usuario A").getUuid();
+        String categoriaId = adicionarCategoria("Categoria A", "DESPESAS", userId).getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil("")));
+        CategoriaUpdateDTO categoriaVazia = TestDataUtil.criarCategoriaUpdateDTOUtil("");
+        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId,
+                categoriaVazia));
     }
 
     @Test
     void deveLancarExcecaoQuandoNovoNomeCategoriaAtualizarForNulo() {
-        UserEntity user = adicionarUsuario("Usuario A");
-        CategoriaEntity categoria = adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
+        String userId = adicionarUsuario("Usuario A").getUuid();
+        String categoriaId = adicionarCategoria("Categoria A", "DESPESAS", userId).getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil(null)));
+        CategoriaUpdateDTO categoriaNula = TestDataUtil.criarCategoriaUpdateDTOUtil(null);
+        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId,
+                categoriaNula));
     }
 
     //------------------TESTES DO excluirCategoria ----------------------//

@@ -2,6 +2,7 @@ package br.com.gestorfinanceiro.services.CategoriaServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
+import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.admin.UserNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
@@ -12,18 +13,22 @@ import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.CategoriaServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoriaServiceUnitTest {
+class CategoriaServiceUnitTest {
     @InjectMocks
     private CategoriaServiceImpl categoriaService;
 
@@ -42,8 +47,8 @@ public class CategoriaServiceUnitTest {
         when(userRepository.findById("123-456")).thenReturn(Optional.of(user));
         when(categoriaRepository.findByNomeAndTipoAndUserUuid("Categoria A", categoriaDto.getTipoEnum(),
                 user.getUuid())).thenReturn(Optional.empty());
-        when(categoriaRepository.save(org.mockito.ArgumentMatchers.any(CategoriaEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoriaRepository.save(org.mockito.ArgumentMatchers.any(CategoriaEntity.class))).thenAnswer(
+                invocation -> invocation.getArgument(0));
 
         CategoriaEntity categoriaCriada = categoriaService.criarCategoria(categoriaDto, "123-456");
 
@@ -53,68 +58,57 @@ public class CategoriaServiceUnitTest {
                 .name());
     }
 
+    static Stream<Arguments> providerDadosInvalidos() {
+        return Stream.of(Arguments.of("", "DESPESAS", "Nome vazio deve lançar exceção"),
+                Arguments.of(null, "DESPESAS", "Nome nulo deve lançar exceção"),
+                Arguments.of("Categoria A", "", "Tipo vazio deve lançar exceção"),
+                Arguments.of("Categoria A", null, "Tipo nulo deve lançar exceção"));
+    }
+
     @Test
     void deveLancarExcecaoQuandoCategoriaForNula() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
+        String userId = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456")
+                .getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(null, user.getUuid()));
+        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(null, userId));
     }
 
-    @Test
-    void deveLancarExcecaoQuandoNomeCategoriaForVazio() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("", "DESPESAS");
+    @ParameterizedTest
+    @MethodSource("providerDadosInvalidos")
+    void deveLancarExcecaoQuandoDadosForemInvalidos(String nome, String tipo, String descricaoTeste) {
+        String userId = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456")
+                .getUuid();
+        CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil(nome, tipo);
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoNomeCategoriaForNulo() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil(null, "DESPESAS");
-
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoTipoCategoriaForVazio() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("Categoria A", "");
-
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoTipoCategoriaForNulo() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("Categoria A", null);
-
-        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+        assertThrows(InvalidDataException.class, () -> categoriaService.criarCategoria(categoriaDto, userId),
+                descricaoTeste);
     }
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoExistir() {
-        UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
+        String userId = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456")
+                .getUuid();
         CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("Categoria A", "DESPESAS");
 
         when(userRepository.findById("123-456")).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+        assertThrows(UserNotFoundException.class, () -> categoriaService.criarCategoria(categoriaDto, userId));
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaJaExistir() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
+        String userId = user.getUuid();
+
         CategoriaCreateDTO categoriaDto = TestDataUtil.criarCategoriaCreateDTOUtil("Categoria A", "DESPESAS");
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityUtil("Categoria A", "DESPESAS");
 
         when(userRepository.findById("123-456")).thenReturn(Optional.of(user));
         when(categoriaRepository.findByNomeAndTipoAndUserUuid("Categoria A", categoriaDto.getTipoEnum(),
-                "123-456")).thenReturn(
-                Optional.of(categoria));
+                "123-456")).thenReturn(Optional.of(categoria));
 
         assertThrows(CategoriaAlreadyExistsException.class,
-                () -> categoriaService.criarCategoria(categoriaDto, user.getUuid()));
+                () -> categoriaService.criarCategoria(categoriaDto, userId));
     }
 
     //------------------TESTES DO listarCategoriasUsuario ----------------------//
@@ -132,11 +126,12 @@ public class CategoriaServiceUnitTest {
     @Test
     void deveListarCategoriasVaziaQuandoNaoHouverCategorias() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
+        String userId = user.getUuid();
 
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findAllByUserUuid(user.getUuid())).thenReturn(java.util.List.of());
 
-        assertEquals(java.util.List.of(), categoriaService.listarCategoriasUsuario(user.getUuid()));
+        assertEquals(java.util.List.of(), categoriaService.listarCategoriasUsuario(userId));
     }
 
     @Test
@@ -153,8 +148,8 @@ public class CategoriaServiceUnitTest {
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
 
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
-        when(categoriaRepository.save(org.mockito.ArgumentMatchers.any(CategoriaEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoriaRepository.save(org.mockito.ArgumentMatchers.any(CategoriaEntity.class))).thenAnswer(
+                invocation -> invocation.getArgument(0));
 
         CategoriaEntity categoriaAtualizada = categoriaService.atualizarCategoria(categoria.getUuid(),
                 TestDataUtil.criarCategoriaUpdateDTOUtil("Categoria B"));
@@ -182,19 +177,22 @@ public class CategoriaServiceUnitTest {
     @Test
     void deveLancarExcecaoQuandoNovoNomeCategoriaAtualizarForVazio() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
+        String categoriaId = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user)
+                .getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil("")));
+        CategoriaUpdateDTO categoriaVazia = TestDataUtil.criarCategoriaUpdateDTOUtil("");
+        assertThrows(InvalidDataException.class,
+                () -> categoriaService.atualizarCategoria(categoriaId, categoriaVazia));
     }
 
     @Test
     void deveLancarExcecaoQuandoNovoNomeCategoriaAtualizarForNulo() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
+        String categoriaId = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user)
+                .getUuid();
 
-        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil(null)));
+        CategoriaUpdateDTO categoriaNula = TestDataUtil.criarCategoriaUpdateDTOUtil(null);
+        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId, categoriaNula));
     }
 
     //------------------TESTES DO excluirCategoria ----------------------//
