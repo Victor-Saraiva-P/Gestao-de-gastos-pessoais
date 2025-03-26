@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 
 public class OrcamentoMensalRepositoryCustomImpl implements OrcamentoMensalRepositoryCustom {
@@ -27,5 +28,35 @@ public class OrcamentoMensalRepositoryCustomImpl implements OrcamentoMensalRepos
                 .getResultList()
                 .stream()
                 .findFirst();
+    }
+
+    @Override
+    public Optional<OrcamentoMensalEntity> findByUuidAndUserUuid(String uuid, String userId) {
+        String jpql = "SELECT o FROM OrcamentoMensalEntity o WHERE o.uuid = :uuid AND o.user.uuid = :userId";
+
+        return entityManager.createQuery(jpql, OrcamentoMensalEntity.class)
+                .setParameter("uuid", uuid)
+                .setParameter(USER_ID, userId)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public List<OrcamentoMensalEntity> findByUserId(String userId) {
+        String jpql = "SELECT o FROM OrcamentoMensalEntity o WHERE o.user.uuid = :userId";
+
+        return entityManager.createQuery(jpql, OrcamentoMensalEntity.class)
+                .setParameter(USER_ID, userId)
+                .getResultList();
+    }
+
+    @Override
+    public List<OrcamentoMensalEntity> findByPeriodo(YearMonth periodo) {
+        String jpql = "SELECT o FROM OrcamentoMensalEntity o WHERE o.periodo = :periodo";
+
+        return entityManager.createQuery(jpql, OrcamentoMensalEntity.class)
+                .setParameter("periodo", periodo)
+                .getResultList();
     }
 }
