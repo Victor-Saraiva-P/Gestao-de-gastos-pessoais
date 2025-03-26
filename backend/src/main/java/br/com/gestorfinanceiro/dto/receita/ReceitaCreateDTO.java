@@ -8,9 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ReceitaCreateDTO {
-    @NotBlank(message = "A categoria customizada é obrigatória.")
-    private String categoriaCustomizada;
-
     @NotNull(message = "A data é obrigatória.")
     private LocalDate data;
 
@@ -27,18 +24,11 @@ public class ReceitaCreateDTO {
     @NotBlank(message = "As observacoes é obrigatória.")
     private String observacoes;
 
+    // Construtores
     public ReceitaCreateDTO() {
     }
 
     // Getters and Setters
-    public String getCategoriaCustomizada() {
-        return categoriaCustomizada;
-    }
-
-    public void setCategoriaCustomizada(String categoriaCustomizada) {
-        this.categoriaCustomizada = categoriaCustomizada;
-    }
-
     public LocalDate getData() {
         return data;
     }

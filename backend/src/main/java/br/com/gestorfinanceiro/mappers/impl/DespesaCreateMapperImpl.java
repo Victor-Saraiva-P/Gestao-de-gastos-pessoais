@@ -3,7 +3,6 @@ package br.com.gestorfinanceiro.mappers.impl;
 import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.DespesaEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +25,6 @@ public class DespesaCreateMapperImpl implements Mapper<DespesaEntity, DespesaCre
         entity.setValor(dto.getValor());
         entity.setDestinoPagamento(dto.getDestinoPagamento());
         entity.setObservacoes(dto.getObservacoes());
-        entity.setCategoria(DespesasCategorias.valueOf(dto.getCategoria()));
         return entity;
     }
 }

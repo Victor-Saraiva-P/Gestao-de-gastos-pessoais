@@ -4,7 +4,6 @@ import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
 import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
-import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
@@ -18,7 +17,6 @@ import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.CategoriaType;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -66,20 +64,20 @@ public class DespesaServiceImpl implements DespesaService {
 
         // Verifica se a categoria customizada da receita existe
         CategoriaEntity categoria = categoriaRepository.findByNomeAndTipoAndUserUuid(
-                        despesaCreateDTO.getCategoriaCustomizada(),
+                        despesaCreateDTO.getCategoria(),
                         CategoriaType.DESPESAS, userId)
-                .orElseThrow(() -> new CategoriaIdNotFoundException(despesaCreateDTO.getCategoriaCustomizada()));
+                .orElseThrow(() -> new CategoriaNameNotFoundException(despesaCreateDTO.getCategoria()));
 
         try {
             DespesaEntity despesaParaCriar = despesaCreateDTOMapper.mapFrom(despesaCreateDTO);
 
-            // Adiciona a categoria e o usuário à receita
-            despesaParaCriar.setCategoriaCustomizada(categoria);
+            // Adiciona a categoria e o usuário à despesa
+            despesaParaCriar.setCategoria(categoria);
             despesaParaCriar.setUser(user);
 
             return despesaRepository.save(despesaParaCriar);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao criar receita. Por favor, tente novamente.", e);
+            throw new ReceitaOperationException("Erro ao criar Despesa. Por favor, tente novamente.", e);
         }
     }
 
@@ -128,16 +126,15 @@ public class DespesaServiceImpl implements DespesaService {
 
         // Coloca os novos valores na despesa
         despesa.setData(despesaUpdateDTO.getData());
-        despesa.setCategoria(DespesasCategorias.valueOf(despesaUpdateDTO.getCategoria()));
 
         // Verifica se a categoria customizada da despesaAtualizada existe
-        despesa.setCategoriaCustomizada(
-                categoriaRepository.findByNomeAndTipoAndUserUuid(despesaUpdateDTO.getCategoriaCustomizada(),
+        despesa.setCategoria(
+                categoriaRepository.findByNomeAndTipoAndUserUuid(despesaUpdateDTO.getCategoria(),
                                 CategoriaType.DESPESAS,
                                 despesa.getUser()
                                         .getUuid())
                         .orElseThrow(
-                                () -> new CategoriaNameNotFoundException(despesaUpdateDTO.getCategoriaCustomizada())));
+                                () -> new CategoriaNameNotFoundException(despesaUpdateDTO.getCategoria())));
 
         despesa.setValor(despesaUpdateDTO.getValor());
         despesa.setDestinoPagamento(despesaUpdateDTO.getDestinoPagamento());
@@ -197,7 +194,7 @@ public class DespesaServiceImpl implements DespesaService {
 
         Map<String, BigDecimal> categorias = despesas.stream()
                 .collect(Collectors.groupingBy(
-                        r -> r.getCategoriaCustomizada()
+                        r -> r.getCategoria()
                                 .getNome(),
                         Collectors.mapping(DespesaEntity::getValor,
                                 Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))

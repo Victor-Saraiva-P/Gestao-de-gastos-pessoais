@@ -9,12 +9,10 @@ import java.time.LocalDate;
 
 public abstract class TransacaoDTO {
     @NotBlank(message = "A categoria customizada é obrigatória.")
-    private String categoriaCustomizada;
+    private String categoria;
 
     @NotNull(message = "A data é obrigatória.")
     protected LocalDate data;
-
-    protected String categoria; // Sem validação aqui, será implementada nas classes filhas
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
@@ -25,14 +23,19 @@ public abstract class TransacaoDTO {
 
     protected String uuid;
 
-    // Getters e setters comuns
-    public LocalDate getData() {
-        return data;
+    // Construtores
+    public TransacaoDTO(String categoria, LocalDate data, BigDecimal valor, String observacoes, String uuid) {
+        this.categoria = categoria;
+        this.data = data;
+        this.valor = valor;
+        this.observacoes = observacoes;
+        this.uuid = uuid;
     }
 
-    public void setData(LocalDate data) {
-        this.data = data;
+    public TransacaoDTO() {
     }
+
+    // Getters and Setters
 
     public String getCategoria() {
         return categoria;
@@ -40,6 +43,14 @@ public abstract class TransacaoDTO {
 
     public void setCategoria(String categoria) {
         this.categoria = categoria;
+    }
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
     }
 
     public BigDecimal getValor() {
@@ -64,13 +75,5 @@ public abstract class TransacaoDTO {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
-    }
-
-    public String getCategoriaCustomizada() {
-        return categoriaCustomizada;
-    }
-
-    public void setCategoriaCustomizada(String categoriaCustomizada) {
-        this.categoriaCustomizada = categoriaCustomizada;
     }
 }

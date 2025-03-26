@@ -3,7 +3,6 @@ package br.com.gestorfinanceiro.mappers.impl;
 import br.com.gestorfinanceiro.dto.receita.ReceitaCreateDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
-import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +25,6 @@ public class ReceitaCreateMapperImpl implements Mapper<ReceitaEntity, ReceitaCre
         entity.setValor(dto.getValor());
         entity.setOrigemDoPagamento(dto.getOrigemDoPagamento());
         entity.setObservacoes(dto.getObservacoes());
-        entity.setCategoria(ReceitasCategorias.valueOf(dto.getCategoria()));
         return entity;
     }
 }

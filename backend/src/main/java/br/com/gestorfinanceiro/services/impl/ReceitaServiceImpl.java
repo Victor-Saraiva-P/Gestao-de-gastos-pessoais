@@ -4,7 +4,6 @@ import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.dto.receita.ReceitaCreateDTO;
 import br.com.gestorfinanceiro.dto.receita.ReceitaUpdateDTO;
-import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
@@ -18,7 +17,6 @@ import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.CategoriaType;
-import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -66,15 +64,15 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         // Verifica se a categoria customizada da receita existe
         CategoriaEntity categoria = categoriaRepository.findByNomeAndTipoAndUserUuid(
-                        receitaCreateDTO.getCategoriaCustomizada(),
+                        receitaCreateDTO.getCategoria(),
                         CategoriaType.RECEITAS, userId)
-                .orElseThrow(() -> new CategoriaIdNotFoundException(receitaCreateDTO.getCategoriaCustomizada()));
+                .orElseThrow(() -> new CategoriaNameNotFoundException(receitaCreateDTO.getCategoria()));
 
         try {
             ReceitaEntity receitaParaCriar = receitaCreateDTOMapper.mapFrom(receitaCreateDTO);
 
             // Adiciona a categoria e o usuário à receita
-            receitaParaCriar.setCategoriaCustomizada(categoria);
+            receitaParaCriar.setCategoria(categoria);
             receitaParaCriar.setUser(user);
 
             return receitaRepository.save(receitaParaCriar);
@@ -128,16 +126,15 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         // Coloca os novos valores na despesa
         receita.setData(receitaUpdateDTO.getData());
-        receita.setCategoria(ReceitasCategorias.valueOf(receitaUpdateDTO.getCategoria()));
 
         // Verifica se a categoria customizada da despesaAtualizada existe
-        receita.setCategoriaCustomizada(
-                categoriaRepository.findByNomeAndTipoAndUserUuid(receitaUpdateDTO.getCategoriaCustomizada(),
+        receita.setCategoria(
+                categoriaRepository.findByNomeAndTipoAndUserUuid(receitaUpdateDTO.getCategoria(),
                                 CategoriaType.RECEITAS,
                                 receita.getUser()
                                         .getUuid())
                         .orElseThrow(
-                                () -> new CategoriaNameNotFoundException(receitaUpdateDTO.getCategoriaCustomizada())));
+                                () -> new CategoriaNameNotFoundException(receitaUpdateDTO.getCategoria())));
 
         receita.setValor(receitaUpdateDTO.getValor());
         receita.setOrigemDoPagamento(receitaUpdateDTO.getOrigemDoPagamento());
@@ -174,7 +171,7 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         Map<String, BigDecimal> categorias = receitas.stream()
                 .collect(Collectors.groupingBy(
-                        r -> r.getCategoriaCustomizada()
+                        r -> r.getCategoria()
                                 .getNome(),
                         Collectors.mapping(ReceitaEntity::getValor,
                                 Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))

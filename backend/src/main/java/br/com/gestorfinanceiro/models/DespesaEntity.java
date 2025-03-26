@@ -1,6 +1,5 @@
 package br.com.gestorfinanceiro.models;
 
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -17,13 +16,9 @@ public class DespesaEntity {
     @Column(nullable = false)
     private LocalDate data;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DespesasCategorias categoria;
-
     @ManyToOne
-    @JoinColumn(name = "categoria_customizada_id")
-    private CategoriaEntity categoriaCustomizada;
+    @JoinColumn(name = "categoria_id")
+    private CategoriaEntity categoria;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal valor;
@@ -42,11 +37,10 @@ public class DespesaEntity {
     public DespesaEntity() {
     }
 
-    public DespesaEntity(String uuid, LocalDate data, DespesasCategorias categoria, CategoriaEntity categoriaCustomizada, BigDecimal valor, String destinoPagamento, String observacoes, UserEntity user) {
+    public DespesaEntity(String uuid, LocalDate data, CategoriaEntity categoria, BigDecimal valor, String destinoPagamento, String observacoes, UserEntity user) {
         this.uuid = uuid;
         this.data = data;
         this.categoria = categoria;
-        this.categoriaCustomizada = categoriaCustomizada;
         this.valor = valor;
         this.destinoPagamento = destinoPagamento;
         this.observacoes = observacoes;
@@ -70,11 +64,11 @@ public class DespesaEntity {
         this.data = data;
     }
 
-    public DespesasCategorias getCategoria() {
+    public CategoriaEntity getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(DespesasCategorias categoria) {
+    public void setCategoria(CategoriaEntity categoria) {
         this.categoria = categoria;
     }
 
@@ -108,13 +102,5 @@ public class DespesaEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
-    }
-
-    public CategoriaEntity getCategoriaCustomizada() {
-        return categoriaCustomizada;
-    }
-
-    public void setCategoriaCustomizada(CategoriaEntity categoriaCustomizada) {
-        this.categoriaCustomizada = categoriaCustomizada;
     }
 }

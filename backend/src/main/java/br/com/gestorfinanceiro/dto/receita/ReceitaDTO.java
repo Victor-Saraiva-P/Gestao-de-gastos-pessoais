@@ -2,22 +2,24 @@ package br.com.gestorfinanceiro.dto.receita;
 
 import br.com.gestorfinanceiro.dto.common.TransacaoDTO;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class ReceitaDTO extends TransacaoDTO {
     @NotBlank(message = "A origem do pagamento é obrigatória.")
     private String origemDoPagamento;
 
-    // Sobrescreva para aplicar validações específicas
-    @Override
-    @NotBlank(message = "A categoria é obrigatória.")
-    @Pattern(
-            regexp = "SALARIO|RENDIMENTO_DE_INVESTIMENTO|COMISSOES|BONUS|BOLSA_DE_ESTUDOS",
-            message = "Categoria inválida. Valores permitidos: SALARIO, RENDIMENTO_DE_INVESTIMENTO, COMISSOES, BONUS, BOLSA_DE_ESTUDOS."
-    )
-    public String getCategoria() {
-        return super.getCategoria();
+    // Construtores
+    public ReceitaDTO(String categoria, LocalDate data, BigDecimal valor, String observacoes, String uuid, String origemDoPagamento) {
+        super(categoria, data, valor, observacoes, uuid);
+        this.origemDoPagamento = origemDoPagamento;
     }
+
+    public ReceitaDTO() {
+    }
+
+    // Getters and Setters
 
     public String getOrigemDoPagamento() {
         return origemDoPagamento;

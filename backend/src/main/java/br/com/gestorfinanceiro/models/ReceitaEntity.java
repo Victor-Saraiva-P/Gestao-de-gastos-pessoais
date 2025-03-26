@@ -1,6 +1,5 @@
 package br.com.gestorfinanceiro.models;
 
-import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -17,13 +16,10 @@ public class ReceitaEntity {
     @Column(nullable = false)
     private LocalDate data;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReceitasCategorias categoria;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_customizada_id")
-    private CategoriaEntity categoriaCustomizada;
+    @JoinColumn(name = "categoria_id")
+    private CategoriaEntity categoria;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal valor;
@@ -40,11 +36,12 @@ public class ReceitaEntity {
     private UserEntity user;
 
     // Construtores
-    public ReceitaEntity(LocalDate data, ReceitasCategorias categoria, CategoriaEntity categoriaCustomizada, BigDecimal valor, String origemDoPagamento, String observacoes, UserEntity user) {
+
+
+    public ReceitaEntity(String uuid, LocalDate data, CategoriaEntity categoria, BigDecimal valor, String origemDoPagamento, String observacoes, UserEntity user) {
         this.uuid = uuid;
         this.data = data;
         this.categoria = categoria;
-        this.categoriaCustomizada = categoriaCustomizada;
         this.valor = valor;
         this.origemDoPagamento = origemDoPagamento;
         this.observacoes = observacoes;
@@ -55,6 +52,7 @@ public class ReceitaEntity {
     }
 
     // Getters and Setters
+
     public String getUuid() {
         return uuid;
     }
@@ -71,11 +69,11 @@ public class ReceitaEntity {
         this.data = data;
     }
 
-    public ReceitasCategorias getCategoria() {
+    public CategoriaEntity getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(ReceitasCategorias categoria) {
+    public void setCategoria(CategoriaEntity categoria) {
         this.categoria = categoria;
     }
 
@@ -109,13 +107,5 @@ public class ReceitaEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
-    }
-
-    public CategoriaEntity getCategoriaCustomizada() {
-        return categoriaCustomizada;
-    }
-
-    public void setCategoriaCustomizada(CategoriaEntity categoriaCustomizada) {
-        this.categoriaCustomizada = categoriaCustomizada;
     }
 }
