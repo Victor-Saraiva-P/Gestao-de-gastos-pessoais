@@ -26,7 +26,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UserEntity atualizarUserStatus(String userID, UserAdminUpdateDTO userAdminUpdateDTO) {
+    public UserEntity atualizarUser(String userID, UserAdminUpdateDTO userAdminUpdateDTO) {
         // Validar o ID do usuário
         if (userID == null || userID.isEmpty()) {
             throw new InvalidUserIdException();

@@ -8,5 +8,5 @@ import java.util.List;
 public interface AdminService {
     List<UserEntity> listUsers();
 
-    UserEntity atualizarUserStatus(String userID, UserAdminUpdateDTO userAdminUpdateDTO);
+    UserEntity atualizarUser(String userID, UserAdminUpdateDTO userAdminUpdateDTO);
 }

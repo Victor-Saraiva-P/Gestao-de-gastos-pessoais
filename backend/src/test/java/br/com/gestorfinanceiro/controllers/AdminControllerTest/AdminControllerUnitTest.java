@@ -85,7 +85,7 @@ class AdminControllerUnitTest {
         userForAdminDTO.setEstaAtivo(false); // Importante definir o valor
 
         // Define o comportamento esperado para o serviço e o mapper
-        when(adminService.atualizarUserStatus(userA.getUuid(), false)).thenReturn(userA);
+        when(adminService.atualizarUser(userA.getUuid(), false)).thenReturn(userA);
         when(mapper.mapTo(userA)).thenReturn(userForAdminDTO);
 
         // Cria um objeto para representar o corpo da requisição

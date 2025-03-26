@@ -55,14 +55,14 @@ class AdminServiceUnitTest {
 
     //------------------TESTES DO ATUALIZAR USER STATUS ----------------------//
     @Test
-    void deveAtualizarUserStatus() {
+    void deveAtualizarUser() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         user.setEstaAtivo(true);
 
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        UserEntity userUpdated = adminService.atualizarUserStatus(user.getUuid(), false);
+        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), false);
 
         // verifica se o usuário foi atualizado
         assertFalse(userUpdated.getEstaAtivo());
@@ -71,13 +71,13 @@ class AdminServiceUnitTest {
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForNull() {
         // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUserStatus(null, false));
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, false));
     }
 
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForVazio() {
         // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUserStatus("", false));
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser("", false));
     }
 
     @Test
@@ -85,6 +85,6 @@ class AdminServiceUnitTest {
         when(userRepository.findById("123-456")).thenReturn(Optional.empty());
 
         // verifica se o metodo lança a exceção quando o usuário não é encontrado
-        assertThrows(Exception.class, () -> adminService.atualizarUserStatus("123-456", false));
+        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", false));
     }
 }

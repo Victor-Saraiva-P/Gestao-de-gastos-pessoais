@@ -65,11 +65,11 @@ class AdminServiceIntegrationTest {
 
     //------------------TESTES DO ATUALIZAR USER STATUS ----------------------//
     @Test
-    void deveAtualizarUserStatus() {
+    void deveAtualizarUser() {
         UserEntity user = adicionarUsuario("Usuario A");
         user.setEstaAtivo(true);
 
-        UserEntity userUpdated = adminService.atualizarUserStatus(user.getUuid(), false);
+        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), false);
 
         // verifica se o usuário foi atualizado
         assertFalse(userUpdated.getEstaAtivo());
@@ -78,13 +78,13 @@ class AdminServiceIntegrationTest {
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForNulo() {
         // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUserStatus(null, false));
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, false));
     }
 
     @Test
     void deveLancarUserNotFoundExceptionQuandoNaoEncontrarUser() {
         // verifica se o metodo lança a exceção quando o usuário não é encontrado
-        assertThrows(Exception.class, () -> adminService.atualizarUserStatus("123-456", false));
+        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", false));
     }
 
     //-------------------------------MÉTODOS AUXILIARES-------------------------------//
