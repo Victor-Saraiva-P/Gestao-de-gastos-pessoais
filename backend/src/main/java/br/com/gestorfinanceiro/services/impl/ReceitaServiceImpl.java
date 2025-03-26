@@ -2,13 +2,24 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaCreateDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaUpdateDTO;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
+import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
+import br.com.gestorfinanceiro.mappers.Mapper;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
+import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.ReceitaService;
@@ -29,29 +40,44 @@ import java.util.stream.Collectors;
 public class ReceitaServiceImpl implements ReceitaService {
 
     private final ReceitaRepository receitaRepository;
+    private final CategoriaRepository categoriaRepository;
     private final UserRepository userRepository;
+    private final Mapper<ReceitaEntity, ReceitaCreateDTO> receitaCreateDTOMapper;
 
-    public ReceitaServiceImpl(ReceitaRepository receitaRepository ,UserRepository userRepository) {
+    public ReceitaServiceImpl(ReceitaRepository receitaRepository, CategoriaRepository categoriaRepository, UserRepository userRepository, Mapper<ReceitaEntity, ReceitaCreateDTO> receitaCreateDTOMapper) {
         this.receitaRepository = receitaRepository;
+        this.categoriaRepository = categoriaRepository;
         this.userRepository = userRepository;
+        this.receitaCreateDTOMapper = receitaCreateDTOMapper;
     }
 
     @Override
     @Transactional
-    public ReceitaEntity criarReceita(ReceitaEntity receita, String userId) {
-        if (receita == null) {
-            throw new InvalidDataException("A receita não pode ser nula.");
-        }
-
-        if (receita.getValor() == null || receita.getValor().compareTo(BigDecimal.ZERO) <= 0) {
+    public ReceitaEntity criarReceita(ReceitaCreateDTO receitaCreateDTO, String userId) {
+        // Verifica se o valor da receita é nulo ou menor ou igual a zero
+        if (receitaCreateDTO.getValor() == null || receitaCreateDTO.getValor()
+                .compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidDataException("O valor da receita deve ser maior que zero.");
         }
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found."));
+        // Verifica se o usuario existe
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // Verifica se a categoria customizada da receita existe
+        CategoriaEntity categoria = categoriaRepository.findByNomeAndTipoAndUserUuid(
+                        receitaCreateDTO.getCategoriaCustomizada(),
+                        CategoriaType.RECEITAS, userId)
+                .orElseThrow(() -> new CategoriaIdNotFoundException(receitaCreateDTO.getCategoriaCustomizada()));
 
         try {
-            receita.setUser(user);
-            return receitaRepository.save(receita);
+            ReceitaEntity receitaParaCriar = receitaCreateDTOMapper.mapFrom(receitaCreateDTO);
+
+            // Adiciona a categoria e o usuário à receita
+            receitaParaCriar.setCategoriaCustomizada(categoria);
+            receitaParaCriar.setUser(user);
+
+            return receitaRepository.save(receitaParaCriar);
         } catch (Exception e) {
             throw new ReceitaOperationException("Erro ao criar receita. Por favor, tente novamente.", e);
         }
@@ -59,7 +85,8 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     public List<ReceitaEntity> listarReceitasUsuario(String userId) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -74,7 +101,8 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     public ReceitaEntity buscarReceitaPorId(String uuid) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
@@ -85,40 +113,53 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     @Transactional
-    public ReceitaEntity atualizarReceita(String uuid, ReceitaEntity receitaAtualizada) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+    public ReceitaEntity atualizarReceita(String uuid, ReceitaUpdateDTO receitaUpdateDTO) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
-        if (receitaAtualizada == null) {
+        if (receitaUpdateDTO == null) {
             throw new InvalidDataException("Os dados da receita não podem ser nulos.");
         }
 
-            ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
+        ReceitaEntity receita = receitaRepository.findById(uuid)
+                .orElseThrow(() -> new ReceitaNotFoundException(uuid));
+
+        // Coloca os novos valores na despesa
+        receita.setData(receitaUpdateDTO.getData());
+        receita.setCategoria(ReceitasCategorias.valueOf(receitaUpdateDTO.getCategoria()));
+
+        // Verifica se a categoria customizada da despesaAtualizada existe
+        receita.setCategoriaCustomizada(
+                categoriaRepository.findByNomeAndTipoAndUserUuid(receitaUpdateDTO.getCategoriaCustomizada(),
+                                CategoriaType.RECEITAS,
+                                receita.getUser()
+                                        .getUuid())
+                        .orElseThrow(
+                                () -> new CategoriaNameNotFoundException(receitaUpdateDTO.getCategoriaCustomizada())));
+
+        receita.setValor(receitaUpdateDTO.getValor());
+        receita.setOrigemDoPagamento(receitaUpdateDTO.getOrigemDoPagamento());
+        receita.setObservacoes(receitaUpdateDTO.getObservacoes());
 
         try {
-            receita.setData(receitaAtualizada.getData());
-            receita.setCategoria(receitaAtualizada.getCategoria());
-            receita.setValor(receitaAtualizada.getValor());
-            receita.setOrigemDoPagamento(receitaAtualizada.getOrigemDoPagamento());
-            receita.setObservacoes(receitaAtualizada.getObservacoes());
-
             return receitaRepository.save(receita);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao atualizar receita. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao atualizar despesa. Por favor, tente novamente.", e);
         }
     }
 
     @Override
     @Transactional
     public void excluirReceita(String uuid) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
-            ReceitaEntity receita = receitaRepository.findById(uuid)
-                    .orElseThrow(() -> new ReceitaNotFoundException(uuid));
+        ReceitaEntity receita = receitaRepository.findById(uuid)
+                .orElseThrow(() -> new ReceitaNotFoundException(uuid));
 
         try {
             receitaRepository.delete(receita);
@@ -133,8 +174,10 @@ public class ReceitaServiceImpl implements ReceitaService {
 
         Map<String, BigDecimal> categorias = receitas.stream()
                 .collect(Collectors.groupingBy(
-                        r -> r.getCategoria().name(),
-                        Collectors.mapping(ReceitaEntity::getValor, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                        r -> r.getCategoriaCustomizada()
+                                .getNome(),
+                        Collectors.mapping(ReceitaEntity::getValor,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
                 ));
 
         return new GraficoPizzaDTO(categorias);
@@ -153,9 +196,11 @@ public class ReceitaServiceImpl implements ReceitaService {
                 .collect(Collectors.groupingBy(
                         d -> YearMonth.from(d.getData()),
                         Collectors.reducing(BigDecimal.ZERO, ReceitaEntity::getValor, BigDecimal::add)))
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .sorted(Map.Entry.comparingByKey())
-                .forEach(e -> dadosMensais.put(e.getKey().format(formatter), e.getValue()));
+                .forEach(e -> dadosMensais.put(e.getKey()
+                        .format(formatter), e.getValue()));
 
         // Retorna o DTO com os dados mensais
         return new GraficoBarraDTO(dadosMensais);
@@ -163,7 +208,8 @@ public class ReceitaServiceImpl implements ReceitaService {
 
     @Override
     public List<ReceitaEntity> buscarReceitasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -178,13 +224,15 @@ public class ReceitaServiceImpl implements ReceitaService {
         try {
             return receitaRepository.findByUserAndDateRange(userId, inicio, fim);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de datas. Por favor, tente novamente.", e);
+            throw new ReceitaOperationException(
+                    "Erro ao buscar receitas por intervalo de datas. Por favor, tente novamente.", e);
         }
     }
 
     @Override
     public List<ReceitaEntity> buscarReceitasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -203,7 +251,8 @@ public class ReceitaServiceImpl implements ReceitaService {
         try {
             return receitaRepository.findByUserAndValueBetween(userId, min, max);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao buscar receitas por intervalo de valores. Por favor, tente novamente.", e);
+            throw new ReceitaOperationException(
+                    "Erro ao buscar receitas por intervalo de valores. Por favor, tente novamente.", e);
         }
     }
 

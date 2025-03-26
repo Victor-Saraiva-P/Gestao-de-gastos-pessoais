@@ -4,6 +4,7 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
@@ -171,7 +172,7 @@ class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistente() {
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
+        assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
                         TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome"), "id-de-usuario-qualquer"));
     }
@@ -220,7 +221,7 @@ class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistenteAoExcluir() {
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
+        assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.excluirCategoria("uuid-inexistente", "id-de-usuario-qualquer"));
     }
 

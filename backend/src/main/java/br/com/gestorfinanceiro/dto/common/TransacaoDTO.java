@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public abstract class TransacaoDTO {
+    @NotBlank(message = "A categoria customizada é obrigatória.")
+    private String categoriaCustomizada;
+
     @NotNull(message = "A data é obrigatória.")
     protected LocalDate data;
 
@@ -61,5 +64,13 @@ public abstract class TransacaoDTO {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public String getCategoriaCustomizada() {
+        return categoriaCustomizada;
+    }
+
+    public void setCategoriaCustomizada(String categoriaCustomizada) {
+        this.categoriaCustomizada = categoriaCustomizada;
     }
 }

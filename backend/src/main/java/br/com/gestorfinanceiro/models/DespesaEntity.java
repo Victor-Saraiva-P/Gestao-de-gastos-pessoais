@@ -21,6 +21,10 @@ public class DespesaEntity {
     @Enumerated(EnumType.STRING)
     private DespesasCategorias categoria;
 
+    @ManyToOne
+    @JoinColumn(name = "categoria_customizada_id")
+    private CategoriaEntity categoriaCustomizada;
+
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal valor;
 
@@ -34,6 +38,22 @@ public class DespesaEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    // Construtores
+    public DespesaEntity() {
+    }
+
+    public DespesaEntity(String uuid, LocalDate data, DespesasCategorias categoria, CategoriaEntity categoriaCustomizada, BigDecimal valor, String destinoPagamento, String observacoes, UserEntity user) {
+        this.uuid = uuid;
+        this.data = data;
+        this.categoria = categoria;
+        this.categoriaCustomizada = categoriaCustomizada;
+        this.valor = valor;
+        this.destinoPagamento = destinoPagamento;
+        this.observacoes = observacoes;
+        this.user = user;
+    }
+
+    // Getters and Setters
     public String getUuid() {
         return uuid;
     }
@@ -88,5 +108,13 @@ public class DespesaEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public CategoriaEntity getCategoriaCustomizada() {
+        return categoriaCustomizada;
+    }
+
+    public void setCategoriaCustomizada(CategoriaEntity categoriaCustomizada) {
+        this.categoriaCustomizada = categoriaCustomizada;
     }
 }

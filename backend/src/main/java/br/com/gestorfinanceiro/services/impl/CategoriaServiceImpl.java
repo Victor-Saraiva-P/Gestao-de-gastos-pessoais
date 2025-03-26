@@ -4,7 +4,7 @@ import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAcessDeniedException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
-import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
@@ -120,7 +120,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         // Valida se a categoria existe
         CategoriaEntity categoria = categoriaRepository.findById(categoriaId)
-                .orElseThrow(() -> new CategoriaNotFoundException(categoriaId));
+                .orElseThrow(() -> new CategoriaIdNotFoundException(categoriaId));
 
         // Valida se o usuário é o dono da categoria
         if (!categoria.getUser()
@@ -153,7 +153,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         // Verifica se a categoria existe
         CategoriaEntity categoria = categoriaRepository.findById(categoriaId)
-                .orElseThrow(() -> new CategoriaNotFoundException(categoriaId));
+                .orElseThrow(() -> new CategoriaIdNotFoundException(categoriaId));
 
         // Verifica se o usuário é o dono da categoria
         if (!categoria.getUser()

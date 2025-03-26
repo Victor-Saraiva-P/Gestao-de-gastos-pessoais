@@ -4,6 +4,7 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
@@ -169,7 +170,7 @@ class CategoriaServiceUnitTest {
     void deveLancarExcecaoQuandoCategoriaInexistente() {
         when(categoriaRepository.findById("uuid-inexistente")).thenReturn(Optional.empty());
 
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
+        assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
                         TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome"), "id-usuario-qualquer"));
     }
@@ -226,7 +227,7 @@ class CategoriaServiceUnitTest {
     void deveLancarExcecaoQuandoCategoriaInexistenteAoExcluir() {
         when(categoriaRepository.findById("uuid-inexistente")).thenReturn(Optional.empty());
 
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
+        assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.excluirCategoria("uuid-inexistente", "id-usuario-qualquer"));
     }
 

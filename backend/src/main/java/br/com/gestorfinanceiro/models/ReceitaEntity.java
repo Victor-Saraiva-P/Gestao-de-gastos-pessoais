@@ -21,6 +21,10 @@ public class ReceitaEntity {
     @Column(nullable = false)
     private ReceitasCategorias categoria;
 
+    @ManyToOne
+    @JoinColumn(name = "categoria_customizada_id")
+    private CategoriaEntity categoriaCustomizada;
+
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal valor;
 
@@ -34,6 +38,21 @@ public class ReceitaEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    // Construtores
+    public ReceitaEntity(LocalDate data, ReceitasCategorias categoria, CategoriaEntity categoriaCustomizada, BigDecimal valor, String origemDoPagamento, String observacoes, UserEntity user) {
+        this.uuid = uuid;
+        this.data = data;
+        this.categoria = categoria;
+        this.categoriaCustomizada = categoriaCustomizada;
+        this.valor = valor;
+        this.origemDoPagamento = origemDoPagamento;
+        this.observacoes = observacoes;
+        this.user = user;
+    }
+
+    public ReceitaEntity() {
+    }
 
     // Getters and Setters
     public String getUuid() {
@@ -90,5 +109,13 @@ public class ReceitaEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public CategoriaEntity getCategoriaCustomizada() {
+        return categoriaCustomizada;
+    }
+
+    public void setCategoriaCustomizada(CategoriaEntity categoriaCustomizada) {
+        this.categoriaCustomizada = categoriaCustomizada;
     }
 }
