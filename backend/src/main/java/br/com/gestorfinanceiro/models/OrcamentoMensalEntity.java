@@ -28,9 +28,6 @@ public class OrcamentoMensalEntity {
     @Column(nullable = false)
     private YearMonth periodo;
 
-    public OrcamentoMensalEntity() {
-    }
-
     // Getters and Setters
 
     public String getUuid() {
