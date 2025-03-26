@@ -12,6 +12,8 @@ import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
+import br.com.gestorfinanceiro.repositories.DespesaRepository;
+import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.CategoriaService;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,15 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
     private final UserRepository userRepository;
+    private final DespesaRepository despesaRepository;
+    private final ReceitaRepository receitaRepository;
 
-    public CategoriaServiceImpl(CategoriaRepository categoriaRepository, UserRepository userRepository) {
+
+    public CategoriaServiceImpl(CategoriaRepository categoriaRepository, UserRepository userRepository, DespesaRepository despesaRepository, ReceitaRepository receitaRepository) {
         this.categoriaRepository = categoriaRepository;
         this.userRepository = userRepository;
+        this.despesaRepository = despesaRepository;
+        this.receitaRepository = receitaRepository;
     }
 
     @Override
@@ -167,11 +174,32 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new CategoriaOperationException("A categoria 'sem categoria' não pode ser excluída.");
         }
 
-        // Exclui a categoria
         try {
+            // Buscar a categoria "Sem Categoria" correspondente
+            CategoriaEntity semCategoria = categoriaRepository
+                    .findByIsSemCategoriaAndTipoAndUserUuid(true, categoria.getTipo(), userId)
+                    .orElseGet(() -> criarSemCategoria(userId, categoria.getTipo()
+                            .name()));
+
+            // Atualizar todas as referências dependendo do tipo da categoria
+            if (categoria.getTipo() == CategoriaType.DESPESAS) {
+                despesaRepository.findAllByCategoria(categoria)
+                        .forEach(despesa -> {
+                            despesa.setCategoria(semCategoria);
+                            despesaRepository.save(despesa);
+                        });
+            } else if (categoria.getTipo() == CategoriaType.RECEITAS) {
+                receitaRepository.findAllByCategoria(categoria)
+                        .forEach(receita -> {
+                            receita.setCategoria(semCategoria);
+                            receitaRepository.save(receita);
+                        });
+            }
+
+            // Exclui a categoria após atualizar todas as referências
             categoriaRepository.delete(categoria);
         } catch (Exception e) {
-            throw new CategoriaOperationException();
+            throw new CategoriaOperationException("Erro ao excluir categoria: " + e.getMessage());
         }
     }
 
