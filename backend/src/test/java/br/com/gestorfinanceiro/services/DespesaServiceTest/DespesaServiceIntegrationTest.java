@@ -1,15 +1,19 @@
 package br.com.gestorfinanceiro.services.DespesaServiceTest;
 
+import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.models.enums.Roles;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DespesaService;
@@ -32,6 +36,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 class DespesaServiceIntegrationTest {
 
+    private static final String CATEGORIA_PADRAO = "Alimentacao";
+    private static final String DESTINO_PAGAMENTO_PADRAO = "Mercado";
+    private static final String OBSERVACOES_PADRAO = "Compras do mês";
+    private static final BigDecimal VALOR_PADRAO = BigDecimal.valueOf(100);
+    private static final BigDecimal VALOR_ATUALIZADO = BigDecimal.valueOf(200);
+    private static final BigDecimal VALOR_NEGATIVO = BigDecimal.valueOf(-100);
+
     @Autowired
     private DespesaService despesaService;
 
@@ -41,12 +52,23 @@ class DespesaServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    private UserEntity user;
+
     @BeforeEach
     void setUp() {
-        despesaRepository.deleteAll();
-        userRepository.deleteAll();
+        limparBaseDeDados();
+        user = criarUsuarioTest();
+        criarCategoriaTest(CATEGORIA_PADRAO, user);
     }
 
+    private void limparBaseDeDados() {
+        despesaRepository.deleteAll();
+        categoriaRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void deveCarregarDespesaService() {
@@ -55,170 +77,164 @@ class DespesaServiceIntegrationTest {
 
     @Nested
     class CriarDespesaTest {
-
         @Test
         void deveCriarDespesa() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = criarDespesaTest();
+            DespesaCreateDTO despesaDTO = criarDespesaCreateDTO();
 
-            DespesaEntity despesaSalva = despesaService.criarDespesa(despesa, user.getUuid());
+            DespesaEntity despesaSalva = despesaService.criarDespesa(despesaDTO, user.getUuid());
 
             assertNotNull(despesaSalva);
-            assertEquals(despesa.getValor(), despesaSalva.getValor());
-            assertEquals(despesa.getCategoria(), despesaSalva.getCategoria());
+            assertEquals(despesaDTO.getValor(), despesaSalva.getValor());
+            assertEquals(despesaDTO.getCategoria(), despesaSalva.getCategoria().getNome());
         }
-
-        @Test
-        void erroAoCriarDespesaNula() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, userId));
-        }
-
 
         @Test
         void erroAoCriarDespesaComValorInvalido() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setValor(BigDecimal.ZERO);
-            String userId = user.getUuid();
+            DespesaCreateDTO despesaDTO = criarDespesaCreateDTO(
+                    BigDecimal.ZERO, LocalDate.now(), CATEGORIA_PADRAO
+            );
 
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.criarDespesa(despesaDTO, user.getUuid()));
         }
 
         @Test
         void erroAoCriarDespesaComValorNulo() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setValor(null);
-            String userId = user.getUuid();
+            DespesaCreateDTO despesaDTO = criarDespesaCreateDTO(
+                    null, LocalDate.now(), CATEGORIA_PADRAO
+            );
 
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.criarDespesa(despesaDTO, user.getUuid()));
         }
 
         @Test
         void erroAoCriarDespesaComValorNegativo() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = new DespesaEntity();
-            despesa.setValor(BigDecimal.valueOf(-100));
-            String userId = user.getUuid();
+            DespesaCreateDTO despesaDTO = criarDespesaCreateDTO(
+                    VALOR_NEGATIVO, LocalDate.now(), CATEGORIA_PADRAO
+            );
 
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.criarDespesa(despesaDTO, user.getUuid()));
         }
 
         @Test
         void erroAoCriarDespesaUsuarioNaoEncontrado() {
-            DespesaEntity despesa = criarDespesaTest();
+            DespesaCreateDTO despesaDTO = criarDespesaCreateDTO();
             String usuarioInexistente = UUID.randomUUID().toString();
 
-            assertThrows(RuntimeException.class, () -> despesaService.criarDespesa(despesa, usuarioInexistente));
+            assertThrows(RuntimeException.class,
+                    () -> despesaService.criarDespesa(despesaDTO, usuarioInexistente));
         }
     }
 
     @Nested
     class ListarDespesasTest {
-
         @Test
         void deveListarDespesasUsuario() {
-            UserEntity user = criarUsuarioTest();
-            despesaService.criarDespesa(criarDespesaTest(), user.getUuid());
+            despesaService.criarDespesa(criarDespesaCreateDTO(), user.getUuid());
 
             List<DespesaEntity> despesas = despesaService.listarDespesasUsuario(user.getUuid());
+
             assertFalse(despesas.isEmpty());
         }
 
         @Test
         void erroAoListarDespesasUsuarioComIdNuloOuVazio() {
-            String uuid = null;
-            assertThrows(InvalidUserIdException.class, () -> despesaService.listarDespesasUsuario(uuid));
-            assertThrows(InvalidUserIdException.class, () -> despesaService.listarDespesasUsuario(""));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.listarDespesasUsuario(null));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.listarDespesasUsuario(""));
         }
 
         @Test
         void erroAoListarDespesasVazia() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.listarDespesasUsuario(userId));
+            assertThrows(DespesaNotFoundException.class,
+                    () -> despesaService.listarDespesasUsuario(user.getUuid()));
         }
     }
 
     @Nested
     class BuscarDespesaPorIdTest {
-
         @Test
         void deveBuscarDespesaPorId() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = despesaService.criarDespesa(criarDespesaTest(), user.getUuid());
+            DespesaEntity despesa = despesaService.criarDespesa(
+                    criarDespesaCreateDTO(), user.getUuid());
 
             DespesaEntity despesaEncontrada = despesaService.buscarDespesaPorId(despesa.getUuid());
+
             assertEquals(despesa.getUuid(), despesaEncontrada.getUuid());
         }
 
         @Test
         void erroAoBuscarDespesaPorIdInexistente() {
             String uuid = UUID.randomUUID().toString();
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.buscarDespesaPorId(uuid));
+
+            assertThrows(DespesaNotFoundException.class,
+                    () -> despesaService.buscarDespesaPorId(uuid));
         }
 
         @Test
         void erroAoBuscarDespesaPorIdNuloOuVazio() {
-            String uuid = null;
-
-            assertThrows(InvalidUuidException.class, () -> despesaService.buscarDespesaPorId(uuid));
-            assertThrows(InvalidUuidException.class, () -> despesaService.buscarDespesaPorId(""));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.buscarDespesaPorId(null));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.buscarDespesaPorId(""));
         }
     }
 
     @Nested
     class AtualizarDespesaTest {
-
         @Test
         void deveAtualizarDespesa() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = despesaService.criarDespesa(criarDespesaTest(), user.getUuid());
+            DespesaEntity despesa = despesaService.criarDespesa(
+                    criarDespesaCreateDTO(), user.getUuid());
 
-            despesa.setValor(BigDecimal.valueOf(200));
-            DespesaEntity despesaAtualizada = despesaService.atualizarDespesa(despesa.getUuid(), despesa);
+            DespesaUpdateDTO despesaUpdateDTO = criarDespesaUpdateDTO(despesa);
 
-            assertEquals(BigDecimal.valueOf(200), despesaAtualizada.getValor());
+            DespesaEntity despesaAtualizada = despesaService.atualizarDespesa(
+                    despesa.getUuid(), despesaUpdateDTO);
+
+            assertEquals(VALOR_ATUALIZADO, despesaAtualizada.getValor());
         }
 
         @Test
         void erroAoAtualizarDespesaInexistente() {
-            DespesaEntity despesa = criarDespesaTest();
+            DespesaUpdateDTO despesa = criarDespesaUpdateDTO();
             String uuidInexistente = UUID.randomUUID().toString();
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.atualizarDespesa(uuidInexistente, despesa));
+            assertThrows(DespesaNotFoundException.class,
+                    () -> despesaService.atualizarDespesa(uuidInexistente, despesa));
         }
 
         @Test
         void erroAoAtualizarDespesaNula() {
-            DespesaEntity despesa = null;
             String uuid = UUID.randomUUID().toString();
 
-            assertThrows(InvalidDataException.class, () -> despesaService.atualizarDespesa(uuid, despesa));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.atualizarDespesa(uuid, null));
         }
 
         @Test
         void erroAoAtualizarUuidNuloOuVazio() {
-            DespesaEntity despesa = criarDespesaTest();
-            String uuid = null;
+            DespesaUpdateDTO despesa = criarDespesaUpdateDTO();
 
-            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa(uuid, despesa));
-            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa("", despesa));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.atualizarDespesa(null, despesa));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.atualizarDespesa("", despesa));
         }
     }
 
     @Nested
     class ExcluirDespesaTest {
-
         @Test
         void deveExcluirDespesa() {
-            UserEntity user = criarUsuarioTest();
-            DespesaEntity despesa = despesaService.criarDespesa(criarDespesaTest(), user.getUuid());
+            DespesaEntity despesa = despesaService.criarDespesa(
+                    criarDespesaCreateDTO(), user.getUuid());
 
             despesaService.excluirDespesa(despesa.getUuid());
+
             assertFalse(despesaRepository.findById(despesa.getUuid()).isPresent());
         }
 
@@ -226,26 +242,23 @@ class DespesaServiceIntegrationTest {
         void erroAoExcluirDespesaInexistente() {
             String uuidInexistente = UUID.randomUUID().toString();
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.excluirDespesa(uuidInexistente));
+            assertThrows(DespesaNotFoundException.class,
+                    () -> despesaService.excluirDespesa(uuidInexistente));
         }
 
         @Test
         void erroAoExcluirDespesaComUuidNuloOuVazio() {
-            String uuidNull = null;
-
-            assertThrows(InvalidUuidException.class, () -> despesaService.excluirDespesa(uuidNull));
-            assertThrows(InvalidUuidException.class, () -> despesaService.excluirDespesa(""));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.excluirDespesa(null));
+            assertThrows(InvalidUuidException.class,
+                    () -> despesaService.excluirDespesa(""));
         }
     }
 
     @Nested
     class GerarGraficosTest {
-
         @Test
         void deveGerarGraficoBarras() {
-            UserEntity user = criarUsuarioTest();
-
-            // Criando despesas em meses diferentes
             criarDespesaComValorEData(user, BigDecimal.valueOf(100), LocalDate.of(2024, 1, 10));
             criarDespesaComValorEData(user, BigDecimal.valueOf(200), LocalDate.of(2024, 2, 15));
             criarDespesaComValorEData(user, BigDecimal.valueOf(150), LocalDate.of(2024, 2, 20));
@@ -255,172 +268,149 @@ class DespesaServiceIntegrationTest {
 
             GraficoBarraDTO grafico = despesaService.gerarGraficoBarras(user.getUuid(), inicio, fim);
 
-            // Verifica se os valores por mês estão corretos
             assertNotNull(grafico);
             assertEquals(2, grafico.dadosMensais().size());
             assertEquals(
                     BigDecimal.valueOf(100).stripTrailingZeros(),
                     grafico.dadosMensais().get("janeiro 2024").stripTrailingZeros()
             );
-
             assertEquals(
                     BigDecimal.valueOf(350).stripTrailingZeros(),
                     grafico.dadosMensais().get("fevereiro 2024").stripTrailingZeros()
             );
-
         }
 
         @Test
         void deveGerarGraficoPizza() {
-            UserEntity user = criarUsuarioTest();
+            CategoriaEntity transporte = criarCategoriaTest("Transporte", user);
+            CategoriaEntity lazer = criarCategoriaTest("Lazer", user);
 
-            // Criando despesas de diferentes categorias
-            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(300), DespesasCategorias.ALIMENTACAO);
-            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(200), DespesasCategorias.TRANSPORTE);
-            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(100), DespesasCategorias.LAZER);
+            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(300), CATEGORIA_PADRAO);
+            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(200), transporte.getNome());
+            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(100), lazer.getNome());
+            criarDespesaComCategoriaEValor(user, BigDecimal.valueOf(100), lazer.getNome());
 
-            LocalDate inicio = LocalDate.of(2024, 1, 1);
-            LocalDate fim = LocalDate.of(2024, 12, 31);
+            LocalDate inicio = LocalDate.of(2025, 1, 1);
+            LocalDate fim = LocalDate.of(2025, 12, 31);
 
             GraficoPizzaDTO grafico = despesaService.gerarGraficoPizza(user.getUuid(), inicio, fim);
-            System.out.println(grafico);
-            // Verifica se os valores por categoria estão corretos
+
             assertNotNull(grafico);
             assertEquals(3, grafico.categorias().size());
-            assertEquals(BigDecimal.valueOf(300).stripTrailingZeros(), grafico.categorias().get("ALIMENTACAO").stripTrailingZeros());
-            assertEquals(BigDecimal.valueOf(200).stripTrailingZeros(), grafico.categorias().get("TRANSPORTE").stripTrailingZeros());
-            assertEquals(BigDecimal.valueOf(100).stripTrailingZeros(), grafico.categorias().get("LAZER").stripTrailingZeros());
-
-
+            assertEquals(
+                    BigDecimal.valueOf(300).stripTrailingZeros(),
+                    grafico.categorias().get(CATEGORIA_PADRAO).stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(200).stripTrailingZeros(),
+                    grafico.categorias().get("Transporte").stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(200).stripTrailingZeros(),
+                    grafico.categorias().get("Lazer").stripTrailingZeros());
         }
     }
 
     @Nested
     class BuscaAvancadaTest {
+        private static final LocalDate DATA_INICIO_2024 = LocalDate.of(2024, 1, 1);
+        private static final LocalDate DATA_FIM_2024 = LocalDate.of(2024, 2, 18);
+        private static final LocalDate DATA_10_JAN_2024 = LocalDate.of(2024, 1, 10);
+        private static final LocalDate DATA_15_FEV_2024 = LocalDate.of(2024, 2, 15);
+        private static final LocalDate DATA_20_FEV_2024 = LocalDate.of(2024, 2, 20);
+        private static final LocalDate DATA_5_JAN_2024 = LocalDate.of(2024, 1, 5);
+
         @Test
         void deveBuscarDespesasPorIntervaloDeDatas() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
+            criarDespesaComValorEData(user, BigDecimal.valueOf(100), DATA_10_JAN_2024);
+            criarDespesaComValorEData(user, BigDecimal.valueOf(200), DATA_15_FEV_2024);
+            criarDespesaComValorEData(user, BigDecimal.valueOf(150), DATA_20_FEV_2024);
 
-            // Criando despesas em datas diferentes
-            criarDespesaComValorEData(user, BigDecimal.valueOf(100), LocalDate.of(2024, 1, 10));
-            criarDespesaComValorEData(user, BigDecimal.valueOf(200), LocalDate.of(2024, 2, 15));
-            criarDespesaComValorEData(user, BigDecimal.valueOf(150), LocalDate.of(2024, 2, 20));
+            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeDatas(
+                    user.getUuid(), DATA_INICIO_2024, DATA_FIM_2024);
 
-            LocalDate inicio = LocalDate.of(2024, 1, 1);
-            LocalDate fim = LocalDate.of(2024, 2, 18);
-
-            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim);
-
-            // Verifica se as despesas estão corretas
             assertNotNull(despesas);
             assertEquals(2, despesas.size());
-            assertEquals(BigDecimal.valueOf(100).stripTrailingZeros(), despesas.get(0).getValor().stripTrailingZeros());
-            assertEquals(BigDecimal.valueOf(200).stripTrailingZeros(), despesas.get(1).getValor().stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(100).stripTrailingZeros(),
+                    despesas.get(0).getValor().stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(200).stripTrailingZeros(),
+                    despesas.get(1).getValor().stripTrailingZeros());
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComUserIdNuloOuVazio() {
-            LocalDate inicio = LocalDate.of(2024, 1, 1);
-            LocalDate fim = LocalDate.of(2024, 2, 18);
-
-            assertThrows(InvalidUserIdException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(null, inicio, fim));
-            assertThrows(InvalidUserIdException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas("", inicio, fim));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeDatas(null, DATA_INICIO_2024, DATA_FIM_2024));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeDatas("", DATA_INICIO_2024, DATA_FIM_2024));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComDatasNulas() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            LocalDate inicio = null;
-            LocalDate inicio2 = LocalDate.of(2024, 1, 1);
-            LocalDate fim = null;
-            LocalDate fim2 = LocalDate.of(2024, 2, 18);
-
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio2, fim));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), null, DATA_FIM_2024));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeDatas(user.getUuid(), DATA_INICIO_2024, null));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeDatasComInicioDepoisDoFim() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            LocalDate inicio = LocalDate.of(2024, 1, 10);
-            LocalDate fim = LocalDate.of(2024, 1, 5);
-
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeDatas(userId, inicio, fim));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeDatas(
+                            user.getUuid(), DATA_10_JAN_2024, DATA_5_JAN_2024));
         }
 
         @Test
         void deveBuscarDespesasPorIntervaloDeValores() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
+            criarDespesaComValorEData(user, BigDecimal.valueOf(100), DATA_10_JAN_2024);
+            criarDespesaComValorEData(user, BigDecimal.valueOf(200), DATA_15_FEV_2024);
+            criarDespesaComValorEData(user, BigDecimal.valueOf(150), DATA_20_FEV_2024);
 
-            // Criando despesas com valores diferentes
-            criarDespesaComValorEData(user, BigDecimal.valueOf(100), LocalDate.of(2024, 1, 10));
-            criarDespesaComValorEData(user, BigDecimal.valueOf(200), LocalDate.of(2024, 2, 15));
-            criarDespesaComValorEData(user, BigDecimal.valueOf(150), LocalDate.of(2024, 2, 20));
+            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeValores(
+                    user.getUuid(), BigDecimal.valueOf(100), BigDecimal.valueOf(150));
 
-            BigDecimal min = BigDecimal.valueOf(100);
-            BigDecimal max = BigDecimal.valueOf(150);
-
-            List<DespesaEntity> despesas = despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max);
-
-            // Verifica se as despesas estão corretas
             assertNotNull(despesas);
             assertEquals(2, despesas.size());
-            assertEquals(BigDecimal.valueOf(100).stripTrailingZeros(), despesas.get(0).getValor().stripTrailingZeros());
-            assertEquals(BigDecimal.valueOf(150).stripTrailingZeros(), despesas.get(1).getValor().stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(100).stripTrailingZeros(),
+                    despesas.get(0).getValor().stripTrailingZeros());
+            assertEquals(
+                    BigDecimal.valueOf(150).stripTrailingZeros(),
+                    despesas.get(1).getValor().stripTrailingZeros());
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComUserIdNuloOuVazio() {
-            BigDecimal min = BigDecimal.valueOf(100);
-            BigDecimal max = BigDecimal.valueOf(150);
-
-            assertThrows(InvalidUserIdException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(null, min, max));
-            assertThrows(InvalidUserIdException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores("", min, max));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(null, VALOR_PADRAO, VALOR_ATUALIZADO));
+            assertThrows(InvalidUserIdException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores("", VALOR_PADRAO, VALOR_ATUALIZADO));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresNulos() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            BigDecimal min = null;
-            BigDecimal min2 = BigDecimal.valueOf(100);
-            BigDecimal max = null;
-            BigDecimal max2 = BigDecimal.valueOf(150);
-
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min2, max));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), null, VALOR_ATUALIZADO));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), VALOR_PADRAO, null));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComValoresMenoresOuIguaisAZero() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            BigDecimal min = BigDecimal.ZERO;
-            BigDecimal min2 = BigDecimal.valueOf(100);
-            BigDecimal max = BigDecimal.ZERO;
-            BigDecimal max2 = BigDecimal.valueOf(150);
-
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max2));
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min2, max));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), BigDecimal.ZERO, VALOR_ATUALIZADO));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), VALOR_PADRAO, BigDecimal.ZERO));
         }
 
         @Test
         void erroAoBuscarDespesasPorIntervaloDeValoresComMinMaiorQueMax() {
-            UserEntity user = criarUsuarioTest();
-            String userId = user.getUuid();
-            BigDecimal min = BigDecimal.valueOf(200);
-            BigDecimal max = BigDecimal.valueOf(100);
-
-            assertThrows(InvalidDataException.class, () -> despesaService.buscarDespesasPorIntervaloDeValores(userId, min, max));
+            assertThrows(InvalidDataException.class,
+                    () -> despesaService.buscarDespesasPorIntervaloDeValores(user.getUuid(), VALOR_ATUALIZADO, VALOR_PADRAO));
         }
     }
 
-
-    //----------------- Métodos Auxiliares -----------------//
+    //----------------- Métodos Auxiliares Melhorados -----------------//
 
     private UserEntity criarUsuarioTest() {
         UserEntity user = new UserEntity();
@@ -431,35 +421,63 @@ class DespesaServiceIntegrationTest {
         return userRepository.save(user);
     }
 
-    private DespesaEntity criarDespesaTest() {
-        DespesaEntity despesa = new DespesaEntity();
-        despesa.setData(LocalDate.now());
-        despesa.setValor(BigDecimal.valueOf(100));
-        despesa.setCategoria(DespesasCategorias.ALIMENTACAO);
-        despesa.setDestinoPagamento("Mercado");
-        despesa.setObservacoes("Compras do mês");
-        return despesa;
+    private CategoriaEntity criarCategoriaTest(String nome, UserEntity user) {
+        CategoriaEntity categoria = new CategoriaEntity();
+        categoria.setNome(nome);
+        categoria.setTipo(CategoriaType.DESPESAS);
+        categoria.setUser(user);
+        return categoriaRepository.save(categoria);
+    }
+
+    private DespesaCreateDTO criarDespesaCreateDTO(BigDecimal valor, LocalDate data, String categoria) {
+        DespesaCreateDTO dto = new DespesaCreateDTO();
+        dto.setValor(valor);
+        dto.setData(data);
+        dto.setCategoria(categoria);
+        dto.setDestinoPagamento(DespesaServiceIntegrationTest.DESTINO_PAGAMENTO_PADRAO);
+        dto.setObservacoes(DespesaServiceIntegrationTest.OBSERVACOES_PADRAO);
+        return dto;
+    }
+
+    private DespesaCreateDTO criarDespesaCreateDTO() {
+        return criarDespesaCreateDTO(
+                VALOR_PADRAO,
+                LocalDate.now(),
+                CATEGORIA_PADRAO
+        );
+    }
+
+    private DespesaUpdateDTO criarDespesaUpdateDTO() {
+        DespesaUpdateDTO dto = new DespesaUpdateDTO();
+        dto.setValor(VALOR_ATUALIZADO);
+        dto.setData(LocalDate.now());
+        dto.setCategoria(CATEGORIA_PADRAO);
+        dto.setDestinoPagamento(DESTINO_PAGAMENTO_PADRAO);
+        dto.setObservacoes(OBSERVACOES_PADRAO);
+        return dto;
+    }
+
+    private DespesaUpdateDTO criarDespesaUpdateDTO(DespesaEntity despesa) {
+        DespesaUpdateDTO dto = new DespesaUpdateDTO();
+        dto.setValor(DespesaServiceIntegrationTest.VALOR_ATUALIZADO);
+        dto.setData(despesa.getData());
+        dto.setCategoria(despesa.getCategoria().getNome());
+        dto.setDestinoPagamento(despesa.getDestinoPagamento());
+        dto.setObservacoes(despesa.getObservacoes());
+        return dto;
     }
 
     private void criarDespesaComValorEData(UserEntity user, BigDecimal valor, LocalDate data) {
-        DespesaEntity despesa = new DespesaEntity();
-        despesa.setData(data);
-        despesa.setValor(valor);
-        despesa.setCategoria(DespesasCategorias.ALIMENTACAO);
-        despesa.setDestinoPagamento("Loja X");
-        despesa.setObservacoes("Compra teste");
-        despesa.setUser(user);
-        despesaService.criarDespesa(despesa, user.getUuid());
+        despesaService.criarDespesa(
+                criarDespesaCreateDTO(valor, data, CATEGORIA_PADRAO),
+                user.getUuid()
+        );
     }
 
-    private void criarDespesaComCategoriaEValor(UserEntity user, BigDecimal valor, DespesasCategorias categoria) {
-        DespesaEntity despesa = new DespesaEntity();
-        despesa.setData(LocalDate.of(2024, 1, 15));
-        despesa.setValor(valor);
-        despesa.setCategoria(categoria);
-        despesa.setDestinoPagamento("Teste");
-        despesa.setObservacoes("Compra teste");
-        despesa.setUser(user);
-        despesaService.criarDespesa(despesa, user.getUuid());
+    private void criarDespesaComCategoriaEValor(UserEntity user, BigDecimal valor, String categoria) {
+        despesaService.criarDespesa(
+                criarDespesaCreateDTO(valor, LocalDate.of(2025, 3, 12), categoria),
+                user.getUuid()
+        );
     }
 }
