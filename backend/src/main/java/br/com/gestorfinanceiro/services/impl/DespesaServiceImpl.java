@@ -9,7 +9,6 @@ import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
-import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.mappers.Mapper;
@@ -77,7 +76,7 @@ public class DespesaServiceImpl implements DespesaService {
 
             return despesaRepository.save(despesaParaCriar);
         } catch (Exception e) {
-            throw new ReceitaOperationException("Erro ao criar Despesa. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao criar Despesa. Por favor, tente novamente.", e);
         }
     }
 

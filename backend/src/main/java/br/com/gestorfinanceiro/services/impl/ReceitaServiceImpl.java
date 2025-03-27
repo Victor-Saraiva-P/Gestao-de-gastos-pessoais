@@ -143,7 +143,7 @@ public class ReceitaServiceImpl implements ReceitaService {
         try {
             return receitaRepository.save(receita);
         } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao atualizar despesa. Por favor, tente novamente.", e);
+            throw new ReceitaOperationException("Erro ao atualizar despesa. Por favor, tente novamente.", e);
         }
     }
 
