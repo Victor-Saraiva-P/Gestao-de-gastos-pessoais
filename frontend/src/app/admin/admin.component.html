@@ -3,7 +3,7 @@
 
     <div class="left-section">
       <button class="edit" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
-        {{ isEditing ? 'Cancelar Edição' : 'Editar Usuários' }}
+        {{ isEditing ? 'Cancelar Edição' : 'Alterar função de Usuários' }}
       </button>
     </div>
   
@@ -19,9 +19,34 @@
                 <strong>Role:</strong> {{ user.role }} <br>
                 <strong>Está ativo:</strong> {{ user.estaAtivo }} <br>
               </div>
+              <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(user)">
+                <img src="assets/edit-bnt.png">
+              </button>
             </li>
           </ul>
       </div> 
+    </div>
+
+
+    <!-- Model de editar -->
+    <div *ngIf="modalType === 'edit'" [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Alterar função</h2>
+        <form [formGroup]="editUserForm" (ngSubmit)="onSubmitEdit(editingUserId!)">
+
+          <label>Role</label>
+          <div>
+            <select id="role" formControlName="role" required>
+              <option value="" disabled selected>Selecione uma categoria</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+            </select>
+          </div>
+
+          <button type="submit" [disabled]="editUserForm.invalid">Salvar Alterações</button>
+        </form>
+      </div>
     </div>
 </section>
   
