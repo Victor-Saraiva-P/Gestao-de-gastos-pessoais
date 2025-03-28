@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -200,13 +201,16 @@ class CategoriaServiceIntegrationTest {
     //------------------TESTES DO excluirCategoria ----------------------//
     @Test
     void deveExcluirCategoria() {
-        UserEntity user = adicionarUsuario("Usuario A");
-        CategoriaEntity categoria = adicionarCategoria("Categoria A", "DESPESAS", user.getUuid());
+        UserEntity user = adicionarUsuario("Usuario Teste");
+        CategoriaEntity categoria = adicionarCategoria("Categoria Teste", "DESPESAS", user.getUuid());
+
+        assertTrue(categoriaRepository.findById(categoria.getUuid()).isPresent());
 
         categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
 
-        assertEquals(0, categoriaRepository.findAll()
-                .size());
+        Optional<CategoriaEntity> categoriaExcluida = categoriaRepository.findById(categoria.getUuid());
+
+        assertFalse(categoriaExcluida.isPresent());
     }
 
     @Test

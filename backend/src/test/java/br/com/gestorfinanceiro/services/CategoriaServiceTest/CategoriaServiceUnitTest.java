@@ -10,6 +10,7 @@ import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
+import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.CategoriaServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -21,12 +22,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CategoriaServiceUnitTest {
@@ -35,6 +37,9 @@ class CategoriaServiceUnitTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DespesaRepository despesaRepository;
 
     @Mock
     private CategoriaRepository categoriaRepository;
@@ -199,18 +204,21 @@ class CategoriaServiceUnitTest {
 
     //------------------TESTES DO excluirCategoria ----------------------//
     @Test
-    void deveExcluirCategoria() {
+    void deveExcluirCategoriaComSucesso() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
 
+        when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
+        when(despesaRepository.findAllByCategoria(categoria)).thenReturn(Collections.emptyList());
+        doNothing().when(categoriaRepository).delete(categoria);
 
         categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
 
-        org.mockito.Mockito.verify(categoriaRepository)
-                .findById(categoria.getUuid());
-        org.mockito.Mockito.verify(categoriaRepository)
-                .delete(categoria);
+        verify(userRepository).findById(user.getUuid());
+        verify(categoriaRepository).findById(categoria.getUuid());
+        verify(despesaRepository).findAllByCategoria(categoria);
+        verify(categoriaRepository).delete(categoria);
     }
 
     @Test
