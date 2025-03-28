@@ -39,6 +39,10 @@ export class AdminComponent implements OnInit{
     }
   }
 
+  refreshPage() {
+    window.location.reload();
+  }
+
   openModal(type: 'edit') {
     this.modalType = type;
   }
@@ -60,10 +64,17 @@ export class AdminComponent implements OnInit{
   }
 
 
-  async onSubmitEdit(id: string) {
+  async onSubmitEditRole(id: string) {
+    if(this.editUserForm.valid) {
+      const role = this.editUserForm.value.role;
       
+      this.adminService.changeUserRole(id, role).then(() => {
+        alert('Papel do usuário alterado com sucesso!')
+        this.refreshPage(); 
+      }).catch((err) => alert('Erro ao alterar papel do usuário: ' + err));
+    }
   }
-  
+
   
   home() {
     this.router.navigate(['/home']);
