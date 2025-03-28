@@ -429,12 +429,12 @@ class ReceitaServiceIntegrationTest {
     //----------------- Métodos Auxiliares -----------------//
 
     private UserEntity criarUsuarioTest() {
-        UserEntity user = new UserEntity();
-        user.setUsername("Jorge");
-        user.setEmail("jorge@gmail.com");
-        user.setPassword("123456");
-        user.setRole(Roles.USER);
-        return userRepository.save(user);
+        UserEntity userTest = new UserEntity();
+        userTest.setUsername("Jorge");
+        userTest.setEmail("jorge@gmail.com");
+        userTest.setPassword("123456");
+        userTest.setRole(Roles.USER);
+        return userRepository.save(userTest);
     }
 
     private CategoriaEntity criarCategoriaTest(String nome, UserEntity user) {

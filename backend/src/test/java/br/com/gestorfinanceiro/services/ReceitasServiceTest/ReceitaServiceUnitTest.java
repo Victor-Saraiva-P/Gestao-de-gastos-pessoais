@@ -39,7 +39,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReceitaServiceTest {
+class ReceitaServiceUnitTest {
 
     private static final String CATEGORIA_PADRAO = "Salario";
     private static final String ORIGEM_PAGAMENTO_PADRAO = "Empresa X";
@@ -239,10 +239,10 @@ class ReceitaServiceTest {
             when(categoriaRepository.findByNomeAndTipoAndUserUuid(CATEGORIA_PADRAO, CategoriaType.RECEITAS, user.getUuid())).thenReturn(Optional.of(categoria));
 
             // Arrange
-            ReceitaUpdateDTO receitaUpdateDTO = new ReceitaUpdateDTO();
-            receitaUpdateDTO.setValor(VALOR_ATUALIZADO);
-            receitaUpdateDTO.setData(LocalDate.now());
-            receitaUpdateDTO.setCategoria(CATEGORIA_PADRAO);
+            ReceitaUpdateDTO receitaUpdateDto = new ReceitaUpdateDTO();
+            receitaUpdateDto.setValor(VALOR_ATUALIZADO);
+            receitaUpdateDto.setData(LocalDate.now());
+            receitaUpdateDto.setCategoria(CATEGORIA_PADRAO);
 
             String receitaId = receita.getUuid();
 
@@ -250,7 +250,8 @@ class ReceitaServiceTest {
             when(receitaRepository.save(any(ReceitaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
 
             // Act & Assert
-            assertThrows(ReceitaOperationException.class, () -> receitaService.atualizarReceita(receitaId, receitaUpdateDTO));
+            assertThrows(ReceitaOperationException.class,
+                    () -> receitaService.atualizarReceita(receitaId, receitaUpdateDto));
         }
     }
 

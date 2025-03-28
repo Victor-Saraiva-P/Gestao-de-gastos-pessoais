@@ -81,7 +81,6 @@ public class CategoriaServiceImpl implements CategoriaService {
         }
     }
 
-    // TODO: ver se o frontend realmente necessita de todas as categorias
     @Override
     public List<CategoriaEntity> listarCategorias(String userId) {
         // Verificar se o usuário existe

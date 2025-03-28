@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DespesaServiceTest {
+class DespesaServiceUnitTest {
 
     private static final String CATEGORIA_PADRAO = "Alimentacao";
     private static final String DESTINO_PAGAMENTO_PADRAO = "Mercado";

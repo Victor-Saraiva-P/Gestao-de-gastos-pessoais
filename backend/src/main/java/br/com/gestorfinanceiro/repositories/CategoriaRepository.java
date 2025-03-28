@@ -13,7 +13,7 @@ public interface CategoriaRepository extends JpaRepository<CategoriaEntity, Stri
     // Encontrar categoria por nome, tipo, e id do usuário
     Optional<CategoriaEntity> findByNomeAndTipoAndUserUuid(String nome, CategoriaType tipo, String userId);
 
-    List<CategoriaEntity> findAllByUserUuidAndTipo(String user_uuid, CategoriaType tipo);
+    List<CategoriaEntity> findAllByUserUuidAndTipo(String userUuid, CategoriaType tipo);
 
     Optional<CategoriaEntity> findByIsSemCategoriaAndTipoAndUserUuid(boolean isSemCategoria, CategoriaType tipo, String userId);
 }
