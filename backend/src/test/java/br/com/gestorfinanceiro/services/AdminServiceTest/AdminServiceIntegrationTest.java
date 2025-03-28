@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro.services.AdminServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
+import br.com.gestorfinanceiro.dto.user.UserAdminUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -67,24 +68,33 @@ class AdminServiceIntegrationTest {
     @Test
     void deveAtualizarUser() {
         UserEntity user = adicionarUsuario("Usuario A");
-        user.setEstaAtivo(true);
 
-        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), false);
+        UserAdminUpdateDTO userAtualizado = criarUserAdminUpdateDTO(true);
+
+        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), userAtualizado);
 
         // verifica se o usuário foi atualizado
+        assertTrue(userUpdated.getEstaAtivo());
+
+        userAtualizado.setEstaAtivo(false);
+
+        userUpdated = adminService.atualizarUser(user.getUuid(), userAtualizado);
+
         assertFalse(userUpdated.getEstaAtivo());
     }
 
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForNulo() {
         // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, false));
+        UserAdminUpdateDTO userAtualizado = criarUserAdminUpdateDTO(true);
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, userAtualizado));
     }
 
     @Test
     void deveLancarUserNotFoundExceptionQuandoNaoEncontrarUser() {
         // verifica se o metodo lança a exceção quando o usuário não é encontrado
-        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", false));
+        UserAdminUpdateDTO userAtualizado = criarUserAdminUpdateDTO(true);
+        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", userAtualizado));
     }
 
     //-------------------------------MÉTODOS AUXILIARES-------------------------------//
@@ -94,5 +104,13 @@ class AdminServiceIntegrationTest {
         authService.register(user);
 
         return user;
+    }
+
+    public UserAdminUpdateDTO criarUserAdminUpdateDTO(boolean estaAtivo) {
+        UserAdminUpdateDTO userAdminUpdateDTO = new UserAdminUpdateDTO();
+        userAdminUpdateDTO.setEstaAtivo(estaAtivo);
+        userAdminUpdateDTO.setRole("ADMIN");
+
+        return userAdminUpdateDTO;
     }
 }

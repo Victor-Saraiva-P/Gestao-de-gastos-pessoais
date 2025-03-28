@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro.services.AdminServiceTest;
 
 import br.com.gestorfinanceiro.TestDataUtil;
+import br.com.gestorfinanceiro.dto.user.UserAdminUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
@@ -59,10 +60,14 @@ class AdminServiceUnitTest {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         user.setEstaAtivo(true);
 
+        UserAdminUpdateDTO updateDTO = new UserAdminUpdateDTO();
+        updateDTO.setEstaAtivo(false);
+        updateDTO.setRole("ADMIN");
+
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), false);
+        UserEntity userUpdated = adminService.atualizarUser(user.getUuid(), updateDTO);
 
         // verifica se o usuário foi atualizado
         assertFalse(userUpdated.getEstaAtivo());
@@ -70,21 +75,30 @@ class AdminServiceUnitTest {
 
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForNull() {
+        UserAdminUpdateDTO updateDTO = new UserAdminUpdateDTO();
+        updateDTO.setEstaAtivo(false);
+
         // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, false));
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser(null, updateDTO));
     }
 
     @Test
     void deveLancarInvalidUserIdExceptionQuandoUserIdForVazio() {
-        // verifica se o metodo lança a exceção quando o userId é nulo
-        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser("", false));
+        UserAdminUpdateDTO updateDTO = new UserAdminUpdateDTO();
+        updateDTO.setEstaAtivo(false);
+
+        // verifica se o metodo lança a exceção quando o userId é vazio
+        assertThrows(InvalidUserIdException.class, () -> adminService.atualizarUser("", updateDTO));
     }
 
     @Test
     void deveLancarUserNotFoundExceptionQuandoNaoEncontrarUser() {
+        UserAdminUpdateDTO updateDTO = new UserAdminUpdateDTO();
+        updateDTO.setEstaAtivo(false);
+
         when(userRepository.findById("123-456")).thenReturn(Optional.empty());
 
         // verifica se o metodo lança a exceção quando o usuário não é encontrado
-        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", false));
+        assertThrows(Exception.class, () -> adminService.atualizarUser("123-456", updateDTO));
     }
 }
