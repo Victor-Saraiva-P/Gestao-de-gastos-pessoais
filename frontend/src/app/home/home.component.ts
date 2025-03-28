@@ -7,29 +7,7 @@ import { Router } from '@angular/router';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule],
-  template: `
-<nav class="navbar">
-      <div class="nav-container">
-        <div class="left-section">
-          <h1 class="logo"><img src="assets/logo-horizontal.png"></h1>
-        </div>
-        <div class="right-section" *ngIf="isAdmin()">
-          <button class="button" (click)="goAdmin()">Painel Admin</button>
-        </div>
-        <div class="right-section">
-          <button class="button" (click)="receitas()">Minhas receitas</button>
-        </div>
-        <div class="right-section">
-       <!-- <button class="button" (click)="despesas()">Minhas despesas</button>-->
-       <button class="button despesas-btn" (click)="despesas()">Minhas despesas</button>
-        </div>
-        <div class="right-section">
-          <button class="button" (click)="logout()">Sair</button>
-        </div>
-      </div>
-</nav>
-
-  `,
+  templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
   
 })
