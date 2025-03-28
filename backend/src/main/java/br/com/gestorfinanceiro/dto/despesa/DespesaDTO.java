@@ -4,7 +4,7 @@ import br.com.gestorfinanceiro.dto.common.TransacaoDTO;
 import jakarta.validation.constraints.NotBlank;
 
 public class DespesaDTO extends TransacaoDTO {
-    @NotBlank(message = "O destino do pagamento é obrigatória.")
+    @NotBlank(message = "O destino do pagamento é obrigatório.")
     private String destinoPagamento;
 
     // Getters and Setters
