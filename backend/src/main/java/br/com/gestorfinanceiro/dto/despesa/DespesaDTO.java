@@ -7,10 +7,6 @@ public class DespesaDTO extends TransacaoDTO {
     @NotBlank(message = "O destino do pagamento é obrigatória.")
     private String destinoPagamento;
 
-    // Construtores
-    public DespesaDTO() {
-    }
-
     // Getters and Setters
     public String getDestinoPagamento() {
         return destinoPagamento;

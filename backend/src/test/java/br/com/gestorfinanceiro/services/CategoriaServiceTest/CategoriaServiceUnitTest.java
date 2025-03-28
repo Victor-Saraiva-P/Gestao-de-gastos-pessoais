@@ -174,10 +174,11 @@ class CategoriaServiceUnitTest {
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistente() {
         when(categoriaRepository.findById("uuid-inexistente")).thenReturn(Optional.empty());
+        CategoriaUpdateDTO categoriaQualquer = TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome");
 
         assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
-                        TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome"), "id-usuario-qualquer"));
+                        categoriaQualquer, "id-usuario-qualquer"));
     }
 
     @Test
@@ -211,7 +212,8 @@ class CategoriaServiceUnitTest {
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
         when(despesaRepository.findAllByCategoria(categoria)).thenReturn(Collections.emptyList());
-        doNothing().when(categoriaRepository).delete(categoria);
+        doNothing().when(categoriaRepository)
+                .delete(categoria);
 
         categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
 

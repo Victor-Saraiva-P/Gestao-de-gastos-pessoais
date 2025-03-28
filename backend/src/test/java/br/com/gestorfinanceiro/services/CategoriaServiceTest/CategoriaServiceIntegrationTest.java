@@ -173,9 +173,10 @@ class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistente() {
+        CategoriaUpdateDTO categoriaQualquer = TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome");
         assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
-                        TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome"), "id-de-usuario-qualquer"));
+                        categoriaQualquer, "id-de-usuario-qualquer"));
     }
 
     @Test
@@ -204,7 +205,8 @@ class CategoriaServiceIntegrationTest {
         UserEntity user = adicionarUsuario("Usuario Teste");
         CategoriaEntity categoria = adicionarCategoria("Categoria Teste", "DESPESAS", user.getUuid());
 
-        assertTrue(categoriaRepository.findById(categoria.getUuid()).isPresent());
+        assertTrue(categoriaRepository.findById(categoria.getUuid())
+                .isPresent());
 
         categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
 
@@ -215,7 +217,8 @@ class CategoriaServiceIntegrationTest {
 
     @Test
     void deveLancarExcecaoQuandoCategoriaIdForNuloAoExcluir() {
-        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(null, "id-de-usuario-qualquer"));
+        assertThrows(InvalidDataException.class,
+                () -> categoriaService.excluirCategoria(null, "id-de-usuario-qualquer"));
     }
 
     @Test

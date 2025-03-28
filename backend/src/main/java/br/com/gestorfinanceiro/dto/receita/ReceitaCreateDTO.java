@@ -8,7 +8,12 @@ public class ReceitaCreateDTO extends TransacaoCreateDTO {
     private String origemDoPagamento;
 
     // Construtores
+
+    /**
+     * Construtor padrão necessário para frameworks de serialização/desserialização.
+     */
     public ReceitaCreateDTO() {
+        // Construtor vazio necessário para desserialização JSON
     }
 
     // Getters and Setters

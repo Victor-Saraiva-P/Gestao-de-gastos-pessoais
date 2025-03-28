@@ -15,7 +15,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categorias")
@@ -59,7 +58,7 @@ public class CategoriaController {
         List<CategoriaEntity> categorias = categoriaService.listarCategorias(userId);
         List<CategoriaDTO> response = categorias.stream()
                 .map(categoriaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(response);
     }
 
@@ -72,7 +71,7 @@ public class CategoriaController {
         List<CategoriaEntity> categorias = categoriaService.listarCategoriasDespesas(userId);
         List<CategoriaDTO> response = categorias.stream()
                 .map(categoriaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(response);
     }
 
@@ -85,7 +84,7 @@ public class CategoriaController {
         List<CategoriaEntity> categorias = categoriaService.listarCategoriasReceitas(userId);
         List<CategoriaDTO> response = categorias.stream()
                 .map(categoriaMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(response);
     }
 

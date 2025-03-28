@@ -23,20 +23,7 @@ public abstract class TransacaoDTO {
 
     protected String uuid;
 
-    // Construtores
-    public TransacaoDTO(String categoria, LocalDate data, BigDecimal valor, String observacoes, String uuid) {
-        this.categoria = categoria;
-        this.data = data;
-        this.valor = valor;
-        this.observacoes = observacoes;
-        this.uuid = uuid;
-    }
-
-    public TransacaoDTO() {
-    }
-
     // Getters and Setters
-
     public String getCategoria() {
         return categoria;
     }

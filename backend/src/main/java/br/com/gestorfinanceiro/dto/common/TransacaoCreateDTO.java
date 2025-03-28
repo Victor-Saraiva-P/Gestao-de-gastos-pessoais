@@ -21,10 +21,6 @@ public abstract class TransacaoCreateDTO {
     @NotBlank(message = "As observacoes é obrigatória.")
     private String observacoes;
 
-    // Construtores
-    public TransacaoCreateDTO() {
-    }
-
     // Getters and Setters
     public LocalDate getData() {
         return data;
