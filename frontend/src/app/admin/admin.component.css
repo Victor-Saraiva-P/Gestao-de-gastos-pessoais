@@ -161,6 +161,74 @@ select:focus {
   background-color: #cc0000 !important;
 }
 
+.edit-remove {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  all: unset;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.show-modal {
+  display: flex;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+  align-items: center;
+}
+
+.close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  float: right;
+  color: #888;
+  transition: color 0.3s;
+}
+
+button {
+  background-color: #35B276;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 18px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #5EC57E;
+  transform: scale(1.02);
+}
+
 @media (max-width: 768px) {
   .admin-container {
     flex-direction: column;
