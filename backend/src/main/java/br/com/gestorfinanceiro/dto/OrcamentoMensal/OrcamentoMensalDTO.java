@@ -15,10 +15,6 @@ public class OrcamentoMensalDTO {
     private UserEntity user;
 
     @NotNull(message = "A categoria é obrigatória.")
-    @Pattern(
-            regexp = "ALIMENTACAO|MORADIA|TRANSPORTE|LAZER",
-            message = "Categoria inválida. Valores permitidos: ALIMENTACAO, MORADIA, TRANSPORTE, LAZER."
-    )
     private String categoria;
 
     @NotNull(message = "O valor limite é obrigatório.")
