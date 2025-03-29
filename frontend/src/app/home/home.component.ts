@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
 
@@ -13,6 +13,9 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent {
   title = "home" 
+  isUserMenuOpen: boolean = false;
+  userName: string = 'teste'; 
+  userEmail: string = 'teste@gmail.com'
   
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -36,5 +39,9 @@ export class HomeComponent {
 
   goAdmin(): void {
     this.router.navigate(['/home/admin']);
+  }
+
+  toggleUserMenu() {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
   }
 }
