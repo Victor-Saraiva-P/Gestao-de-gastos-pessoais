@@ -11,9 +11,6 @@ import java.time.YearMonth;
 
 public class OrcamentoMensalDTO {
 
-    @NotNull(message = "O usuário é obrigatório.")
-    private UserEntity user;
-
     @NotNull(message = "A categoria é obrigatória.")
     private String categoria;
 
@@ -23,14 +20,6 @@ public class OrcamentoMensalDTO {
 
     @NotNull(message = "O período é obrigatório.")
     private YearMonth periodo;
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
 
     public String getCategoria() {
         return categoria;
@@ -54,5 +43,14 @@ public class OrcamentoMensalDTO {
 
     public void setPeriodo(YearMonth periodo) {
         this.periodo = periodo;
+    }
+
+    @Override
+    public String toString() {
+        return "OrcamentoMensalDTO{" +
+                "categoria='" + categoria + '\'' +
+                ", valorLimite=" + valorLimite +
+                ", periodo=" + periodo +
+                '}';
     }
 }
