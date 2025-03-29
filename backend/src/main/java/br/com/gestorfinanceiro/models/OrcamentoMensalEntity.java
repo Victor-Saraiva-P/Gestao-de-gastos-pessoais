@@ -18,9 +18,9 @@ public class OrcamentoMensalEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DespesasCategorias categoria;
+    @ManyToOne(cascade = {})
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private CategoriaEntity categoria;
 
     @Column(nullable = false)
     private BigDecimal valorLimite;
@@ -46,14 +46,6 @@ public class OrcamentoMensalEntity {
         this.user = user;
     }
 
-    public DespesasCategorias getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(DespesasCategorias categoria) {
-        this.categoria = categoria;
-    }
-
     public BigDecimal getValorLimite() {
         return valorLimite;
     }
@@ -68,5 +60,13 @@ public class OrcamentoMensalEntity {
 
     public void setPeriodo(YearMonth periodo) {
         this.periodo = periodo;
+    }
+
+    public CategoriaEntity getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(CategoriaEntity categoria) {
+        this.categoria = categoria;
     }
 }
