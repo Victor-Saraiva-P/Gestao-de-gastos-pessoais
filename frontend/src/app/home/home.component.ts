@@ -63,4 +63,21 @@ export class HomeComponent implements OnInit {
     return this.authService.getUserEmail();
   }
 
+  async desativarConta(): Promise<void> {
+    const confirma = window.confirm('Tem certeza que deseja desativar sua conta? Esta ação só pode ser desfeita por um admin.');
+    if (confirma) {
+      try {
+        const sucesso = await this.authService.disableAccount(this.authService.getUserId());
+        if (sucesso) {
+          this.router.navigate(['/login']);
+        } else {
+          window.alert('Não foi possível desativar a conta. Tente novamente mais tarde.');
+        }
+      } catch (error) {
+        console.error('Erro ao desativar conta:', error);
+        window.alert('Erro ao desativar a conta. Tente novamente mais tarde.');
+      }
+    }
+  }
+
 }
