@@ -60,9 +60,10 @@ public class OrcamentoMensalController {
     }
 
     @PostMapping
-    public ResponseEntity<OrcamentoMensalDTO> create(HttpServletRequest request, @RequestBody @Valid OrcamentoMensalRequest requestBody) {
+    public ResponseEntity<OrcamentoMensalDTO> create(HttpServletRequest request, @RequestBody @Valid OrcamentoMensalDTO dto) {
+        System.out.println(dto);
         OrcamentoMensalEntity orcamento = orcamentoMensalService.criarOrcamentoMensal(
-                getUserId(request), requestBody.categoria(), requestBody.valorLimite(), requestBody.periodo()
+                getUserId(request), dto.getCategoria(), dto.getValorLimite(), dto.getPeriodo()
         );
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
