@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.repositories.custom.impl;
 
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
 import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import br.com.gestorfinanceiro.repositories.custom.OrcamentoMensalRepositoryCustom;
@@ -18,7 +19,7 @@ public class OrcamentoMensalRepositoryCustomImpl implements OrcamentoMensalRepos
     private EntityManager entityManager;
 
     @Override
-    public Optional<OrcamentoMensalEntity> findByCategoriaAndPeriodoAndUserUuid(DespesasCategorias categoria, YearMonth periodo, String userId) {
+    public Optional<OrcamentoMensalEntity> findByCategoriaAndPeriodoAndUserUuid(CategoriaEntity categoria, YearMonth periodo, String userId) {
         String jpql = "SELECT o FROM OrcamentoMensalEntity o WHERE o.user.uuid = :userId AND o.categoria = :categoria AND o.periodo = :periodo";
 
         return entityManager.createQuery(jpql, OrcamentoMensalEntity.class)
