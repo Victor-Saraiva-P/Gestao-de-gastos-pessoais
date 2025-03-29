@@ -1,7 +1,5 @@
 package br.com.gestorfinanceiro.exceptions.OrcamentoMensal;
 
-import br.com.gestorfinanceiro.models.UserEntity;
-
 public class OrcamentoMensalNotFoundException extends RuntimeException {
 
     public OrcamentoMensalNotFoundException(String uuid) {

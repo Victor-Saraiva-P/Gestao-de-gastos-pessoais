@@ -1,7 +1,6 @@
 package br.com.gestorfinanceiro.exceptions.OrcamentoMensal;
 
 import br.com.gestorfinanceiro.models.CategoriaEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 
 import java.time.YearMonth;
 

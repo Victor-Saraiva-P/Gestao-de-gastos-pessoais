@@ -2,7 +2,6 @@ package br.com.gestorfinanceiro.repositories.custom.impl;
 
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import br.com.gestorfinanceiro.repositories.custom.OrcamentoMensalRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

@@ -1,6 +1,5 @@
 package br.com.gestorfinanceiro.models;
 
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;

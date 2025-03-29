@@ -1,10 +1,7 @@
 package br.com.gestorfinanceiro.dto.OrcamentoMensal;
 
-import br.com.gestorfinanceiro.models.UserEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;

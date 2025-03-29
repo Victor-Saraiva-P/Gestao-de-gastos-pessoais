@@ -1,7 +1,6 @@
 package br.com.gestorfinanceiro.services;
 
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;

@@ -2,7 +2,6 @@ package br.com.gestorfinanceiro.repositories.custom;
 
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
 
 import java.time.YearMonth;
 import java.util.List;
