@@ -2,10 +2,13 @@ package br.com.gestorfinanceiro.services.impl;
 
 import br.com.gestorfinanceiro.exceptions.OrcamentoMensal.OrcamentoMensalAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.OrcamentoMensal.OrcamentoMensalNotFoundException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.OrcamentoMensalRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.OrcamentoMensalService;
@@ -21,87 +24,72 @@ import java.util.Objects;
 public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
 
     private final OrcamentoMensalRepository orcamentoMensalRepository;
+    private final CategoriaRepository categoriaRepository;
     private final UserRepository userRepository;
 
     public OrcamentoMensalServiceImpl(OrcamentoMensalRepository orcamentoMensalRepository,
-                                      UserRepository userRepository) {
-        this.orcamentoMensalRepository = Objects.requireNonNull(orcamentoMensalRepository,
-                "OrcamentoMensalRepository não pode ser nulo");
-        this.userRepository = Objects.requireNonNull(userRepository,
-                "UserRepository não pode ser nulo");
+                                      UserRepository userRepository,
+                                      CategoriaRepository categoriaRepository) {
+        this.orcamentoMensalRepository = Objects.requireNonNull(orcamentoMensalRepository, "OrcamentoMensalRepository não pode ser nulo");
+        this.userRepository = Objects.requireNonNull(userRepository, "UserRepository não pode ser nulo");
+        this.categoriaRepository = Objects.requireNonNull(categoriaRepository, "CategoriaRepository não pode ser nulo");
     }
 
     @Override
     public List<OrcamentoMensalEntity> listarTodosPorUsuario(String userId) {
-        List<OrcamentoMensalEntity> orcamentosMensais = this.orcamentoMensalRepository.findByUserId(userId);
+        List<OrcamentoMensalEntity> orcamentosMensais = orcamentoMensalRepository.findByUserId(userId);
         if (orcamentosMensais.isEmpty()) throw new OrcamentoMensalNotFoundException(userId);
         return orcamentosMensais;
     }
 
     @Override
     public List<OrcamentoMensalEntity> listarPorPeriodo(String userId, YearMonth periodo) {
-        List<OrcamentoMensalEntity> orcamentosMensais = this.orcamentoMensalRepository.findByPeriodo(periodo);
+        List<OrcamentoMensalEntity> orcamentosMensais = orcamentoMensalRepository.findByPeriodo(periodo);
         if (orcamentosMensais.isEmpty()) throw new OrcamentoMensalNotFoundException(userId);
         return orcamentosMensais;
     }
 
     @Override
     public OrcamentoMensalEntity buscarPorId(String userId, String uuid) {
-        return this.orcamentoMensalRepository.findByUuidAndUserUuid(uuid, userId)
+        return orcamentoMensalRepository.findByUuidAndUserUuid(uuid, userId)
                 .orElseThrow(() -> new OrcamentoMensalNotFoundException(uuid));
     }
 
     @Override
     @Transactional
-    public OrcamentoMensalEntity criarOrcamentoMensal(String userId, DespesasCategorias categoria,
-                                                      BigDecimal valorLimite, YearMonth periodo) {
+    public OrcamentoMensalEntity criarOrcamentoMensal(String userId, String categoria, BigDecimal valorLimite, YearMonth periodo) {
         validarParametros(userId, categoria, valorLimite, periodo);
 
         UserEntity user = buscarUsuarioPorId(userId);
+        CategoriaEntity categoriaEntity = buscarCategoria(userId, categoria);
 
-        // Verifica se já existe um orçamento mensal para essa categoria e período
-        this.orcamentoMensalRepository.findByCategoriaAndPeriodoAndUserUuid(categoria, periodo, userId)
-                .ifPresent(orcamento -> {
-                    throw new OrcamentoMensalAlreadyExistsException(categoria, periodo);
-                });
+        verificarOrcamentoDuplicado(userId, categoriaEntity, periodo, null);
 
-        // Cria e salva o orçamento
         OrcamentoMensalEntity orcamentoMensal = new OrcamentoMensalEntity();
-        orcamentoMensal.setCategoria(categoria);
+        orcamentoMensal.setCategoria(categoriaEntity);
         orcamentoMensal.setValorLimite(valorLimite);
         orcamentoMensal.setPeriodo(periodo);
         orcamentoMensal.setUser(user);
 
-        return this.orcamentoMensalRepository.save(orcamentoMensal);
+        return orcamentoMensalRepository.save(orcamentoMensal);
     }
 
     @Override
     @Transactional
-    public OrcamentoMensalEntity atualizarOrcamentoMensal(String userId, String uuid,
-                                                          DespesasCategorias categoria,
-                                                          BigDecimal valorLimite,
-                                                          YearMonth periodo) {
+    public OrcamentoMensalEntity atualizarOrcamentoMensal(String userId, String uuid, String categoria, BigDecimal valorLimite, YearMonth periodo) {
         validarParametros(userId, categoria, valorLimite, periodo);
         Objects.requireNonNull(uuid, "UUID não pode ser nulo");
 
-        buscarUsuarioPorId(userId);
-
-        // Busca orçamento e verifica se existe
         OrcamentoMensalEntity orcamentoMensal = buscarPorId(userId, uuid);
+        CategoriaEntity categoriaEntity = buscarCategoria(userId, categoria);
 
-        // Verifica se já existe outro orçamento com a mesma categoria e período
-        this.orcamentoMensalRepository.findByCategoriaAndPeriodoAndUserUuid(categoria, periodo, userId)
-                .filter(existing -> !existing.getUuid().equals(uuid))
-                .ifPresent(existing -> {
-                    throw new OrcamentoMensalAlreadyExistsException(categoria, periodo);
-                });
+        verificarOrcamentoDuplicado(userId, categoriaEntity, periodo, uuid);
 
-        // Atualiza e salva
-        orcamentoMensal.setCategoria(categoria);
+        orcamentoMensal.setCategoria(categoriaEntity);
         orcamentoMensal.setValorLimite(valorLimite);
         orcamentoMensal.setPeriodo(periodo);
 
-        return this.orcamentoMensalRepository.save(orcamentoMensal);
+        return orcamentoMensalRepository.save(orcamentoMensal);
     }
 
     @Override
@@ -110,18 +98,14 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
         Objects.requireNonNull(userId, "UserId não pode ser nulo");
         Objects.requireNonNull(uuid, "UUID não pode ser nulo");
 
-        buscarUsuarioPorId(userId);
-
         OrcamentoMensalEntity orcamentoMensal = buscarPorId(userId, uuid);
-
-        this.orcamentoMensalRepository.delete(orcamentoMensal);
+        orcamentoMensalRepository.delete(orcamentoMensal);
     }
 
     /**
-     * Método auxiliar para validar parâmetros obrigatórios.
+     * Valida os parâmetros de entrada.
      */
-    private void validarParametros(String userId, DespesasCategorias categoria,
-                                   BigDecimal valorLimite, YearMonth periodo) {
+    private void validarParametros(String userId, String categoria, BigDecimal valorLimite, YearMonth periodo) {
         Objects.requireNonNull(userId, "UserId não pode ser nulo");
         Objects.requireNonNull(categoria, "Categoria não pode ser nula");
         Objects.requireNonNull(valorLimite, "ValorLimite não pode ser nulo");
@@ -133,10 +117,29 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
     }
 
     /**
-     * Método auxiliar para buscar um usuário por ID e lançar exceção caso não exista.
+     * Busca um usuário pelo ID.
      */
     private UserEntity buscarUsuarioPorId(String userId) {
-        return this.userRepository.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    /**
+     * Busca uma categoria pelo nome e usuário.
+     */
+    private CategoriaEntity buscarCategoria(String userId, String categoria) {
+        return categoriaRepository.findByNomeAndTipoAndUserUuid(categoria, CategoriaType.DESPESAS, userId)
+                .orElseThrow(CategoriaNotFoundException::new);
+    }
+
+    /**
+     * Verifica se já existe um orçamento com a mesma categoria e período.
+     */
+    private void verificarOrcamentoDuplicado(String userId, CategoriaEntity categoria, YearMonth periodo, String uuidAtual) {
+        orcamentoMensalRepository.findByCategoriaAndPeriodoAndUserUuid(categoria, periodo, userId)
+                .filter(existing -> uuidAtual == null || !existing.getUuid().equals(uuidAtual))
+                .ifPresent(existing -> {
+                    throw new OrcamentoMensalAlreadyExistsException(categoria, periodo);
+                });
     }
 }

@@ -12,7 +12,7 @@ public interface OrcamentoMensalService {
     List<OrcamentoMensalEntity> listarTodosPorUsuario(String userId);
     List<OrcamentoMensalEntity> listarPorPeriodo(String userId, YearMonth periodo);
     OrcamentoMensalEntity buscarPorId(String userId, String uuid);
-    OrcamentoMensalEntity criarOrcamentoMensal(String userId, DespesasCategorias categoria, BigDecimal valorLimite, YearMonth periodo);
-    OrcamentoMensalEntity atualizarOrcamentoMensal(String userId, String uuid, DespesasCategorias categoria, BigDecimal valorLimite, YearMonth periodo);
+    OrcamentoMensalEntity criarOrcamentoMensal(String userId, String categoria, BigDecimal valorLimite, YearMonth periodo);
+    OrcamentoMensalEntity atualizarOrcamentoMensal(String userId, String uuid, String categoria, BigDecimal valorLimite, YearMonth periodo);
     void excluirOrcamentoMensal(String userId, String uuid);
 }
