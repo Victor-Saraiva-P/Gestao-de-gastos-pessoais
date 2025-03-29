@@ -10,11 +10,20 @@
         <button class="button" (click)="receitas()">Minhas receitas</button>
       </div>
       <div class="right-section">
-     <!-- <button class="button" (click)="despesas()">Minhas despesas</button>-->
-     <button class="button despesas-btn" (click)="despesas()">Minhas despesas</button>
+        <button class="button despesas-btn" (click)="despesas()">Minhas despesas</button>
       </div>
       <div class="right-section">
-        <button class="button" (click)="logout()">Sair</button>
+        <div class="user-menu">
+          <button class="button user-button" (click)="toggleUserMenu()">Options</button>
+          <div class="dropdown-menu" [class.show]="isUserMenuOpen">
+            <div class="user-info">
+              <p class="user-name">Usuário: {{ userName }}</p>
+              <p class="user-email">Email: {{ userEmail }}</p>
+            </div>
+            <hr>
+            <button class="button-logout" (click)="logout()">Sair</button>
+          </div>
+        </div>
       </div>
     </div>
 </nav>
