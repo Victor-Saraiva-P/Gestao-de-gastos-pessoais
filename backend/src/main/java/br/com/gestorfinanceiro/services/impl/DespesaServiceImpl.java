@@ -1,14 +1,22 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
+import br.com.gestorfinanceiro.mappers.Mapper;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DespesaService;
@@ -29,37 +37,53 @@ import java.util.stream.Collectors;
 public class DespesaServiceImpl implements DespesaService {
 
     private final DespesaRepository despesaRepository;
+    private final CategoriaRepository categoriaRepository;
     private final UserRepository userRepository;
+    private final Mapper<DespesaEntity, DespesaCreateDTO> despesaCreateDTOMapper;
 
-    public DespesaServiceImpl(DespesaRepository despesaRepository, UserRepository userRepository) {
+    public DespesaServiceImpl(DespesaRepository despesaRepository, CategoriaRepository categoriaRepository, UserRepository userRepository, Mapper<DespesaEntity, DespesaCreateDTO> despesaCreateDTOMapper) {
         this.despesaRepository = despesaRepository;
+        this.categoriaRepository = categoriaRepository;
         this.userRepository = userRepository;
+        this.despesaCreateDTOMapper = despesaCreateDTOMapper;
     }
 
     @Override
     @Transactional
-    public DespesaEntity criarDespesa(DespesaEntity despesa, String userId) {
-        if (despesa == null) {
-            throw new InvalidDataException("A despesa não pode ser nula.");
+    public DespesaEntity criarDespesa(DespesaCreateDTO despesaCreateDTO, String userId) {
+        // Verifica se o valor da receita é nulo ou menor ou igual a zero
+        if (despesaCreateDTO.getValor() == null || despesaCreateDTO.getValor()
+                .compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidDataException("O valor da receita deve ser maior que zero.");
         }
 
-        if (despesa.getValor() == null || despesa.getValor().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidDataException("O valor da despesa deve ser maior que zero.");
-        }
+        // Verifica se o usuario existe
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found."));
+        // Verifica se a categoria customizada da receita existe
+        CategoriaEntity categoria = categoriaRepository.findByNomeAndTipoAndUserUuid(
+                        despesaCreateDTO.getCategoria(),
+                        CategoriaType.DESPESAS, userId)
+                .orElseThrow(() -> new CategoriaNameNotFoundException(despesaCreateDTO.getCategoria()));
 
         try {
-            despesa.setUser(user);
-            return despesaRepository.save(despesa);
+            DespesaEntity despesaParaCriar = despesaCreateDTOMapper.mapFrom(despesaCreateDTO);
+
+            // Adiciona a categoria e o usuário à despesa
+            despesaParaCriar.setCategoria(categoria);
+            despesaParaCriar.setUser(user);
+
+            return despesaRepository.save(despesaParaCriar);
         } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao criar despesa. Por favor, tente novamente.", e);
+            throw new DespesaOperationException("Erro ao criar Despesa. Por favor, tente novamente.", e);
         }
     }
 
     @Override
     public List<DespesaEntity> listarDespesasUsuario(String userId) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -74,7 +98,8 @@ public class DespesaServiceImpl implements DespesaService {
 
     @Override
     public DespesaEntity buscarDespesaPorId(String uuid) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
@@ -85,26 +110,36 @@ public class DespesaServiceImpl implements DespesaService {
 
     @Override
     @Transactional
-    public DespesaEntity atualizarDespesa(String uuid, DespesaEntity despesaAtualizada) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+    public DespesaEntity atualizarDespesa(String uuid, DespesaUpdateDTO despesaUpdateDTO) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
-        if (despesaAtualizada == null) {
+        if (despesaUpdateDTO == null) {
             throw new InvalidDataException("Os dados da despesa não podem ser nulos.");
         }
 
         DespesaEntity despesa = despesaRepository.findById(uuid)
                 .orElseThrow(() -> new DespesaNotFoundException(uuid));
 
+        // Coloca os novos valores na despesa
+        despesa.setData(despesaUpdateDTO.getData());
+
+        // Verifica se a categoria customizada da despesaAtualizada existe
+        despesa.setCategoria(
+                categoriaRepository.findByNomeAndTipoAndUserUuid(despesaUpdateDTO.getCategoria(),
+                                CategoriaType.DESPESAS,
+                                despesa.getUser()
+                                        .getUuid())
+                        .orElseThrow(
+                                () -> new CategoriaNameNotFoundException(despesaUpdateDTO.getCategoria())));
+
+        despesa.setValor(despesaUpdateDTO.getValor());
+        despesa.setDestinoPagamento(despesaUpdateDTO.getDestinoPagamento());
+        despesa.setObservacoes(despesaUpdateDTO.getObservacoes());
 
         try {
-            despesa.setData(despesaAtualizada.getData());
-            despesa.setCategoria(despesaAtualizada.getCategoria());
-            despesa.setValor(despesaAtualizada.getValor());
-            despesa.setDestinoPagamento(despesaAtualizada.getDestinoPagamento());
-            despesa.setObservacoes(despesaAtualizada.getObservacoes());
-
             return despesaRepository.save(despesa);
         } catch (Exception e) {
             throw new DespesaOperationException("Erro ao atualizar despesa. Por favor, tente novamente.", e);
@@ -114,7 +149,8 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     @Transactional
     public void excluirDespesa(String uuid) {
-        if (uuid == null || uuid.trim().isEmpty()) {
+        if (uuid == null || uuid.trim()
+                .isEmpty()) {
             throw new InvalidUuidException();
         }
 
@@ -141,9 +177,11 @@ public class DespesaServiceImpl implements DespesaService {
                 .collect(Collectors.groupingBy(
                         d -> YearMonth.from(d.getData()),
                         Collectors.reducing(BigDecimal.ZERO, DespesaEntity::getValor, BigDecimal::add)))
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .sorted(Map.Entry.comparingByKey())
-                .forEach(e -> dadosMensais.put(e.getKey().format(formatter), e.getValue()));
+                .forEach(e -> dadosMensais.put(e.getKey()
+                        .format(formatter), e.getValue()));
 
         // Retorna o DTO com os dados mensais
         return new GraficoBarraDTO(dadosMensais);
@@ -155,8 +193,10 @@ public class DespesaServiceImpl implements DespesaService {
 
         Map<String, BigDecimal> categorias = despesas.stream()
                 .collect(Collectors.groupingBy(
-                        r -> r.getCategoria().name(),
-                        Collectors.mapping(DespesaEntity::getValor, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                        r -> r.getCategoria()
+                                .getNome(),
+                        Collectors.mapping(DespesaEntity::getValor,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
                 ));
 
         return new GraficoPizzaDTO(categorias);
@@ -164,7 +204,8 @@ public class DespesaServiceImpl implements DespesaService {
 
     @Override
     public List<DespesaEntity> buscarDespesasPorIntervaloDeDatas(String userId, LocalDate inicio, LocalDate fim) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -179,13 +220,15 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndDateRange(userId, inicio, fim);
         } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de datas. Por favor, tente novamente.", e);
+            throw new DespesaOperationException(
+                    "Erro ao buscar despesas por intervalo de datas. Por favor, tente novamente.", e);
         }
     }
 
     @Override
     public List<DespesaEntity> buscarDespesasPorIntervaloDeValores(String userId, BigDecimal min, BigDecimal max) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim()
+                .isEmpty()) {
             throw new InvalidUserIdException();
         }
 
@@ -204,7 +247,8 @@ public class DespesaServiceImpl implements DespesaService {
         try {
             return despesaRepository.findByUserAndValueBetween(userId, min, max);
         } catch (Exception e) {
-            throw new DespesaOperationException("Erro ao buscar despesas por intervalo de valores. Por favor, tente novamente.", e);
+            throw new DespesaOperationException(
+                    "Erro ao buscar despesas por intervalo de valores. Por favor, tente novamente.", e);
         }
     }
 }

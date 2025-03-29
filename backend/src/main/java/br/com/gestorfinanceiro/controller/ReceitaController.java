@@ -3,7 +3,9 @@ package br.com.gestorfinanceiro.controller;
 import br.com.gestorfinanceiro.config.security.JwtUtil;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaCreateDTO;
 import br.com.gestorfinanceiro.dto.receita.ReceitaDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaUpdateDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.services.ReceitaService;
@@ -36,22 +38,26 @@ public class ReceitaController {
     }
 
     @PostMapping
-    public ResponseEntity<ReceitaDTO> criarReceita(@Valid @RequestBody ReceitaDTO receitaDTO, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+    public ResponseEntity<ReceitaDTO> criarReceita(@Valid @RequestBody ReceitaCreateDTO receitaCreateDTO, HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
-        ReceitaEntity receita = receitaMapper.mapFrom(receitaDTO);
-        ReceitaEntity novaReceita = receitaService.criarReceita(receita, userId);
+        ReceitaEntity novaReceita = receitaService.criarReceita(receitaCreateDTO, userId);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(novaReceita.getUuid()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(novaReceita.getUuid())
+                .toUri();
 
-        return ResponseEntity.created(location).body(receitaMapper.mapTo(novaReceita));
+        return ResponseEntity.created(location)
+                .body(receitaMapper.mapTo(novaReceita));
     }
 
     @GetMapping
     public ResponseEntity<List<ReceitaDTO>> listarReceitas(HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaDTO> receitas = receitaService.listarReceitasUsuario(userId)
@@ -64,29 +70,32 @@ public class ReceitaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReceitaDTO> buscarReceitaPorId(@PathVariable String id, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
         ReceitaEntity receita = receitaService.buscarReceitaPorId(id);
 
         // Checa se o usuário logado é o dono da receita
-        if (!Objects.equals(userId, receita.getUser().getUuid())) {
-            return ResponseEntity.status(403).build();
+        if (!Objects.equals(userId, receita.getUser()
+                .getUuid())) {
+            return ResponseEntity.status(403)
+                    .build();
         }
 
         return ResponseEntity.ok(receitaMapper.mapTo(receita));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @Valid @RequestBody ReceitaDTO receitaDTO) {
-        ReceitaEntity receitaAtualizada = receitaMapper.mapFrom(receitaDTO);
-        ReceitaEntity receitaSalva = receitaService.atualizarReceita(id, receitaAtualizada);
+    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @Valid @RequestBody ReceitaUpdateDTO receitaUpdateDTO) {
+        ReceitaEntity receitaSalva = receitaService.atualizarReceita(id, receitaUpdateDTO);
         return ResponseEntity.ok(receitaMapper.mapTo(receitaSalva));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirReceita(@PathVariable String id) {
         receitaService.excluirReceita(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent()
+                .build();
     }
 
     @GetMapping("/grafico-pizza")
@@ -95,7 +104,8 @@ public class ReceitaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         GraficoPizzaDTO graficoPizza = receitaService.gerarGraficoPizza(userId, inicio, fim);
@@ -105,7 +115,8 @@ public class ReceitaController {
 
     @GetMapping("/grafico-barras")
     public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
@@ -117,7 +128,8 @@ public class ReceitaController {
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeDatas(userId, inicio, fim);
@@ -136,7 +148,8 @@ public class ReceitaController {
             @RequestParam BigDecimal max,
             HttpServletRequest request) {
 
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String token = request.getHeader(AUTHORIZATION_HEADER)
+                .replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
         List<ReceitaEntity> receitas = receitaService.buscarReceitasPorIntervaloDeValores(userId, min, max);

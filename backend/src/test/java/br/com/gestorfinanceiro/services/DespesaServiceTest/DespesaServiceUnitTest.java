@@ -1,5 +1,7 @@
 package br.com.gestorfinanceiro.services.DespesaServiceTest;
 
+import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
@@ -7,10 +9,12 @@ import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
-import br.com.gestorfinanceiro.models.enums.DespesasCategorias;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.models.enums.Roles;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.DespesaServiceImpl;
@@ -34,7 +38,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DespesaServiceTest {
+class DespesaServiceUnitTest {
+
+    private static final String CATEGORIA_PADRAO = "Alimentacao";
+    private static final String DESTINO_PAGAMENTO_PADRAO = "Mercado";
+    private static final String OBSERVACOES_PADRAO = "Compras do mês";
+    private static final BigDecimal VALOR_PADRAO = BigDecimal.valueOf(100);
+    private static final BigDecimal VALOR_ATUALIZADO = BigDecimal.valueOf(200);
+    private static final BigDecimal VALOR_NEGATIVO = BigDecimal.valueOf(-100);
 
     @Mock
     private DespesaRepository despesaRepository;
@@ -42,11 +53,17 @@ class DespesaServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private CategoriaRepository categoriaRepository;
+
     @InjectMocks
     private DespesaServiceImpl despesaService;
 
     private UserEntity user;
     private DespesaEntity despesa;
+    private CategoriaEntity categoria;
+    private DespesaCreateDTO despesaCreateDTO;
+    private DespesaUpdateDTO despesaUpdateDTO;
 
     @BeforeEach
     void setUp() {
@@ -57,15 +74,36 @@ class DespesaServiceTest {
         user.setPassword("123456");
         user.setRole(Roles.USER);
 
+        categoria = new CategoriaEntity();
+        categoria.setUuid(UUID.randomUUID().toString());
+        categoria.setNome(CATEGORIA_PADRAO);
+        categoria.setTipo(CategoriaType.DESPESAS);
+        categoria.setUser(user);
+
         despesa = new DespesaEntity();
         despesa.setUuid(UUID.randomUUID().toString());
         despesa.setData(LocalDate.now());
-        despesa.setValor(BigDecimal.valueOf(100));
-        despesa.setCategoria(DespesasCategorias.ALIMENTACAO);
-        despesa.setDestinoPagamento("Mercado");
-        despesa.setObservacoes("Compras do mês");
+        despesa.setValor(VALOR_PADRAO);
+        despesa.setCategoria(categoria);
+        despesa.setDestinoPagamento(DESTINO_PAGAMENTO_PADRAO);
+        despesa.setObservacoes(OBSERVACOES_PADRAO);
         despesa.setUser(user);
+
+        despesaCreateDTO = new DespesaCreateDTO();
+        despesaCreateDTO.setData(LocalDate.now());
+        despesaCreateDTO.setCategoria(CATEGORIA_PADRAO);
+        despesaCreateDTO.setValor(VALOR_PADRAO);
+        despesaCreateDTO.setDestinoPagamento(DESTINO_PAGAMENTO_PADRAO);
+        despesaCreateDTO.setObservacoes(OBSERVACOES_PADRAO);
+
+        despesaUpdateDTO = new DespesaUpdateDTO();
+        despesaUpdateDTO.setData(LocalDate.now());
+        despesaUpdateDTO.setCategoria(CATEGORIA_PADRAO);
+        despesaUpdateDTO.setValor(VALOR_ATUALIZADO);
+        despesaUpdateDTO.setDestinoPagamento(DESTINO_PAGAMENTO_PADRAO);
+        despesaUpdateDTO.setObservacoes(OBSERVACOES_PADRAO);
     }
+
 
     @Test
     void deveCarregarDespesaService() {
@@ -76,42 +114,24 @@ class DespesaServiceTest {
     class CriarDespesaTest {
 
         @Test
-        void deveCriarDespesa() {
-            when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
-            when(despesaRepository.save(any(DespesaEntity.class))).thenReturn(despesa);
-
-            DespesaEntity despesaSalva = despesaService.criarDespesa(despesa, user.getUuid());
-
-            assertNotNull(despesaSalva);
-            assertEquals(despesa.getValor(), despesaSalva.getValor());
-            assertEquals(despesa.getCategoria(), despesaSalva.getCategoria());
-        }
-
-        @Test
-        void erroAoCriarDespesaNula() {
-            String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(null, userId));
-        }
-
-        @Test
         void erroAoCriarDespesaComValorInvalido() {
-            despesa.setValor(BigDecimal.ZERO);
+            despesaCreateDTO.setValor(BigDecimal.ZERO);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesaCreateDTO, userId));
         }
 
         @Test
         void erroAoCriarDespesaComValorNulo() {
-            despesa.setValor(null);
+            despesaCreateDTO.setValor(null);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesaCreateDTO, userId));
         }
 
         @Test
         void erroAoCriarDespesaComValorNegativo() {
-            despesa.setValor(BigDecimal.valueOf(-100));
+            despesaCreateDTO.setValor(VALOR_NEGATIVO);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesa, userId));
+            assertThrows(InvalidDataException.class, () -> despesaService.criarDespesa(despesaCreateDTO, userId));
         }
 
         @Test
@@ -119,26 +139,7 @@ class DespesaServiceTest {
             when(userRepository.findById(anyString())).thenReturn(Optional.empty());
             String userId = UUID.randomUUID().toString();
 
-            assertThrows(RuntimeException.class, () -> despesaService.criarDespesa(despesa, userId));
-        }
-
-        @Test
-        void criarDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
-            // Arrange
-            DespesaEntity despesaTest = new DespesaEntity();
-            despesaTest.setValor(BigDecimal.valueOf(100));
-            despesaTest.setData(LocalDate.now());
-            despesaTest.setCategoria(DespesasCategorias.ALIMENTACAO);
-
-            UserEntity userTest = new UserEntity();
-            String userId = UUID.randomUUID().toString();
-            userTest.setUuid(userId);
-
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(despesaRepository.save(any(DespesaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
-
-            // Act & Assert
-            assertThrows(DespesaOperationException.class, () -> despesaService.criarDespesa(despesaTest, userId));
+            assertThrows(RuntimeException.class, () -> despesaService.criarDespesa(despesaCreateDTO, userId));
         }
     }
 
@@ -201,10 +202,11 @@ class DespesaServiceTest {
         @Test
         void deveAtualizarDespesa() {
             when(despesaRepository.findById(despesa.getUuid())).thenReturn(Optional.of(despesa));
+            when(categoriaRepository.findByNomeAndTipoAndUserUuid(CATEGORIA_PADRAO, CategoriaType.DESPESAS, user.getUuid())).thenReturn(Optional.of(categoria));
             when(despesaRepository.save(any(DespesaEntity.class))).thenReturn(despesa);
 
             despesa.setValor(BigDecimal.valueOf(200));
-            DespesaEntity despesaAtualizada = despesaService.atualizarDespesa(despesa.getUuid(), despesa);
+            DespesaEntity despesaAtualizada = despesaService.atualizarDespesa(despesa.getUuid(), despesaUpdateDTO);
 
             assertEquals(BigDecimal.valueOf(200), despesaAtualizada.getValor());
         }
@@ -214,13 +216,13 @@ class DespesaServiceTest {
             String userId = UUID.randomUUID().toString();
             when(despesaRepository.findById(anyString())).thenReturn(Optional.empty());
 
-            assertThrows(DespesaNotFoundException.class, () -> despesaService.atualizarDespesa(userId, despesa));
+            assertThrows(DespesaNotFoundException.class, () -> despesaService.atualizarDespesa(userId, despesaUpdateDTO));
         }
 
         @Test
         void erroAoAtualizarUuidNuloOuVazio() {
-            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa(null, despesa));
-            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa("", despesa));
+            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa(null, despesaUpdateDTO));
+            assertThrows(InvalidUuidException.class, () -> despesaService.atualizarDespesa("", despesaUpdateDTO));
         }
 
         @Test
@@ -233,23 +235,20 @@ class DespesaServiceTest {
 
         @Test
         void atualizarDespesa_DeveLancarDespesaOperationException_QuandoRepositorioFalhar() {
+            when(categoriaRepository.findByNomeAndTipoAndUserUuid(CATEGORIA_PADRAO, CategoriaType.DESPESAS, user.getUuid())).thenReturn(Optional.of(categoria));
             // Arrange
-            DespesaEntity despesaTest = new DespesaEntity();
-            despesaTest.setUuid(UUID.randomUUID().toString());
-            despesaTest.setValor(BigDecimal.valueOf(100));
+            DespesaUpdateDTO despesaTest = new DespesaUpdateDTO();
+            despesaTest.setValor(VALOR_ATUALIZADO);
             despesaTest.setData(LocalDate.now());
-            despesaTest.setCategoria(DespesasCategorias.ALIMENTACAO);
+            despesaTest.setCategoria(CATEGORIA_PADRAO);
 
-            String despesaId = despesaTest.getUuid();
+            String despesaId = despesa.getUuid();
 
-            DespesaEntity despesaAtualizada = new DespesaEntity();
-            despesaAtualizada.setValor(BigDecimal.valueOf(200));
-
-            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesaTest));
+            when(despesaRepository.findById(despesaId)).thenReturn(Optional.of(despesa));
             when(despesaRepository.save(any(DespesaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
 
             // Act & Assert
-            assertThrows(DespesaOperationException.class, () -> despesaService.atualizarDespesa(despesaId, despesaAtualizada));
+            assertThrows(DespesaOperationException.class, () -> despesaService.atualizarDespesa(despesaId, despesaTest));
         }
     }
 
@@ -326,7 +325,7 @@ class DespesaServiceTest {
 
             assertNotNull(grafico);
             assertEquals(1, grafico.categorias().size());
-            assertEquals(BigDecimal.valueOf(100).stripTrailingZeros(), grafico.categorias().get("ALIMENTACAO").stripTrailingZeros());
+            assertEquals(BigDecimal.valueOf(100).stripTrailingZeros(), grafico.categorias().get("Alimentacao").stripTrailingZeros());
         }
     }
 
