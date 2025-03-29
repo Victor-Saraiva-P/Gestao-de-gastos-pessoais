@@ -11,14 +11,23 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.css']
   
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   title = "home" 
   isUserMenuOpen: boolean = false;
-  userName: string = 'teste'; 
-  userEmail: string = 'teste@gmail.com'
+  userName: string = ''; 
+  userEmail: string = ''
   
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  ngOnInit() {
+    this.updateUserInfo();
+  }
+
+  updateUserInfo() {
+    this.userName = this.getUserName();
+    this.userEmail = this.getEmail();
+  }
 
   isAdmin(): boolean {
     return this.authService.hasRole('ADMIN');
@@ -43,5 +52,15 @@ export class HomeComponent {
 
   toggleUserMenu() {
     this.isUserMenuOpen = !this.isUserMenuOpen;
+    this.updateUserInfo();
   }
+
+  getUserName(): string {
+    return this.authService.getUserName();
+  }
+
+  getEmail(): string {
+    return this.authService.getUserEmail();
+  }
+
 }

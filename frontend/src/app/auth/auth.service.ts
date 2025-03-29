@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class AuthService {
 
-  private apiUrl = environment.apiUrl + '/auth'; 
+  private apiUrl = environment.apiUrl + '/auth';  
   
 
   async register(newUser: User): Promise<User | null> {
@@ -81,6 +81,34 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  getUserName(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.sub;
+    } catch (error) {
+      console.error('Token error:', error);
+      return '';
+    }
+  }
+
+  getUserEmail(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.email;
+    } catch (error) {
+      console.error('Token error:', error);
+      return '';
+    }
   }
 
 }
