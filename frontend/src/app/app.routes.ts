@@ -9,6 +9,7 @@ import { RootComponent } from "./root/root.component";
 import { ExpenseComponent } from "./home/expense/expense.component";
 import { AdminComponent } from "./admin/admin.component";
 import { CostTargetsComponent } from "./home/cost-targets/cost-targets.component";
+import { CustomCategoryExpenseComponent } from "./home/custom-category/expense/custom-category-expense.component";
 
 
 const routeConfig: Routes = [
@@ -52,6 +53,11 @@ const routeConfig: Routes = [
         path: 'home/expense/cost-targets', component: CostTargetsComponent, 
         canActivate: [authGuard],
         title: 'Metas de despesas' 
+    },
+    { 
+        path: 'home/expense/custom-category', component: CustomCategoryExpenseComponent, 
+        canActivate: [authGuard],
+        title: 'Categorias de despesas' 
     },
 ]; 
 
