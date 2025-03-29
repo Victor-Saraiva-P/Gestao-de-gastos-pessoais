@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.mappers.impl;
 
-import br.com.gestorfinanceiro.dto.OrcamentoMensal.OrcamentoMensalDTO;
+import br.com.gestorfinanceiro.dto.orcamentomensal.OrcamentoMensalDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;

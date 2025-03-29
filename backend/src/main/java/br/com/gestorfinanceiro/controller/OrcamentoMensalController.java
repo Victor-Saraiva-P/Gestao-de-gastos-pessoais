@@ -1,7 +1,7 @@
 package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.config.security.JwtUtil;
-import br.com.gestorfinanceiro.dto.OrcamentoMensal.OrcamentoMensalDTO;
+import br.com.gestorfinanceiro.dto.orcamentomensal.OrcamentoMensalDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
 import br.com.gestorfinanceiro.services.OrcamentoMensalService;
@@ -61,7 +61,6 @@ public class OrcamentoMensalController {
 
     @PostMapping
     public ResponseEntity<OrcamentoMensalDTO> create(HttpServletRequest request, @RequestBody @Valid OrcamentoMensalDTO dto) {
-        System.out.println(dto);
         OrcamentoMensalEntity orcamento = orcamentoMensalService.criarOrcamentoMensal(
                 getUserId(request), dto.getCategoria(), dto.getValorLimite(), dto.getPeriodo()
         );

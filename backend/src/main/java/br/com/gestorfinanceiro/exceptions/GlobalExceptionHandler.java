@@ -1,8 +1,8 @@
 package br.com.gestorfinanceiro.exceptions;
 
-import br.com.gestorfinanceiro.exceptions.OrcamentoMensal.OrcamentoMensalAlreadyExistsException;
-import br.com.gestorfinanceiro.exceptions.OrcamentoMensal.OrcamentoMensalNotFoundException;
-import br.com.gestorfinanceiro.exceptions.OrcamentoMensal.OrcamentoMensalOperationException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalOperationException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;

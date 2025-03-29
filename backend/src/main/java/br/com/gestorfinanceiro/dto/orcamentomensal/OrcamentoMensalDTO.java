@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.dto.OrcamentoMensal;
+package br.com.gestorfinanceiro.dto.orcamentomensal;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

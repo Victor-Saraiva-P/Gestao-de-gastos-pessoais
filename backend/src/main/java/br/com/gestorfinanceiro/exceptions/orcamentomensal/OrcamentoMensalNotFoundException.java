@@ -1,4 +1,4 @@
-package br.com.gestorfinanceiro.exceptions.OrcamentoMensal;
+package br.com.gestorfinanceiro.exceptions.orcamentomensal;
 
 public class OrcamentoMensalNotFoundException extends RuntimeException {
 
