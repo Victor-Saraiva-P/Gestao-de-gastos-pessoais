@@ -61,18 +61,24 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
         validarParametros(userId, categoria, valorLimite, periodo);
 
         UserEntity user = buscarUsuarioPorId(userId);
+
+        // Busca a categoria de forma robusta, lançando exceção caso não encontre
         CategoriaEntity categoriaEntity = buscarCategoria(userId, categoria);
 
+        // Verifica se já existe um orçamento para a categoria e o período
         verificarOrcamentoDuplicado(userId, categoriaEntity, periodo, null);
 
+        // Cria o orçamento mensal
         OrcamentoMensalEntity orcamentoMensal = new OrcamentoMensalEntity();
         orcamentoMensal.setCategoria(categoriaEntity);
         orcamentoMensal.setValorLimite(valorLimite);
         orcamentoMensal.setPeriodo(periodo);
         orcamentoMensal.setUser(user);
 
+        // Salva no repositório
         return orcamentoMensalRepository.save(orcamentoMensal);
     }
+
 
     @Override
     @Transactional
@@ -127,9 +133,9 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
     /**
      * Busca uma categoria pelo nome e usuário.
      */
-    private CategoriaEntity buscarCategoria(String userId, String categoria) {
-        return categoriaRepository.findByNomeAndTipoAndUserUuid(categoria, CategoriaType.DESPESAS, userId)
-                .orElseThrow(CategoriaNotFoundException::new);
+    private CategoriaEntity buscarCategoria(String userId, String categoriaNome) {
+        return categoriaRepository.findByNomeAndUserUuid(categoriaNome, userId)
+                .orElseThrow(() -> new CategoriaNotFoundException("Categoria não encontrada para o usuário: " + categoriaNome));
     }
 
     /**
