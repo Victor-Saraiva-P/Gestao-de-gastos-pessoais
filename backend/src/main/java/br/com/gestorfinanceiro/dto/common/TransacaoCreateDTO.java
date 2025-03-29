@@ -7,37 +7,35 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public abstract class TransacaoDTO {
-    @NotBlank(message = "A categoria customizada é obrigatória.")
-    private String categoria;
-
+public abstract class TransacaoCreateDTO {
     @NotNull(message = "A data é obrigatória.")
-    protected LocalDate data;
+    private LocalDate data;
+
+    @NotBlank(message = "A categoria é obrigatória.")
+    private String categoria;
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
-    protected BigDecimal valor;
+    private BigDecimal valor;
 
-    @NotBlank(message = "As observações são obrigatórias.")
-    protected String observacoes;
-
-    protected String uuid;
+    @NotBlank(message = "As observacoes é obrigatória.")
+    private String observacoes;
 
     // Getters and Setters
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
     public LocalDate getData() {
         return data;
     }
 
     public void setData(LocalDate data) {
         this.data = data;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public BigDecimal getValor() {
@@ -54,13 +52,5 @@ public abstract class TransacaoDTO {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 }

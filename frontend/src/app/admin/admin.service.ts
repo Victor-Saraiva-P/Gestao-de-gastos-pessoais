@@ -31,5 +31,26 @@ export class AdminService {
         console.error('Erro ao buscar usuários:', error);
         return null;
       }
+  }
+
+  async changeUserRole(id: string, role: string): Promise<void> {
+    try {
+      const body = JSON.stringify({  role });
+      const response = await fetch(`${this.apiUrl}/users/${id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        },
+        body: body
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha na busca de usuários');
+      }
+
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
     }
+  }
 }

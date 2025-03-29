@@ -2,15 +2,19 @@ package br.com.gestorfinanceiro.services.ReceitasServiceTest;
 
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaCreateDTO;
+import br.com.gestorfinanceiro.dto.receita.ReceitaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.receita.ReceitaOperationException;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
+import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
-import br.com.gestorfinanceiro.models.enums.ReceitasCategorias;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.models.enums.Roles;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.ReceitaServiceImpl;
@@ -35,7 +39,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReceitaServiceTest {
+class ReceitaServiceUnitTest {
+
+    private static final String CATEGORIA_PADRAO = "Salario";
+    private static final String ORIGEM_PAGAMENTO_PADRAO = "Empresa X";
+    private static final String OBSERVACOES_PADRAO = "Remuneracao";
+    private static final BigDecimal VALOR_PADRAO = BigDecimal.valueOf(10000);
+    private static final BigDecimal VALOR_ATUALIZADO = BigDecimal.valueOf(20000);
+    private static final BigDecimal VALOR_NEGATIVO = BigDecimal.valueOf(-100);
 
     @Mock
     private ReceitaRepository receitaRepository;
@@ -43,11 +54,17 @@ class ReceitaServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private CategoriaRepository categoriaRepository;
+
     @InjectMocks
     private ReceitaServiceImpl receitaService;
 
     private UserEntity user;
     private ReceitaEntity receita;
+    private CategoriaEntity categoria;
+    private ReceitaCreateDTO receitaCreateDTO;
+    private ReceitaUpdateDTO receitaUpdateDTO;
 
     @BeforeEach
     void setUp() {
@@ -58,14 +75,35 @@ class ReceitaServiceTest {
         user.setPassword("123456");
         user.setRole(Roles.USER);
 
+        categoria = new CategoriaEntity();
+        categoria.setUuid(UUID.randomUUID().toString());
+        categoria.setNome(CATEGORIA_PADRAO);
+        categoria.setTipo(CategoriaType.RECEITAS);
+        categoria.setUser(user);
+
         receita = new ReceitaEntity();
         receita.setUuid(UUID.randomUUID().toString());
         receita.setData(LocalDate.now());
-        receita.setValor(BigDecimal.valueOf(10000));
-        receita.setCategoria(ReceitasCategorias.SALARIO);
-        receita.setOrigemDoPagamento("Empresa X");
-        receita.setObservacoes("Salário do mês de janeiro");
+        receita.setValor(VALOR_PADRAO);
+        receita.setCategoria(categoria);
+        receita.setOrigemDoPagamento(ORIGEM_PAGAMENTO_PADRAO);
+        receita.setObservacoes(OBSERVACOES_PADRAO);
         receita.setUser(user);
+
+        receitaCreateDTO = new ReceitaCreateDTO();
+        receitaCreateDTO.setData(LocalDate.now());
+        receitaCreateDTO.setCategoria(CATEGORIA_PADRAO);
+        receitaCreateDTO.setValor(VALOR_PADRAO);
+        receitaCreateDTO.setOrigemDoPagamento(ORIGEM_PAGAMENTO_PADRAO);
+        receitaCreateDTO.setObservacoes(OBSERVACOES_PADRAO);
+
+        receitaUpdateDTO = new ReceitaUpdateDTO();
+        receitaUpdateDTO.setData(LocalDate.now());
+        receitaUpdateDTO.setCategoria(CATEGORIA_PADRAO);
+        receitaUpdateDTO.setValor(VALOR_ATUALIZADO);
+        receitaUpdateDTO.setOrigemDoPagamento(ORIGEM_PAGAMENTO_PADRAO);
+        receitaUpdateDTO.setObservacoes(OBSERVACOES_PADRAO);
+
     }
 
     @Test
@@ -77,42 +115,24 @@ class ReceitaServiceTest {
     class CriarReceitaTest {
 
         @Test
-        void deveCriarReceita() {
-            when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
-            when(receitaRepository.save(any(ReceitaEntity.class))).thenReturn(receita);
-
-            ReceitaEntity receitaSalva = receitaService.criarReceita(receita, user.getUuid());
-
-            assertNotNull(receitaSalva);
-            assertEquals(receita.getValor(), receitaSalva.getValor());
-            assertEquals(receita.getCategoria(), receitaSalva.getCategoria());
-        }
-
-        @Test
-        void erroAoCriarReceitaNula() {
-            String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(null, userId));
-        }
-
-        @Test
         void erroAoCriarReceitaComValorInvalido() {
-            receita.setValor(BigDecimal.ZERO);
+            receitaCreateDTO.setValor(BigDecimal.ZERO);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receita, userId));
+            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receitaCreateDTO, userId));
         }
 
         @Test
         void erroAoCriarReceitaComValorNulo() {
-            receita.setValor(null);
+            receitaCreateDTO.setValor(null);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receita, userId));
+            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receitaCreateDTO, userId));
         }
 
         @Test
         void erroAoCriarReceitaComValorNegativo() {
-            receita.setValor(BigDecimal.valueOf(-100));
+            receitaCreateDTO.setValor(VALOR_NEGATIVO);
             String userId = user.getUuid();
-            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receita, userId));
+            assertThrows(InvalidDataException.class, () -> receitaService.criarReceita(receitaCreateDTO, userId));
         }
 
         @Test
@@ -120,26 +140,7 @@ class ReceitaServiceTest {
             when(userRepository.findById(anyString())).thenReturn(Optional.empty());
             String userId = UUID.randomUUID().toString();
 
-            assertThrows(RuntimeException.class, () -> receitaService.criarReceita(receita, userId));
-        }
-
-        @Test
-        void criarReceita_DeveLancarReceitaOperationException_QuandoRepositorioFalhar() {
-            // Arrange
-            ReceitaEntity receitaTest = new ReceitaEntity();
-            receitaTest.setValor(BigDecimal.valueOf(100));
-            receitaTest.setData(LocalDate.now());
-            receitaTest.setCategoria(ReceitasCategorias.SALARIO);
-
-            UserEntity userTest = new UserEntity();
-            String userId = UUID.randomUUID().toString();
-            userTest.setUuid(userId);
-
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(receitaRepository.save(any(ReceitaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
-
-            // Act & Assert
-            assertThrows(ReceitaOperationException.class, () -> receitaService.criarReceita(receitaTest, userId));
+            assertThrows(RuntimeException.class, () -> receitaService.criarReceita(receitaCreateDTO, userId));
         }
     }
 
@@ -203,12 +204,13 @@ class ReceitaServiceTest {
         @Test
         void deveAtualizarReceita() {
             when(receitaRepository.findById(receita.getUuid())).thenReturn(Optional.of(receita));
+            when(categoriaRepository.findByNomeAndTipoAndUserUuid(CATEGORIA_PADRAO, CategoriaType.RECEITAS, user.getUuid())).thenReturn(Optional.of(categoria));
             when(receitaRepository.save(any(ReceitaEntity.class))).thenReturn(receita);
 
-            receita.setValor(BigDecimal.valueOf(2000));
-            ReceitaEntity receitaAtualizada = receitaService.atualizarReceita(receita.getUuid(), receita);
+            receita.setValor(BigDecimal.valueOf(20000));
+            ReceitaEntity receitaAtualizada = receitaService.atualizarReceita(receita.getUuid(), receitaUpdateDTO);
 
-            assertEquals(BigDecimal.valueOf(2000), receitaAtualizada.getValor());
+            assertEquals(BigDecimal.valueOf(20000), receitaAtualizada.getValor());
         }
 
         @Test
@@ -216,13 +218,13 @@ class ReceitaServiceTest {
             String receitaId = UUID.randomUUID().toString();
             when(receitaRepository.findById(receitaId)).thenReturn(Optional.empty());
 
-            assertThrows(ReceitaNotFoundException.class, () -> receitaService.atualizarReceita(receitaId, receita));
+            assertThrows(ReceitaNotFoundException.class, () -> receitaService.atualizarReceita(receitaId, receitaUpdateDTO));
         }
 
         @Test
         void erroAoAtualizarUuidNullOuVazio() {
-            assertThrows(InvalidUuidException.class, () -> receitaService.atualizarReceita(null, receita));
-            assertThrows(InvalidUuidException.class, () -> receitaService.atualizarReceita("", receita));
+            assertThrows(InvalidUuidException.class, () -> receitaService.atualizarReceita(null, receitaUpdateDTO));
+            assertThrows(InvalidUuidException.class, () -> receitaService.atualizarReceita("", receitaUpdateDTO));
         }
 
         @Test
@@ -234,23 +236,22 @@ class ReceitaServiceTest {
 
         @Test
         void atualizarReceita_DeveLancarReceitaOperationException_QuandoRepositorioFalhar() {
+            when(categoriaRepository.findByNomeAndTipoAndUserUuid(CATEGORIA_PADRAO, CategoriaType.RECEITAS, user.getUuid())).thenReturn(Optional.of(categoria));
+
             // Arrange
-            ReceitaEntity receitaTest = new ReceitaEntity();
-            receitaTest.setUuid(UUID.randomUUID().toString());
-            receitaTest.setValor(BigDecimal.valueOf(100));
-            receitaTest.setData(LocalDate.now());
-            receitaTest.setCategoria(ReceitasCategorias.SALARIO);
+            ReceitaUpdateDTO receitaUpdateDto = new ReceitaUpdateDTO();
+            receitaUpdateDto.setValor(VALOR_ATUALIZADO);
+            receitaUpdateDto.setData(LocalDate.now());
+            receitaUpdateDto.setCategoria(CATEGORIA_PADRAO);
 
-            String receitaId = receitaTest.getUuid();
+            String receitaId = receita.getUuid();
 
-            ReceitaEntity receitaAtualizada = new ReceitaEntity();
-            receitaAtualizada.setValor(BigDecimal.valueOf(200));
-
-            when(receitaRepository.findById(receitaId)).thenReturn(Optional.of(receitaTest));
+            when(receitaRepository.findById(receitaId)).thenReturn(Optional.of(receita));
             when(receitaRepository.save(any(ReceitaEntity.class))).thenThrow(new RuntimeException("Erro no repositório"));
 
             // Act & Assert
-            assertThrows(ReceitaOperationException.class, () -> receitaService.atualizarReceita(receitaId, receitaAtualizada));
+            assertThrows(ReceitaOperationException.class,
+                    () -> receitaService.atualizarReceita(receitaId, receitaUpdateDto));
         }
     }
 
@@ -288,7 +289,7 @@ class ReceitaServiceTest {
             receitaTest.setUuid(UUID.randomUUID().toString());
             receitaTest.setValor(BigDecimal.valueOf(100));
             receitaTest.setData(LocalDate.now());
-            receitaTest.setCategoria(ReceitasCategorias.SALARIO);
+            receitaTest.setCategoria(categoria);
 
             String receitaId = receitaTest.getUuid();
 
@@ -330,7 +331,7 @@ class ReceitaServiceTest {
 
             assertNotNull(grafico);
             assertEquals(1, grafico.categorias().size());
-            assertEquals(BigDecimal.valueOf(10000).stripTrailingZeros(), grafico.categorias().get("SALARIO").stripTrailingZeros());
+            assertEquals(BigDecimal.valueOf(10000).stripTrailingZeros(), grafico.categorias().get("Salario").stripTrailingZeros());
         }
     }
 

@@ -11,8 +11,8 @@ public class CategoriaCreateDTO {
 
     @NotBlank(message = "O tipo é obrigatório.")
     @Pattern(
-            regexp = "RECEITA|DESPESA",
-            message = "Tipo inválido. Valores permitidos: RECEITA, DESPESA."
+            regexp = "RECEITAS|DESPESAS",
+            message = "Tipo inválido. Valores permitidos: RECEITAS, DESPESAS."
     )
     private String tipo;
 
