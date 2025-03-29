@@ -84,6 +84,23 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  isActive(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      if(decodedToken.estaAtivo == 'true'){
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token error:', error);
+      return false;
+    }
+  }
+
   getUserName(): string {
     const token = this.getToken();
     if (!token) {
