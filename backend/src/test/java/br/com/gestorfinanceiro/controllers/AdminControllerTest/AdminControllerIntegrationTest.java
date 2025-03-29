@@ -7,6 +7,7 @@ import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AdminService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +86,11 @@ class AdminControllerIntegrationTest {
 
         // Cria um objeto para representar o corpo da requisição
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonContent = objectMapper.writeValueAsString(Map.of("estaAtivo", false));
+        String jsonContent = objectMapper.writeValueAsString(Map.of(
+                "estaAtivo", false,
+                "role", "USER"
+        ));
+
 
         // Realiza a requisição PATCH
         mockMvc.perform(patch("/admin/users/{userID}", userA.getUuid()).contentType(MediaType.APPLICATION_JSON)

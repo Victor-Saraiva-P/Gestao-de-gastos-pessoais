@@ -3,11 +3,15 @@ package br.com.gestorfinanceiro.controllers.AdminControllerTest;
 import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.config.security.JwtFilter;
 import br.com.gestorfinanceiro.controller.AdminController;
+import br.com.gestorfinanceiro.dto.user.UserAdminUpdateDTO;
 import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.Roles;
 import br.com.gestorfinanceiro.services.AdminService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +25,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -77,26 +84,33 @@ class AdminControllerUnitTest {
     //------------------TESTES DO ATUALIZAR UPDATE ESTA ATIVO ----------------------//
     @Test
     void deveAtualizarUserEstaAtivo() throws Exception {
-        // Cria os dados de teste
         UserEntity userA = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
-        userA.setEstaAtivo(false); // Importante definir o para false
+        userA.setEstaAtivo(false);
+        userA.setRole(Roles.USER);
 
-        UserForAdminDTO userForAdminDTO = TestDataUtil.criarUserForAdminDTOUtil("Usuario A");
-        userForAdminDTO.setEstaAtivo(false); // Importante definir o valor
+        UserAdminUpdateDTO userAdminUpdateDTO = new UserAdminUpdateDTO();
+        userAdminUpdateDTO.setEstaAtivo(true);
+        userAdminUpdateDTO.setRole("ADMIN");
 
-        // Define o comportamento esperado para o serviço e o mapper
-        when(adminService.atualizarUser(userA.getUuid(), false)).thenReturn(userA);
+        UserForAdminDTO userForAdminDTO = new UserForAdminDTO();
+        userForAdminDTO.setUsername("Usuario A");
+        userForAdminDTO.setEstaAtivo(true);
+        userForAdminDTO.setRole("ADMIN");
+
+        when(adminService.atualizarUser(eq(userA.getUuid()), any(UserAdminUpdateDTO.class)))
+                .thenReturn(userA);
+
         when(mapper.mapTo(userA)).thenReturn(userForAdminDTO);
 
-        // Cria um objeto para representar o corpo da requisição
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonContent = objectMapper.writeValueAsString(Map.of("estaAtivo", false));
+        String jsonContent = new ObjectMapper().writeValueAsString(userAdminUpdateDTO);
 
-        // Realiza a requisição PATCH
-        mockMvc.perform(patch("/admin/users/{userID}", userA.getUuid()).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(patch("/admin/users/{userID}", userA.getUuid())
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonContent))
+                .andDo(result -> System.out.println("Resposta da API: " + result.getResponse().getContentAsString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("Usuario A"))
-                .andExpect(jsonPath("$.estaAtivo").value(false));
+                .andExpect(jsonPath("$.estaAtivo").value(true))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
     }
 }
