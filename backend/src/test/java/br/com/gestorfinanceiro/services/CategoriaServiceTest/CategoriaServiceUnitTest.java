@@ -4,11 +4,13 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
+import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.CategoriaServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -20,12 +22,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CategoriaServiceUnitTest {
@@ -34,6 +37,9 @@ class CategoriaServiceUnitTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DespesaRepository despesaRepository;
 
     @Mock
     private CategoriaRepository categoriaRepository;
@@ -113,14 +119,14 @@ class CategoriaServiceUnitTest {
 
     //------------------TESTES DO listarCategoriasUsuario ----------------------//
     @Test
-    void deveListarCategoriasUsuario() {
+    void deveListarCategorias() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
 
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findAllByUserUuid(user.getUuid())).thenReturn(java.util.List.of(categoria));
 
-        assertEquals(java.util.List.of(categoria), categoriaService.listarCategoriasUsuario(user.getUuid()));
+        assertEquals(java.util.List.of(categoria), categoriaService.listarCategorias(user.getUuid()));
     }
 
     @Test
@@ -131,14 +137,14 @@ class CategoriaServiceUnitTest {
         when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findAllByUserUuid(user.getUuid())).thenReturn(java.util.List.of());
 
-        assertEquals(java.util.List.of(), categoriaService.listarCategoriasUsuario(userId));
+        assertEquals(java.util.List.of(), categoriaService.listarCategorias(userId));
     }
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoExistirAoListarCategorias() {
         when(userRepository.findById("123-456")).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategoriasUsuario("123-456"));
+        assertThrows(UserNotFoundException.class, () -> categoriaService.listarCategorias("123-456"));
     }
 
     //------------------TESTES DO atualizarCategoria ----------------------//
@@ -152,7 +158,7 @@ class CategoriaServiceUnitTest {
                 invocation -> invocation.getArgument(0));
 
         CategoriaEntity categoriaAtualizada = categoriaService.atualizarCategoria(categoria.getUuid(),
-                TestDataUtil.criarCategoriaUpdateDTOUtil("Categoria B"));
+                TestDataUtil.criarCategoriaUpdateDTOUtil("Categoria B"), user.getUuid());
 
         assertEquals("Categoria B", categoriaAtualizada.getNome());
         assertEquals("DESPESAS", categoriaAtualizada.getTipo()
@@ -168,10 +174,11 @@ class CategoriaServiceUnitTest {
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistente() {
         when(categoriaRepository.findById("uuid-inexistente")).thenReturn(Optional.empty());
+        CategoriaUpdateDTO categoriaQualquer = TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome");
 
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
+        assertThrows(CategoriaIdNotFoundException.class,
                 () -> categoriaService.atualizarCategoria("uuid-inexistente",
-                        TestDataUtil.criarCategoriaUpdateDTOUtil("Qualquer Nome")));
+                        categoriaQualquer, "id-usuario-qualquer"));
     }
 
     @Test
@@ -182,7 +189,7 @@ class CategoriaServiceUnitTest {
 
         CategoriaUpdateDTO categoriaVazia = TestDataUtil.criarCategoriaUpdateDTOUtil("");
         assertThrows(InvalidDataException.class,
-                () -> categoriaService.atualizarCategoria(categoriaId, categoriaVazia));
+                () -> categoriaService.atualizarCategoria(categoriaId, categoriaVazia, "123-456"));
     }
 
     @Test
@@ -192,41 +199,46 @@ class CategoriaServiceUnitTest {
                 .getUuid();
 
         CategoriaUpdateDTO categoriaNula = TestDataUtil.criarCategoriaUpdateDTOUtil(null);
-        assertThrows(InvalidDataException.class, () -> categoriaService.atualizarCategoria(categoriaId, categoriaNula));
+        assertThrows(InvalidDataException.class,
+                () -> categoriaService.atualizarCategoria(categoriaId, categoriaNula, "123-456"));
     }
 
     //------------------TESTES DO excluirCategoria ----------------------//
     @Test
-    void deveExcluirCategoria() {
+    void deveExcluirCategoriaComSucesso() {
         UserEntity user = TestDataUtil.criarUsuarioEntityUtil("Usuario A", "123-456");
         CategoriaEntity categoria = TestDataUtil.criarCategoriaEntityComUserUtil("Categoria A", "DESPESAS", user);
 
+        when(userRepository.findById(user.getUuid())).thenReturn(Optional.of(user));
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
-
-        categoriaService.excluirCategoria(categoria.getUuid());
-
-        org.mockito.Mockito.verify(categoriaRepository)
-                .findById(categoria.getUuid());
-        org.mockito.Mockito.verify(categoriaRepository)
+        when(despesaRepository.findAllByCategoria(categoria)).thenReturn(Collections.emptyList());
+        doNothing().when(categoriaRepository)
                 .delete(categoria);
+
+        categoriaService.excluirCategoria(categoria.getUuid(), user.getUuid());
+
+        verify(userRepository).findById(user.getUuid());
+        verify(categoriaRepository).findById(categoria.getUuid());
+        verify(despesaRepository).findAllByCategoria(categoria);
+        verify(categoriaRepository).delete(categoria);
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaIdForNuloAoExcluir() {
-        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(null));
+        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(null, "id-usuario-qualquer"));
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaIdForVazioAoExcluir() {
-        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria(""));
+        assertThrows(InvalidDataException.class, () -> categoriaService.excluirCategoria("", "id-usuario-qualquer"));
     }
 
     @Test
     void deveLancarExcecaoQuandoCategoriaInexistenteAoExcluir() {
         when(categoriaRepository.findById("uuid-inexistente")).thenReturn(Optional.empty());
 
-        assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException.class,
-                () -> categoriaService.excluirCategoria("uuid-inexistente"));
+        assertThrows(CategoriaIdNotFoundException.class,
+                () -> categoriaService.excluirCategoria("uuid-inexistente", "id-usuario-qualquer"));
     }
 
     @Test
@@ -239,6 +251,6 @@ class CategoriaServiceUnitTest {
         when(categoriaRepository.findById(categoria.getUuid())).thenReturn(Optional.of(categoria));
 
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException.class,
-                () -> categoriaService.excluirCategoria(categoria.getUuid()));
+                () -> categoriaService.excluirCategoria(categoria.getUuid(), "123-456"));
     }
 }

@@ -4,6 +4,7 @@ import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.exceptions.user.EmailAlreadyExistsException;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.Roles;
+import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ class AuthServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
     @Test
         //teste para ver sw o AuthService foi carregado
     void deveCarregarAuthService() {
@@ -34,6 +38,7 @@ class AuthServiceIntegrationTest {
     @BeforeEach
     @SuppressWarnings("unused")
     void setUp() {
+        categoriaRepository.deleteAll();
         userRepository.deleteAll(); // Limpa o banco antes de cada teste para evitar inconsistências
     }
 

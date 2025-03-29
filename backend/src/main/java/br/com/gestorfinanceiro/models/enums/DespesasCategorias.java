@@ -10,4 +10,11 @@ public enum DespesasCategorias {
     public String toString() {
         return this.name();
     }
+
+    public String toNormalCase() {
+        String name = this.name();
+        name = name.replace("_", " ");
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1)
+                .toLowerCase();
+    }
 }

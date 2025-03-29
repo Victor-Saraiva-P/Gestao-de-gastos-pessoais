@@ -1,6 +1,6 @@
 package br.com.gestorfinanceiro.controller;
 
-import br.com.gestorfinanceiro.dto.user.EstaAtivoDTO;
+import br.com.gestorfinanceiro.dto.user.UserAdminUpdateDTO;
 import br.com.gestorfinanceiro.dto.user.UserForAdminDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.UserEntity;
@@ -37,8 +37,8 @@ public class AdminController {
     }
 
     @PatchMapping("/users/{userID}")
-    public ResponseEntity<UserForAdminDTO> updateUserEstaAtivo(@PathVariable String userID, @RequestBody @Valid EstaAtivoDTO estaAtivo) {
-        UserEntity user = adminService.atualizarUserStatus(userID, estaAtivo.getEstaAtivo());
+    public ResponseEntity<UserForAdminDTO> updateUserEstaAtivo(@PathVariable String userID, @RequestBody @Valid UserAdminUpdateDTO userAdminUpdateDTO) {
+        UserEntity user = adminService.atualizarUser(userID, userAdminUpdateDTO);
         return ResponseEntity.ok(userForAdminDTOMapper.mapTo(user));
     }
 }
