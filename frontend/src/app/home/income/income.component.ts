@@ -156,6 +156,10 @@ export class IncomeComponent implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
+  categoriasPersonalizadas() {
+    this.router.navigate(['/home/income/custom-category']);
+  }
+
   refreshPage() {
     window.location.reload();
   }
