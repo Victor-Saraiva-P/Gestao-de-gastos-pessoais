@@ -34,7 +34,9 @@ export class CustomCategoryIncomeComponent implements OnInit {
     async loadCategories() {
       const response = await this.customCategoryService.getAllIncomeCategories();
       if (response) {
-        this.incomesCatories = response;
+        this.incomesCatories = response.filter(categoria => 
+          categoria.nome !== 'Sem Categoria'
+        );
       }
     }
 
@@ -81,5 +83,15 @@ export class CustomCategoryIncomeComponent implements OnInit {
             })
             .catch((err) => alert('Erro ao criar Categoria: ' + err));
         }
+    }
+
+    async onSubmitRemove(id: string) {
+      try {
+        await this.customCategoryService.deleteCategory(id);
+        alert('Receita removida com sucesso!');
+        await this.loadCategories();
+      } catch (err) {
+        alert('Erro ao remover receita: ' + err);
+      }
     }
 }
