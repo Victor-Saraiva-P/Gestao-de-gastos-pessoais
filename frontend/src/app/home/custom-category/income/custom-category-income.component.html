@@ -1,1 +1,12 @@
-<p>custom-category works!</p>
+<section class="category-income-container">
+    <button class="home-button" (click)="income()">Voltar</button>
+    <div class="left-section">
+      <button class="criar-edit-trash" >Criar categoria</button>
+      <button class="criar-edit-trash" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
+        {{ isEditing ? 'Cancelar Edição' : 'Editar Categoria' }}
+      </button>
+      <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
+        {{ isRemoving ? 'Cancelar Remoção' : 'Remover Categoria' }}
+      </button>
+    </div>
+  </section>
