@@ -492,13 +492,13 @@ class DespesaControllerIntegrationTest {
     }
 
     private UserEntity criarUsuarioTest() {
-        UserEntity user = new UserEntity();
-        user.setUsername("Jorge");
-        user.setEmail("jorge@gmail.com");
-        user.setPassword(passwordEncoder.encode("123456"));
-        user.setRole(Roles.USER);
+        UserEntity newUser = new UserEntity();
+        newUser.setUsername("Lana");
+        newUser.setEmail("lana@gmail.com");
+        newUser.setPassword(passwordEncoder.encode("123456"));
+        newUser.setRole(Roles.USER);
         
-        return userRepository.saveAndFlush(user);
+        return userRepository.saveAndFlush(newUser);
     }
 
     private CategoriaEntity criarCategoriaTest(String nome, UserEntity user) {
