@@ -16,7 +16,7 @@ export class AdminComponent implements OnInit{
   users: User[] = [];
 
   modalType: 'edit' | null = null;
-  editingUserId: string | null = null;
+  editingUser: User | null = null;
   isEditing = false;
 
   private adminService = inject(AdminService);
@@ -53,7 +53,7 @@ export class AdminComponent implements OnInit{
   
   openEditModal(user: User) {
     this.modalType = 'edit';
-    this.editingUserId = user.uuid!;
+    this.editingUser = user;
     this.editUserForm.setValue({
       role: user.role,
     });
@@ -64,18 +64,54 @@ export class AdminComponent implements OnInit{
   }
 
 
-  async onSubmitEditRole(id: string) {
+
+  async onSubmitEditRole(user: User) {
+
     if(this.editUserForm.valid) {
       const role = this.editUserForm.value.role;
       
-      this.adminService.changeUserRole(id, role).then(() => {
+      this.adminService.changeUserRole(user, role).then(() => {
         alert('Papel do usuário alterado com sucesso!')
         this.refreshPage(); 
       }).catch((err) => alert('Erro ao alterar papel do usuário: ' + err));
     }
   }
 
-  
+
+loadingStatus: { [key: string]: boolean } = {};
+async toggleUserStatus(user: User): Promise<void> {
+  if (user.estaAtivo) {
+    return;
+  }
+  this.loadingStatus[user.uuid!] = true;
+  const confirmation = confirm(
+    `Deseja reativar o usuário ${user.email}?` 
+  );
+  if (confirmation) {
+    try {
+      const requestBody = {
+        estaAtivo: true, 
+        role: user.role
+      };
+      const success = await this.adminService.toggleUserStatus(user.uuid!, requestBody);
+      if (success) {
+        await this.loadUsers();
+      }
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
+    } finally {
+      this.loadingStatus[user.uuid!] = false;
+    }
+  } else {
+    this.loadingStatus[user.uuid!] = false;
+  }
+}
+
+isManagingStatus = false;
+toggleStatusMode() {
+  this.isManagingStatus = !this.isManagingStatus;
+  if (this.isEditing) this.isEditing = false;
+}
   home() {
     this.router.navigate(['/home']);
   }
