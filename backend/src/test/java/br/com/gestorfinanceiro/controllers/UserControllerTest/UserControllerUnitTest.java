@@ -9,13 +9,13 @@ import br.com.gestorfinanceiro.controller.UserController;
 import java.util.Map;
 
 @SpringBootTest
-public class UserControllerUnitTest {
+class UserControllerUnitTest {
 
     @InjectMocks
     private UserController userController; 
 
     @Test
-    public void testHelloAllUsers() {
+    void testHelloAllUsers() {
         //chama o método helloAllUsers() do controlador
         Map<String, String> response = userController.helloAllUsers();
         //verificando se a resposta contém uma chave "message" com o valor "Hello World!"
@@ -23,7 +23,7 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    public void testHelloAdminUsers() {
+    void testHelloAdminUsers() {
         //chama o método helloAdminUsers() do controlador
         //verificando se a resposta contém uma chave "message" com o valor "Hello Admin!"
         Map<String, String> response = userController.helloAdminUsers();

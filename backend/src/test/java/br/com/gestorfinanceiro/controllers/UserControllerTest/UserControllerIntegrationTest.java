@@ -13,14 +13,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest //contexto completo da aplicação
 @AutoConfigureMockMvc 
-public class UserControllerIntegrationTest {
+class UserControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
 @Test
 @WithMockUser //simula a um usuário autenticado
-    public void helloAllUsers_QuandoAutenticado_DeveRetornarHelloWorld() throws Exception {
+    void helloAllUsers_QuandoAutenticado_DeveRetornarHelloWorld() throws Exception {
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Hello World!"));
@@ -29,17 +29,10 @@ public class UserControllerIntegrationTest {
  //usuário admin acessa o endpoint e retorna 200 OK
  @Test
  @WithMockUser(roles = "USER") //simula um admin autenticado
- public void findAllUsers_QuandoAdmin_DeveRetornarListaUsuarios() throws Exception {
+void findAllUsers_QuandoAdmin_DeveRetornarListaUsuarios() throws Exception {
      mockMvc.perform(get("/admin/users"))
              .andExpect(status().isOk())
              .andExpect(jsonPath("$").isArray()); 
  }
 }
 
-/*@Test
-@WithMockUser(roles = "ADMIN") // Simulando um usuário sem ADMIN
-public void findAllUsers_QuandoUsuario_DeveRetornar403() throws Exception {
-    mockMvc.perform(get("/admin/users"))
-            .andExpect(status().isForbidden()); // Retorna 403 Forbidden
-}
-}*/
