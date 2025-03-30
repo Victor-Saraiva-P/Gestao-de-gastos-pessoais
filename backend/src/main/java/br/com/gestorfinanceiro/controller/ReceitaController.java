@@ -11,6 +11,8 @@ import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.services.ReceitaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -86,16 +88,30 @@ public class ReceitaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @Valid @RequestBody ReceitaUpdateDTO receitaUpdateDTO) {
-        ReceitaEntity receitaSalva = receitaService.atualizarReceita(id, receitaUpdateDTO);
-        return ResponseEntity.ok(receitaMapper.mapTo(receitaSalva));
+    public ResponseEntity<ReceitaDTO> atualizarReceita(@PathVariable String id, @Valid @RequestBody ReceitaUpdateDTO receitaUpdateDTO, HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+        ReceitaEntity receita = receitaService.buscarReceitaPorId(id);
+
+        if (!Objects.equals(userId, receita.getUser().getUuid())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        ReceitaEntity receitaAtualizada = receitaService.atualizarReceita(id, receitaUpdateDTO);
+        return ResponseEntity.ok(receitaMapper.mapTo(receitaAtualizada));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirReceita(@PathVariable String id) {
+    public ResponseEntity<Void> excluirReceita(@PathVariable String id, HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+
+        ReceitaEntity receita = receitaService.buscarReceitaPorId(id);
+
+        if (!Objects.equals(userId, receita.getUser().getUuid())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         receitaService.excluirReceita(id);
-        return ResponseEntity.noContent()
-                .build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/grafico-pizza")

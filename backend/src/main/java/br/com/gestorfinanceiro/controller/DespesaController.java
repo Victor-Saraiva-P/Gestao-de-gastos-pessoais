@@ -11,6 +11,8 @@ import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.services.DespesaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -78,13 +80,28 @@ public class DespesaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @Valid @RequestBody DespesaUpdateDTO despesaUpdateDTO) {
-        DespesaEntity despesaSalva = despesaService.atualizarDespesa(id, despesaUpdateDTO);
-        return ResponseEntity.ok(despesaMapper.mapTo(despesaSalva));
+    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @Valid @RequestBody DespesaUpdateDTO despesaUpdateDTO, HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+        DespesaEntity despesa = despesaService.buscarDespesaPorId(id);
+    
+        if (!Objects.equals(userId, despesa.getUser().getUuid())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        DespesaEntity despesaAtualizada = despesaService.atualizarDespesa(id, despesaUpdateDTO);
+        return ResponseEntity.ok(despesaMapper.mapTo(despesaAtualizada));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluirDespesa(@PathVariable String id) {
+    public ResponseEntity<Void> excluirDespesa(@PathVariable String id, HttpServletRequest request) {
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+        DespesaEntity despesa = despesaService.buscarDespesaPorId(id);
+
+        if (!Objects.equals(userId, despesa.getUser().getUuid())) {
+            return ResponseEntity.status(403).build();
+        }
+    
         despesaService.excluirDespesa(id);
         return ResponseEntity.noContent().build();
     }
@@ -112,7 +129,7 @@ public class DespesaController {
     }
 
     @GetMapping("/por-intervalo-de-datas")
-    public ResponseEntity<List<DespesaDTO>> buscarReceitasPorIntervaloDeDatas(
+    public ResponseEntity<List<DespesaDTO>> buscarDespesasPorIntervaloDeDatas(
             @RequestParam LocalDate inicio,
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
