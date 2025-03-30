@@ -64,7 +64,9 @@ export class AdminComponent implements OnInit{
   }
 
 
+
   async onSubmitEditRole(user: User) {
+
     if(this.editUserForm.valid) {
       const role = this.editUserForm.value.role;
       
@@ -75,7 +77,41 @@ export class AdminComponent implements OnInit{
     }
   }
 
-  
+
+loadingStatus: { [key: string]: boolean } = {};
+async toggleUserStatus(user: User): Promise<void> {
+  if (user.estaAtivo) {
+    return;
+  }
+  this.loadingStatus[user.uuid!] = true;
+  const confirmation = confirm(
+    `Deseja reativar o usuário ${user.email}?` 
+  );
+  if (confirmation) {
+    try {
+      const requestBody = {
+        estaAtivo: true, 
+        role: user.role
+      };
+      const success = await this.adminService.toggleUserStatus(user.uuid!, requestBody);
+      if (success) {
+        await this.loadUsers();
+      }
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
+    } finally {
+      this.loadingStatus[user.uuid!] = false;
+    }
+  } else {
+    this.loadingStatus[user.uuid!] = false;
+  }
+}
+
+isManagingStatus = false;
+toggleStatusMode() {
+  this.isManagingStatus = !this.isManagingStatus;
+  if (this.isEditing) this.isEditing = false;
+}
   home() {
     this.router.navigate(['/home']);
   }

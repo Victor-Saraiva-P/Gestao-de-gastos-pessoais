@@ -36,6 +36,7 @@ export class AdminService {
   async changeUserRole(user: User, role: string): Promise<void> {
     try {
       const body = JSON.stringify({ estaAtivo: user.estaAtivo ,role });
+
       const response = await fetch(`${this.apiUrl}/users/${user.uuid}`, {
         method: 'PATCH',
         headers: { 
@@ -51,6 +52,25 @@ export class AdminService {
 
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
+    }
+  }
+
+
+  async toggleUserStatus(id: string, data: { estaAtivo: boolean; role: string }): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authService.getToken()}`
+        },
+        body: JSON.stringify(data)
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
+      return false;
     }
   }
 }
