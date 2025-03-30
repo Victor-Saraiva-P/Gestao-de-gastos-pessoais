@@ -34,7 +34,9 @@ export class CustomCategoryExpenseComponent implements OnInit{
   async loadCategories() {
     const response = await this.customCategoryService.getAllExpenseCategories();
     if (response) {
-      this.expensesCatories = response;
+      this.expensesCatories = response.filter(categoria => 
+        categoria.nome !== 'Sem Categoria'
+      );
     }
   }
 
@@ -82,5 +84,15 @@ export class CustomCategoryExpenseComponent implements OnInit{
           })
           .catch((err) => alert('Erro ao criar Categoria: ' + err));
       }
+  }
+
+  async onSubmitRemove(id: string) {
+    try {
+      await this.customCategoryService.deleteCategory(id);
+      alert('Despesa removida com sucesso!');
+      await this.loadCategories();
+    } catch (err) {
+      alert('Erro ao remover Despesa: ' + err);
+    }
   }
 }
