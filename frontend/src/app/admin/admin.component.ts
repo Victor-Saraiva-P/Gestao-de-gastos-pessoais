@@ -16,7 +16,7 @@ export class AdminComponent implements OnInit{
   users: User[] = [];
 
   modalType: 'edit' | null = null;
-  editingUserId: string | null = null;
+  editingUser: User | null = null;
   isEditing = false;
 
   private adminService = inject(AdminService);
@@ -53,7 +53,7 @@ export class AdminComponent implements OnInit{
   
   openEditModal(user: User) {
     this.modalType = 'edit';
-    this.editingUserId = user.uuid!;
+    this.editingUser = user;
     this.editUserForm.setValue({
       role: user.role,
     });
@@ -64,11 +64,13 @@ export class AdminComponent implements OnInit{
   }
 
 
-  onSubmitEditRole(id: string) {
+
+  async onSubmitEditRole(user: User) {
+
     if(this.editUserForm.valid) {
       const role = this.editUserForm.value.role;
       
-      this.adminService.changeUserRole(id, role).then(() => {
+      this.adminService.changeUserRole(user, role).then(() => {
         alert('Papel do usuário alterado com sucesso!')
         this.refreshPage(); 
       }).catch((err) => alert('Erro ao alterar papel do usuário: ' + err));
