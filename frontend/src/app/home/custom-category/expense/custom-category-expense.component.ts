@@ -41,7 +41,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
     if (response) {
       this.expensesCatories = response.filter(categoria => 
         categoria.nome !== 'Sem Categoria'
-      );
+      ).sort((a, b) => a.nome.localeCompare(b.nome));
     }
   }
 
@@ -82,7 +82,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
         const nome: string = this.createCategoryExpenseForm.value.name;
     
         this.customCategoryService
-          .createCategories('DESPESAS', nome.toUpperCase())
+          .createCategories('DESPESAS', this.correctCategory(nome))
           .then(() => {
             alert('Categoria criada com sucesso!');
             this.refreshPage();
@@ -95,7 +95,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
       if (this.editCategoryExpenseForm.valid) {
         try {
           const nome: string = this.editCategoryExpenseForm.value.nome;
-          await this.customCategoryService.changeNameCategory(id, nome.toUpperCase());
+          await this.customCategoryService.changeNameCategory(id, this.correctCategory(nome));
           alert('Categoria atualizada com sucesso!');
           this.refreshPage();
         } catch (err) {
@@ -120,5 +120,10 @@ export class CustomCategoryExpenseComponent implements OnInit{
       this.editCategoryExpenseForm.setValue({
         nome: categoria.nome
       });
-    }
+  }
+
+  correctCategory(string: string): string {
+    const newString = string.toLowerCase();
+    return newString.charAt(0).toUpperCase() + newString.slice(1);
+  }
 }

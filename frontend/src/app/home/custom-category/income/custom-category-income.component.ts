@@ -41,7 +41,7 @@ export class CustomCategoryIncomeComponent implements OnInit {
       if (response) {
         this.incomesCatories = response.filter(categoria => 
           categoria.nome !== 'Sem Categoria'
-        );
+        ).sort((a, b) => a.nome.localeCompare(b.nome));;
       }
     }
 
@@ -81,7 +81,7 @@ export class CustomCategoryIncomeComponent implements OnInit {
       
     
           this.customCategoryService
-            .createCategories('RECEITAS', nome.toUpperCase())
+            .createCategories('RECEITAS', this.correctCategory(nome))
             .then(() => {
               alert('Categoria criada com sucesso!');
               this.refreshPage();
@@ -94,7 +94,7 @@ export class CustomCategoryIncomeComponent implements OnInit {
       if (this.editCategoryIncomeForm.valid) {
         try {
           const nome: string = this.editCategoryIncomeForm.value.nome;
-          await this.customCategoryService.changeNameCategory(id, nome.toUpperCase());
+          await this.customCategoryService.changeNameCategory(id, this.correctCategory(nome));
           alert('Categoria atualizada com sucesso!');
           this.refreshPage();
         } catch (err) {
@@ -119,5 +119,10 @@ export class CustomCategoryIncomeComponent implements OnInit {
       this.editCategoryIncomeForm.setValue({
         nome: categoria.nome
       });
+    }
+
+    correctCategory(string: string): string {
+      const newString = string.toLowerCase();
+      return newString.charAt(0).toUpperCase() + newString.slice(1);
     }
 }

@@ -8,7 +8,7 @@
       <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
         {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
       </button>
-      <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias personalizadas</button>
+      <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias</button>
     </div>
 
     <div class="main-content">
@@ -152,11 +152,9 @@
             <div>
               <select id="categoria" formControlName="categoria" required>
                 <option value="" disabled selected>Selecione uma categoria</option>
-                <option value="SALARIO">Salário</option>
-                <option value="RENDIMENTO_DE_INVESTIMENTO">Rendimento de investimentos</option>
-                <option value="COMISSOES">Comissões</option>
-                <option value="BONUS">Bônus</option>
-                <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
+                <option *ngFor="let category of incomeCategories" [value]="category.nome">
+                  {{category.nome}}
+                </option>
               </select>
             </div>
 
@@ -187,11 +185,9 @@
             <div>
               <select id="categoria" formControlName="categoria" required>
                 <option value="" disabled selected>Selecione uma categoria</option>
-                <option value="SALARIO">Salario</option>
-                <option value="RENDIMENTO_DE_INVESTIMENTO">Rendimento de investimentos</option>
-                <option value="COMISSOES">Comissões</option>
-                <option value="BONUS">Bonus</option>
-                <option value="BOLSA_DE_ESTUDOS">Bolsa de estudos</option>
+                <option *ngFor="let category of incomeCategories" [value]="category.nome">
+                  {{category.nome}}
+                </option>
               </select>
             </div>
 

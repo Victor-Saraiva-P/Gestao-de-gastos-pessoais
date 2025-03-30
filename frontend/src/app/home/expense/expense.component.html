@@ -9,7 +9,7 @@
       {{ isRemoving ? 'Cancelar Remoção' : 'Remover Despesa' }}
     </button>
     <button class="criar-edit-trash" (click)="costTarget()">Definir metas</button>
-    <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias personalizadas</button>
+    <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias</button>
   </div>
 
   <div class="main-content">
@@ -153,10 +153,9 @@
           <div>
             <select id="categoria" formControlName="categoria" required>
               <option value="" disabled selected>Selecione uma categoria</option>
-              <option value="ALIMENTACAO">Alimentação</option>
-              <option value="MORADIA">Moradia</option>
-              <option value="TRANSPORTE">Transporte</option>
-              <option value="LAZER">Lazer</option>
+              <option *ngFor="let category of expenseCategories" [value]="category.nome">
+                {{category.nome}}
+              </option>
             </select>
           </div>
 
@@ -187,10 +186,9 @@
           <div>
             <select id="categoria" formControlName="categoria" required>
               <option value="" disabled selected>Selecione uma categoria</option>
-              <option value="ALIMENTACAO">Alimentação</option>
-              <option value="MORADIA">Moradia</option>
-              <option value="TRANSPORTE">Transporte</option>
-              <option value="LAZER">Lazer</option>
+              <option *ngFor="let category of expenseCategories" [value]="category.nome">
+                {{category.nome}}
+              </option>
             </select>
           </div>
 

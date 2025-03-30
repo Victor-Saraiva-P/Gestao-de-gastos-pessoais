@@ -11,6 +11,8 @@ import {
 import { Income } from '../../entity/income';
 import { IncomeService } from './income.service';
 import { ChartUtils } from '../../utils/income-chart-utils';
+import { Categoria } from '../../entity/categoria';
+import { CustomCategoryService } from '../custom-category/custom-category.service';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +26,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
   // Propriedades gerais
   title = 'income';
   incomes: Income[] = [];
+  incomeCategories: Categoria[] = [];
   filteredIncomes: Income[] = [];
   filteredBarData: Income[] = [];
   filteredList: Income[] = []; // Lista para filtro de valor e data
@@ -53,6 +56,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
 
   // Injeção de dependências
   private incomeService = inject(IncomeService);
+  private customCategoryService = inject(CustomCategoryService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -76,6 +80,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
   // ---------------------- Ciclo de Vida ----------------------
   async ngOnInit() {
     await this.loadIncomes();
+    await this.loadCategories();
     this.initializeDates();
     await this.loadPieChartData();
     await this.loadBarChartData();
@@ -110,6 +115,15 @@ export class IncomeComponent implements OnInit, OnDestroy {
       this.incomes = response;
       this.filteredIncomes = [...this.incomes];
       this.filteredBarData = [...this.incomes];
+    }
+  }
+
+  async loadCategories() {
+    const response = await this.customCategoryService.getAllIncomeCategories();
+    if (response) {
+      this.incomeCategories = response.filter(categoria => 
+        categoria.nome !== 'Sem Categoria'
+      ).sort((a, b) => a.nome.localeCompare(b.nome));
     }
   }
 
@@ -338,7 +352,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
         this.createIncomeForm.value;
       const newIncome: Income = {
         data,
-        categoria,
+        categoria: this.correctCategory(categoria),
         valor,
         origemDoPagamento,
         observacoes,
@@ -373,7 +387,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
           this.editIncomeForm.value;
         const updatedIncome: Income = {
           data,
-          categoria,
+          categoria: this.correctCategory(categoria),
           valor,
           origemDoPagamento,
           observacoes,
@@ -397,5 +411,10 @@ export class IncomeComponent implements OnInit, OnDestroy {
       origemDoPagamento: income.origemDoPagamento,
       observacoes: income.observacoes,
     });
+  }
+
+  correctCategory(string: string): string {
+    const newString = string.toLowerCase();
+    return newString.charAt(0).toUpperCase() + newString.slice(1);
   }
 }
