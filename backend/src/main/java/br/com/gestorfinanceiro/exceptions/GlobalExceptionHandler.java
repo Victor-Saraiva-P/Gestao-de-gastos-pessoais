@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.exceptions;
 
+import br.com.gestorfinanceiro.exceptions.dashboard.DashboardOperationException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalOperationException;
@@ -184,6 +185,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = ex.getMessage();
         Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    // ----------------------------------------
+    // EXCEÇÕES RELACIONADAS AO DASHBOARD
+    // ----------------------------------------
+
+    @ExceptionHandler(DashboardOperationException.class)
+    public ResponseEntity<Object> handleDashboardOperationException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
+        String detail = ex.getMessage();
+
+        Problema problema = createProblemaBuilder(status, problemaType, detail)
+                .mensagem("Erro durante operação no dashboard")
+                .build();
+
         return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
     }
 
