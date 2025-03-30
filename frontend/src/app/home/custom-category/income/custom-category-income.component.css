@@ -228,6 +228,48 @@ select:focus {
   background-color: #cc0000 !important;
 }
 
+.category-list {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 30px;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 800px;
+  border: 1px solid #ddd;
+}
+
+.category-list h2 {
+  font-size: 1.6rem;
+  color: #5EC57E;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.category-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-list li {
+  background: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 6px solid #5EC57E;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-list li:hover {
+  transform: scale(1.02);
+  background: #f1f1f1;
+}
+
 
 @media (max-width: 768px) {
   .category-income-container {
