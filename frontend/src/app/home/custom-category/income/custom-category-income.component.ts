@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CustomCategoryService } from '../custom-category.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Categoria } from '../../../entity/categoria';
 
 @Component({
   selector: 'app-custom-category',
@@ -10,9 +11,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: 'custom-category-income.component.html',
   styleUrls: ['custom-category-income.component.css']
 })
-export class CustomCategoryIncomeComponent {
-  title = 'category-income';
-  
+export class CustomCategoryIncomeComponent implements OnInit {
+    title = 'category-income';
+
+    incomesCatories: Categoria[] = [];
     isRemoving = false;
     isEditing = false;
     modalType: 'create' | 'edit' | null = null;
@@ -24,6 +26,17 @@ export class CustomCategoryIncomeComponent {
     createCategoryincomeForm: FormGroup = this.fb.group({
         name: ['', Validators.required],
     });
+
+    async ngOnInit() {
+      await this.loadCategories();
+    }
+  
+    async loadCategories() {
+      const response = await this.customCategoryService.getAllIncomeCategories();
+      if (response) {
+        this.incomesCatories = response;
+      }
+    }
 
     openModal(type: 'create' | 'edit') {
       this.modalType = type;
@@ -68,5 +81,5 @@ export class CustomCategoryIncomeComponent {
             })
             .catch((err) => alert('Erro ao criar Categoria: ' + err));
         }
-      }
+    }
 }
