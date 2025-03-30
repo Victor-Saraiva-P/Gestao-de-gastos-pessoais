@@ -3,6 +3,7 @@ import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
 import { Categoria } from '../../entity/categoria';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,12 +33,14 @@ export class CustomCategoryService {
     }
   }
 
+
   async createCategories(tipo: string, nome: string): Promise<string[] | null> {
     try {
       const body = JSON.stringify({ tipo, nome });
 
       const response = await fetch(`${this.apiUrl}`, {
         method: 'POST',
+
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
