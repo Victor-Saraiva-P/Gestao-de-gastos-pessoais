@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CustomCategoryService } from '../custom-category.service';
 import { CommonModule } from '@angular/common';
+import { Categoria } from '../../../entity/categoria';
 
 @Component({
   selector: 'app-custom-category-expense',
@@ -10,9 +11,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './custom-category-expense.component.html',
   styleUrl: './custom-category-expense.component.css'
 })
-export class CustomCategoryExpenseComponent {
+export class CustomCategoryExpenseComponent implements OnInit{
   title = 'category-expense';
 
+  expensesCatories: Categoria[] = [];
   isRemoving = false;
   isEditing = false;
   modalType: 'create' | 'edit' | null = null;
@@ -24,6 +26,17 @@ export class CustomCategoryExpenseComponent {
   createCategoryExpenseForm: FormGroup = this.fb.group({
       name: ['', Validators.required],
   });
+
+  async ngOnInit() {
+    await this.loadCategories();
+  }
+
+  async loadCategories() {
+    const response = await this.customCategoryService.getAllExpenseCategories();
+    if (response) {
+      this.expensesCatories = response;
+    }
+  }
 
 
   openModal(type: 'create' | 'edit') {
