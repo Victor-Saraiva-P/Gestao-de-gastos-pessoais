@@ -21,6 +21,9 @@
             <div>
               <strong>Nome:</strong> {{ expenseCategory.nome }}<br>
             </div>
+            <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(expenseCategory)">
+              <img src="assets/edit-bnt.png">
+            </button>
             <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(expenseCategory.uuid!)">
               <img src="assets/trash-bnt.png">
             </button>
@@ -41,6 +44,21 @@
             <button type="submit" [disabled]="createCategoryExpenseForm.invalid">Criar Categoria</button>
           </form>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar categoria -->
+    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Editar Categoria</h2>
+        <form [formGroup]="editCategoryExpenseForm" (ngSubmit)="onSubmitEdit(editingCategoryId!)">
+
+          <label>Nome</label>
+          <input type="text" formControlName="nome" placeholder="Digite o nome atualizado da categoria"/>
+
+          <button type="submit" [disabled]="editCategoryExpenseForm.invalid">Salvar Alterações</button>
+        </form>
       </div>
     </div>
   </section>
