@@ -10,6 +10,15 @@
     </button>
     <button class="criar-edit-trash" (click)="costTarget()">Definir metas</button>
     <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias personalizadas</button>
+    <button class="criar-edit-trash" (click)="generatePDF()" [disabled]="loading">
+      <i class="fas fa-file-pdf"></i>
+      <span *ngIf="!loading">Exportar PDF</span>
+      <span *ngIf="loading">Gerando...</span>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="pdf-loading-overlay">
+    <div class="pdf-loading-spinner"></div>
   </div>
 
   <div class="main-content">

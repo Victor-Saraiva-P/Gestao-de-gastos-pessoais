@@ -11,6 +11,7 @@ import {
 import { Expense } from '../../entity/expense';
 import { ExpenseService } from './expense.service';
 import { ChartUtils } from '../../utils/expense-chart-utils';
+import { ExpensePdfService } from './expense-pdf.service';
 
 @Component({
   selector: 'app-expense',
@@ -55,6 +56,9 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+
+  loading = false;
+  private readonly pdfService = inject(ExpensePdfService);
 
   // Formulários reativos
   createExpenseForm: FormGroup = this.fb.group({
@@ -386,6 +390,37 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
       }
+    }
+  }
+
+  // Metodo para gerar o PDF
+  async generatePDF(): Promise<void> {
+    try {
+      this.loading = true;
+      
+      // Pequeno delay para evitar flickering no loading
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Determina quais dados usar (filtrados ou todos)
+      const dataToExport = this.filteredList.length > 0 ? this.filteredList : this.expenses;
+      
+      // Gera o PDF
+      await this.pdfService.generateExpenseReport(dataToExport, {
+        startDate: this.filterStartDate,
+        endDate: this.filterEndDate,
+        minValue: this.minValue,
+        maxValue: this.maxValue,
+        chartData: {
+          pieChart: this.pieChartData,
+          barChart: this.barChartData
+        }
+      });
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar relatório em PDF: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+    } finally {
+      this.loading = false;
     }
   }
 
