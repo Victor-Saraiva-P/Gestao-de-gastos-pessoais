@@ -19,7 +19,7 @@
   background-color: #fff;
   box-shadow: 0 14px 28px rgba(4, 95, 36, 0.25),
       0 10px 10px rgba(9, 91, 12, 0.22);
-  width: 16%;
+  width: 25%;
   height: 100vh;
   height: auto;
   align-items: center;
@@ -72,14 +72,47 @@
 }
 
 
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show-modal {
+  display: flex;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
 .close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
   background: none;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  float: right;
   color: #888;
   transition: color 0.3s;
+}
+
+.close:hover {
+  color: #ff4444;
 }
 
 h2 {
@@ -150,6 +183,20 @@ button:hover {
   transform: scale(1.02);
 }
 
+.edit-remove{
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  all: unset;
+}
+
 .home-button {
   position: fixed;
   top: 20px;
@@ -193,6 +240,48 @@ select:focus {
 
 .criar-edit-trash.cancel-mode:hover {
   background-color: #cc0000 !important;
+}
+
+.category-list {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 30px;
+  padding: 15px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  max-height: 800px;
+  border: 1px solid #ddd;
+}
+
+.category-list h2 {
+  font-size: 1.6rem;
+  color: #5EC57E;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.category-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-list li {
+  background: #f9f9f9;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 6px solid #5EC57E;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.category-list li:hover {
+  transform: scale(1.02);
+  background: #f1f1f1;
 }
 
 
