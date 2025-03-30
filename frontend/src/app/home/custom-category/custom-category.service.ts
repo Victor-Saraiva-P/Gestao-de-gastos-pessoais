@@ -31,12 +31,12 @@ export class CustomCategoryService {
     }
   }
 
-  async createCategories(type: string, name: string): Promise<string[] | null> {
+  async createCategories(tipo: string, nome: string): Promise<string[] | null> {
     try {
-      const body = JSON.stringify({ type, name });
+      const body = JSON.stringify({ tipo, nome });
 
       const response = await fetch(`${this.apiUrl}`, {
-        method: 'CREATE',
+        method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
