@@ -53,4 +53,22 @@ export class AdminService {
       console.error('Erro ao buscar usuários:', error);
     }
   }
+
+    async toggleUserStatus(id: string, data: { estaAtivo: boolean; role: string }): Promise<boolean> {
+      try {
+        const response = await fetch(`${this.apiUrl}/users/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.authService.getToken()}`
+          },
+          body: JSON.stringify(data)
+        });
+        
+          return response.ok;
+        } catch (error) {
+          console.error('Erro ao alterar status:', error);
+          return false;
+        }
+   }
 }

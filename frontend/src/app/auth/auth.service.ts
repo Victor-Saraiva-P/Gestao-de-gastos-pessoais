@@ -143,29 +143,35 @@ export class AuthService {
     }
   }
 
-  async disableAccount(id: string): Promise<boolean> {
-    try {
-      const body = JSON.stringify({ estaAtivo: false });
-
-      const response = await fetch(`${this.apiUrlDes}/users/${id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`
-        },
-        body: body
-      });
-
-      if (!response.ok) {
-        throw new Error(`Falha na desativação da conta: ${response.status}`);
+    async disableAccount(id: string): Promise<boolean> {
+      try {
+          const body = JSON.stringify({ 
+              estaAtivo: false,
+              role: 'USER' 
+          });
+  
+          const response = await fetch(`${this.apiUrlDes}/users/${id}`, {
+              method: 'PATCH',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${this.getToken()}`
+              },
+              body: body
+          });
+  
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
+          }
+  
+          //tem q esperar o logout ser feito para evitar que o token seja usado depois de desativar a conta
+          await this.logout();
+          return true;
+  
+      } catch (error) {
+          console.error('Erro ao desativar conta:', error);
+          throw error; 
       }
-
-      this.logout();
-      return true;
-    } catch (error) {
-      console.error('Erro ao desativara a conta:', error);
-      return false; 
-    }
   }
 
 }
