@@ -15,12 +15,15 @@
       <!-- Lista de categorias de despesas -->
       <div class="category-list">
         
-        <h2>Categorias de Despesas Cadastradas</h2>
+        <h2>Categorias de despesas Cadastradas</h2>
         <ul>
           <li *ngFor="let expenseCategory of expensesCatories">
             <div>
               <strong>Nome:</strong> {{ expenseCategory.nome }}<br>
             </div>
+            <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(expenseCategory.uuid!)">
+              <img src="assets/trash-bnt.png">
+            </button>
           </li>
         </ul>
       </div>
