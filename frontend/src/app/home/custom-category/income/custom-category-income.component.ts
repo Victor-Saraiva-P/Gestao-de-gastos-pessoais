@@ -18,6 +18,7 @@ export class CustomCategoryIncomeComponent implements OnInit {
     isRemoving = false;
     isEditing = false;
     modalType: 'create' | 'edit' | null = null;
+    editingCategoryId: string | null = null;
   
     private router = inject(Router);
     private customCategoryService = inject(CustomCategoryService);
@@ -27,6 +28,10 @@ export class CustomCategoryIncomeComponent implements OnInit {
         name: ['', Validators.required],
     });
 
+    editCategoryIncomeForm: FormGroup = this.fb.group({
+      nome: ['', Validators.required],
+    });
+
     async ngOnInit() {
       await this.loadCategories();
     }
@@ -34,7 +39,9 @@ export class CustomCategoryIncomeComponent implements OnInit {
     async loadCategories() {
       const response = await this.customCategoryService.getAllIncomeCategories();
       if (response) {
-        this.incomesCatories = response;
+        this.incomesCatories = response.filter(categoria => 
+          categoria.nome !== 'Sem Categoria'
+        );
       }
     }
 
@@ -81,5 +88,36 @@ export class CustomCategoryIncomeComponent implements OnInit {
             })
             .catch((err) => alert('Erro ao criar Categoria: ' + err));
         }
+    }
+
+    async onSubmitEdit(id: string) {
+      if (this.editCategoryIncomeForm.valid) {
+        try {
+          const nome: string = this.editCategoryIncomeForm.value.nome;
+          await this.customCategoryService.changeNameCategory(id, nome.toUpperCase());
+          alert('Categoria atualizada com sucesso!');
+          this.refreshPage();
+        } catch (err) {
+          alert('Erro ao atualizar Categoria: ' + err);
+        }
+      }
+    }
+
+    async onSubmitRemove(id: string) {
+      try {
+        await this.customCategoryService.deleteCategory(id);
+        alert('Receita removida com sucesso!');
+        await this.loadCategories();
+      } catch (err) {
+        alert('Erro ao remover receita: ' + err);
+      }
+    }
+    
+    openEditModal(categoria: Categoria) {
+      this.modalType = 'edit';
+      this.editingCategoryId = categoria.uuid!;
+      this.editCategoryIncomeForm.setValue({
+        nome: categoria.nome
+      });
     }
 }

@@ -12,15 +12,21 @@
 
     <div class="main-content">
 
-      <!-- Lista de categorias de despesas -->
+      <!-- Lista de categorias de receitas -->
       <div class="category-list">
         
-        <h2>Categorias de Despesas Cadastradas</h2>
+        <h2>Categorias de receitas Cadastradas</h2>
         <ul>
           <li *ngFor="let incomeCategory of incomesCatories">
             <div>
               <strong>Nome:</strong> {{ incomeCategory.nome }}<br>
             </div>
+            <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(incomeCategory)">
+              <img src="assets/edit-bnt.png">
+            </button>
+            <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(incomeCategory.uuid!)">
+              <img src="assets/trash-bnt.png">
+            </button>
           </li>
         </ul>
       </div>
@@ -38,6 +44,21 @@
             <button type="submit" [disabled]="createCategoryincomeForm.invalid">Criar Categoria</button>
           </form>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar categoria -->
+    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Editar Categoria</h2>
+        <form [formGroup]="editCategoryIncomeForm" (ngSubmit)="onSubmitEdit(editingCategoryId!)">
+
+          <label>Nome</label>
+          <input type="text" formControlName="nome" placeholder="Digite o nome atualizado da categoria"/>
+
+          <button type="submit" [disabled]="editCategoryIncomeForm.invalid">Salvar Alterações</button>
+        </form>
       </div>
     </div>
 
