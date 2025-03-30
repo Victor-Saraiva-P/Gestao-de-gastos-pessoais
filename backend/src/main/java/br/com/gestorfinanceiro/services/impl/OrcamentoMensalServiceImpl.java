@@ -1,11 +1,11 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalOperationException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
-import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNotFoundException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
@@ -93,7 +93,7 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         CategoriaEntity categoriaEntity = categoriaRepository.findByNomeAndUserUuid(categoria, userId)
-                .orElseThrow(() -> new CategoriaNotFoundException("Categoria não encontrada: " + categoria));
+                .orElseThrow(() -> new CategoriaNameNotFoundException("Categoria não encontrada: " + categoria));
 
         verificarOrcamentoDuplicado(userId, categoriaEntity, periodo, null);
 
@@ -121,7 +121,7 @@ public class OrcamentoMensalServiceImpl implements OrcamentoMensalService {
 
         OrcamentoMensalEntity orcamentoMensal = buscarPorId(userId, uuid);
         CategoriaEntity categoriaEntity = categoriaRepository.findByNomeAndUserUuid(categoria, userId)
-                .orElseThrow(() -> new CategoriaNotFoundException("Categoria não encontrada: " + categoria));
+                .orElseThrow(() -> new CategoriaNameNotFoundException("Categoria não encontrada: " + categoria));
 
         verificarOrcamentoDuplicado(userId, categoriaEntity, periodo, uuid);
 
