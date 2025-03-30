@@ -77,6 +77,27 @@ export class CustomCategoryService {
     }
   }
 
+  async getAllIncomeCategories(): Promise<Categoria[] | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/receitas`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar categorias de despesas');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar categorias de despesas:', error);
+      return null;
+    }
+  }
+
   async changeNameCategory(id: string, name: string): Promise<string[] | null> {
     try {
       const body = JSON.stringify({ name });
