@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
+import { Categoria } from '../../entity/categoria';
+
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +33,14 @@ export class CustomCategoryService {
     }
   }
 
-  async createCategories(type: string, name: string): Promise<string[] | null> {
+
+  async createCategories(tipo: string, nome: string): Promise<string[] | null> {
     try {
-      const body = JSON.stringify({ type, name });
+      const body = JSON.stringify({ tipo, nome });
 
       const response = await fetch(`${this.apiUrl}`, {
-        method: 'CREATE',
+        method: 'POST',
+
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
@@ -55,9 +59,30 @@ export class CustomCategoryService {
     }
   }
 
-  async getAllExpenseCategories(): Promise<string[] | null> {
+  async getAllExpenseCategories(): Promise<Categoria[] | null> {
     try {
       const response = await fetch(`${this.apiUrl}/despesas`, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.authService.getToken()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar categorias de despesas');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro ao buscar categorias de despesas:', error);
+      return null;
+    }
+  }
+
+  async getAllIncomeCategories(): Promise<Categoria[] | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/receitas`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
