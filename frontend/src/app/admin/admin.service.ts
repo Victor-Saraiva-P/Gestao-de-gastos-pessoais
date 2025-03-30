@@ -35,7 +35,6 @@ export class AdminService {
 
   async changeUserRole(user: User, role: string): Promise<void> {
     try {
-      console.log(user);
       const body = JSON.stringify({ estaAtivo: user.estaAtivo ,role });
       const response = await fetch(`${this.apiUrl}/users/${user.uuid}`, {
         method: 'PATCH',
