@@ -1,7 +1,7 @@
 <section class="category-income-container">
     <button class="home-button" (click)="income()">Voltar</button>
     <div class="left-section">
-      <button class="criar-edit-trash" >Criar categoria</button>
+      <button class="criar-edit-trash" (click)="openModal('create')">Criar categoria</button>
       <button class="criar-edit-trash" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
         {{ isEditing ? 'Cancelar Edição' : 'Editar Categoria' }}
       </button>
@@ -9,4 +9,22 @@
         {{ isRemoving ? 'Cancelar Remoção' : 'Remover Categoria' }}
       </button>
     </div>
+
+    <div class="main-content">
+      <!-- Modal Criar Categoria -->
+      <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
+        <div class="modal-content">
+          <button class="close" (click)="closeModal()">&times;</button>
+          <h2>Criar Categorias</h2>
+          <form [formGroup]="createCategoryincomeForm" (ngSubmit)="onSubmitCreate()">
+
+            <label for="name">Nome</label>
+            <input type="text" formControlName="name" placeholder="Digite o nome da categoria"/>
+  
+            <button type="submit" [disabled]="createCategoryincomeForm.invalid">Criar Categoria</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </section>
