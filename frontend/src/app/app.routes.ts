@@ -10,7 +10,7 @@ import { ExpenseComponent } from "./home/expense/expense.component";
 import { AdminComponent } from "./admin/admin.component";
 import { CostTargetsComponent } from "./home/cost-targets/cost-targets.component";
 import { CustomCategoryExpenseComponent } from "./home/custom-category/expense/custom-category-expense.component";
-import { CustomCategoryIncomeComponent } from "./home/custom-category/income/custom-category-incomecomponent";
+import { CustomCategoryIncomeComponent } from "./home/custom-category/income/custom-category-income.component";
 
 
 const routeConfig: Routes = [
