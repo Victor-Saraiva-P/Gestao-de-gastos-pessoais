@@ -1,5 +1,8 @@
 package br.com.gestorfinanceiro.exceptions;
 
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalOperationException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.despesa.DespesaNotFoundException;
@@ -149,6 +152,37 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = "Operação inválida para a despesa";
+        Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    // ----------------------------------------
+    // EXCEÇÕES RELACIONADAS A ORÇAMENTO MENSAL
+    // ----------------------------------------
+
+    @ExceptionHandler(OrcamentoMensalNotFoundException.class)
+    public ResponseEntity<Object> handleOrcamentoMensalNotFoundException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
+        String detail = ex.getMessage();
+        Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(OrcamentoMensalOperationException.class)
+    public ResponseEntity<Object> handleOrcamentoMensalOperationException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
+        String detail = ex.getMessage();
+        Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(OrcamentoMensalAlreadyExistsException.class)
+    public ResponseEntity<Object> handleOrcamentoMensalAlreadyExistsException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
+        String detail = ex.getMessage();
         Problema problema = createProblemaBuilder(status, problemaType, detail).build();
         return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
     }
