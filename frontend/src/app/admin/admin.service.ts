@@ -33,9 +33,11 @@ export class AdminService {
       }
   }
 
-  async changeUserRole(id: string, role: string): Promise<void> {
+ async changeUserRole(id: string, role: string): Promise<void> {
     try {
-      const body = JSON.stringify({  role });
+      const body = JSON.stringify({ 
+        role: role
+      });
       const response = await fetch(`${this.apiUrl}/users/${id}`, {
         method: 'PATCH',
         headers: { 
@@ -54,21 +56,22 @@ export class AdminService {
     }
   }
 
-    async toggleUserStatus(id: string, data: { estaAtivo: boolean; role: string }): Promise<boolean> {
-      try {
-        const response = await fetch(`${this.apiUrl}/users/${id}`, {
-          method: 'PATCH',
-          headers: {
+
+  async toggleUserStatus(id: string, data: { estaAtivo: boolean; role: string }): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/${id}`, {
+        method: 'PATCH',
+        headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${this.authService.getToken()}`
-          },
-          body: JSON.stringify(data)
-        });
-        
-          return response.ok;
-        } catch (error) {
-          console.error('Erro ao alterar status:', error);
-          return false;
-        }
-   }
+        },
+        body: JSON.stringify(data)
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
+      return false;
+    }
+  }
 }
