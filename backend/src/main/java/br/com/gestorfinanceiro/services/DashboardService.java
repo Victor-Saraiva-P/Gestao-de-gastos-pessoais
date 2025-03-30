@@ -1,6 +1,5 @@
 package br.com.gestorfinanceiro.services;
 
-import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import org.springframework.stereotype.Service;

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,8 @@ import static br.com.gestorfinanceiro.repositories.custom.impl.DespesaRepository
 public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
 
     private static final String USER_ID = "userId";
+    private static final String YEAR_PARAM = "year";
+    private static final String MONTH_PARAM = "month";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -64,8 +65,8 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
 
         BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
                 .setParameter(USER_ID, userId)
-                .setParameter("year", year)
-                .setParameter("month", month)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
                 .getSingleResult();
 
         return result != null ? result : BigDecimal.ZERO;
@@ -77,8 +78,8 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
 
         List<ReceitaEntity> result = entityManager.createQuery(jpql, ReceitaEntity.class)
                 .setParameter(USER_ID, userId)
-                .setParameter("year", year)
-                .setParameter("month", month)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
                 .setMaxResults(1)
                 .getResultList();
 

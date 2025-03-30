@@ -18,6 +18,8 @@ import java.util.Map;
 public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
     private static final String USER_ID = "userId";
+    private static final String YEAR_PARAM = "year";
+    private static final String MONTH_PARAM = "month";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -62,8 +64,8 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
         BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
                 .setParameter(USER_ID, userId)
-                .setParameter("year", year)
-                .setParameter("month", month)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
                 .getSingleResult();
 
         return result != null ? result : BigDecimal.ZERO;
@@ -75,8 +77,8 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
         List<DespesaEntity> result = entityManager.createQuery(jpql, DespesaEntity.class)
                 .setParameter(USER_ID, userId)
-                .setParameter("year", year)
-                .setParameter("month", month)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
                 .setMaxResults(1)
                 .getResultList();
 
@@ -97,8 +99,8 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
     static Map<String, BigDecimal> getStringBigDecimalMap(String userId, int year, int month, String jpql, EntityManager entityManager, String userId2) {
         List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
                 .setParameter(userId2, userId)
-                .setParameter("year", year)
-                .setParameter("month", month)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
                 .setMaxResults(1)
                 .getResultList();
 
