@@ -8,10 +8,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public abstract class TransacaoDTO {
+    @NotBlank(message = "A categoria customizada é obrigatória.")
+    private String categoria;
+
     @NotNull(message = "A data é obrigatória.")
     protected LocalDate data;
-
-    protected String categoria; // Sem validação aqui, será implementada nas classes filhas
 
     @NotNull(message = "O valor é obrigatório.")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero.")
@@ -22,21 +23,21 @@ public abstract class TransacaoDTO {
 
     protected String uuid;
 
-    // Getters e setters comuns
-    public LocalDate getData() {
-        return data;
-    }
-
-    public void setData(LocalDate data) {
-        this.data = data;
-    }
-
+    // Getters and Setters
     public String getCategoria() {
         return categoria;
     }
 
     public void setCategoria(String categoria) {
         this.categoria = categoria;
+    }
+
+    public LocalDate getData() {
+        return data;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
     }
 
     public BigDecimal getValor() {

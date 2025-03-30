@@ -1,7 +1,9 @@
 package br.com.gestorfinanceiro.controller;
 
 import br.com.gestorfinanceiro.config.security.JwtUtil;
+import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
 import br.com.gestorfinanceiro.dto.despesa.DespesaDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
@@ -36,12 +38,11 @@ public class DespesaController {
     }
 
     @PostMapping
-    public ResponseEntity<DespesaDTO> criarDespesa(@Valid @RequestBody DespesaDTO despesaDTO, HttpServletRequest request) {
+    public ResponseEntity<DespesaDTO> criarDespesa(@Valid @RequestBody DespesaCreateDTO despesaCreateDTO, HttpServletRequest request) {
         String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
         String userId = jwtUtil.extractUserId(token);
 
-        DespesaEntity despesa = despesaMapper.mapFrom(despesaDTO);
-        DespesaEntity novaDespesa = despesaService.criarDespesa(despesa, userId);
+        DespesaEntity novaDespesa = despesaService.criarDespesa(despesaCreateDTO, userId);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(novaDespesa.getUuid()).toUri();
@@ -77,9 +78,8 @@ public class DespesaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @Valid @RequestBody DespesaDTO despesaDTO) {
-        DespesaEntity despesaAtualizada = despesaMapper.mapFrom(despesaDTO);
-        DespesaEntity despesaSalva = despesaService.atualizarDespesa(id, despesaAtualizada);
+    public ResponseEntity<DespesaDTO> atualizarDespesa(@PathVariable String id, @Valid @RequestBody DespesaUpdateDTO despesaUpdateDTO) {
+        DespesaEntity despesaSalva = despesaService.atualizarDespesa(id, despesaUpdateDTO);
         return ResponseEntity.ok(despesaMapper.mapTo(despesaSalva));
     }
 
