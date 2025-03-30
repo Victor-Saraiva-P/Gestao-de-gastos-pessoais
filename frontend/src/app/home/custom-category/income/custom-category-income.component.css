@@ -183,6 +183,20 @@ button:hover {
   transform: scale(1.02);
 }
 
+.edit-remove{
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  color: inherit !important;
+  cursor: pointer !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  all: unset;
+}
+
 .home-button {
   position: fixed;
   top: 20px;
