@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../auth/auth.service';
+import { Categoria } from '../../entity/categoria';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +56,7 @@ export class CustomCategoryService {
     }
   }
 
-  async getAllExpenseCategories(): Promise<string[] | null> {
+  async getAllExpenseCategories(): Promise<Categoria[] | null> {
     try {
       const response = await fetch(`${this.apiUrl}/despesas`, {
         method: 'GET',
