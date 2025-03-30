@@ -10,7 +10,11 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static br.com.gestorfinanceiro.repositories.custom.impl.DespesaRepositoryCustomImpl.getStringBigDecimalMap;
 
 @Repository
 public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
@@ -52,6 +56,44 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
                 .setParameter("min", min)
                 .setParameter("max", max)
                 .getResultList();
+    }
+
+    @Override
+    public BigDecimal sumReceitasByUserIdAndYearMonth(String userId, int year, int month) {
+        String jpql = "SELECT SUM(r.valor) FROM ReceitaEntity r WHERE r.user.uuid = :userId AND YEAR(r.data) = :year AND MONTH(r.data) = :month";
+
+        BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter(USER_ID, userId)
+                .setParameter("year", year)
+                .setParameter("month", month)
+                .getSingleResult();
+
+        return result != null ? result : BigDecimal.ZERO;
+    }
+
+    @Override
+    public ReceitaEntity findTopByUserIdAndYearMonthOrderByValorDesc(String userId, int year, int month) {
+        String jpql = "SELECT r FROM ReceitaEntity r WHERE r.user.uuid = :userId AND YEAR(r.data) = :year AND MONTH(r.data) = :month ORDER BY r.valor DESC";
+
+        List<ReceitaEntity> result = entityManager.createQuery(jpql, ReceitaEntity.class)
+                .setParameter(USER_ID, userId)
+                .setParameter("year", year)
+                .setParameter("month", month)
+                .setMaxResults(1)
+                .getResultList();
+
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public Map<String, BigDecimal> findCategoriaWithHighestReceitaByUserIdAndYearMonth(String userId, int year, int month) {
+        String jpql = "SELECT r.categoria.nome AS categoria, SUM(r.valor) AS total " +
+                "FROM ReceitaEntity r " +
+                "WHERE r.user.uuid = :userId AND YEAR(r.data) = :year AND MONTH(r.data) = :month " +
+                "GROUP BY r.categoria.nome " +
+                "ORDER BY total DESC";
+
+        return getStringBigDecimalMap(userId, year, month, jpql, entityManager, USER_ID);
     }
 
 }
