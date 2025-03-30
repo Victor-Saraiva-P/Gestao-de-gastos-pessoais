@@ -129,7 +129,7 @@ public class DespesaController {
     }
 
     @GetMapping("/por-intervalo-de-datas")
-    public ResponseEntity<List<DespesaDTO>> buscarReceitasPorIntervaloDeDatas(
+    public ResponseEntity<List<DespesaDTO>> buscarDespesasPorIntervaloDeDatas(
             @RequestParam LocalDate inicio,
             @RequestParam LocalDate fim,
             HttpServletRequest request) {
