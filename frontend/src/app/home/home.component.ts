@@ -63,21 +63,32 @@ export class HomeComponent implements OnInit {
     return this.authService.getUserEmail();
   }
 
-  async desativarConta(): Promise<void> {
-    const confirma = window.confirm('Tem certeza que deseja desativar sua conta? Esta ação só pode ser desfeita por um admin.');
-    if (confirma) {
+async desativarConta(): Promise<void> {
+  const confirma = window.confirm('Tem certeza que deseja desativar sua conta? Esta ação só pode ser desfeita por um administrador.');
+  
+  if (confirma) {
       try {
-        const sucesso = await this.authService.disableAccount(this.authService.getUserId());
-        if (sucesso) {
-          this.router.navigate(['/login']);
-        } else {
-          window.alert('Não foi possível desativar a conta. Tente novamente mais tarde.');
-        }
+          const userId = this.authService.getUserId();
+          
+          if (!userId) {
+              throw new Error('ID do usuário não encontrado');
+          }
+
+          const sucesso = await this.authService.disableAccount(userId);
+          
+          if (sucesso) {
+              this.router.navigate(['/root']);
+              //forçar o recarregamento da página
+              window.location.reload();
+              window.alert('Conta desativada com sucesso!');
+          }
+          
       } catch (error) {
-        console.error('Erro ao desativar conta:', error);
-        window.alert('Erro ao desativar a conta. Tente novamente mais tarde.');
+          console.error('Falha na desativação:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Erro ao desativar conta. Tente novamente mais tarde.';
+          window.alert(errorMessage);
       }
-    }
   }
+}
 
 }
