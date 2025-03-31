@@ -97,4 +97,19 @@ public class ReceitaRepositoryCustomImpl implements ReceitaRepositoryCustom {
         return getStringBigDecimalMap(userId, year, month, jpql, entityManager, USER_ID);
     }
 
+    @Override
+    public BigDecimal sumReceitasByUserIdAndYearMonth(String userId, YearMonth yearMonth) {
+        String jpql = String.format("SELECT SUM(r.valor) FROM ReceitaEntity r WHERE r.user.uuid = :%s " +
+                        "AND YEAR(r.data) = :%s AND MONTH(r.data) = :%s",
+                USER_ID, YEAR_PARAM, MONTH_PARAM);
+
+        BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter(USER_ID, userId)
+                .setParameter(YEAR_PARAM, yearMonth.getYear())
+                .setParameter(MONTH_PARAM, yearMonth.getMonthValue())
+                .getSingleResult();
+
+        return result != null ? result : BigDecimal.ZERO;
+    }
+
 }

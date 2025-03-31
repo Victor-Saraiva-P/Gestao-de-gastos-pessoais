@@ -17,4 +17,5 @@ public interface DespesaRepositoryCustom {
     BigDecimal sumDespesasByUserIdAndYearMonth(String userId, int year, int month);
     DespesaEntity findTopByUserIdAndYearMonthOrderByValorDesc(String userId, int year, int month);
     Map<String, BigDecimal> findCategoriaWithHighestDespesaByUserIdAndYearMonth(String userId, int year, int month);
+    BigDecimal sumDespesasByUserIdAndYearMonth(String userId, YearMonth yearMonth);
 }

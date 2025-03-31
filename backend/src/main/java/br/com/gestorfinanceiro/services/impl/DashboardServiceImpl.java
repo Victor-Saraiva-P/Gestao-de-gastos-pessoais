@@ -101,6 +101,30 @@ public class DashboardServiceImpl implements DashboardService {
         }
     }
 
+    @Override
+    public BigDecimal calcularTotalDespesasNoMes(String userId, YearMonth mes) {
+        validateUserId(userId);
+        validateYearMonth(mes);
+
+        try {
+            return despesaRepository.sumDespesasByUserIdAndYearMonth(userId, mes);
+        } catch (Exception e) {
+            throw new DashboardOperationException("Erro ao calcular total de despesas do mês. Por favor, tente novamente.", e);
+        }
+    }
+
+    @Override
+    public BigDecimal calcularTotalReceitasNoMes(String userId, YearMonth mes) {
+        validateUserId(userId);
+        validateYearMonth(mes);
+
+        try {
+            return receitaRepository.sumReceitasByUserIdAndYearMonth(userId, mes);
+        } catch (Exception e) {
+            throw new DashboardOperationException("Erro ao calcular total de receitas do mês. Por favor, tente novamente.", e);
+        }
+    }
+
     private void validateUserId(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new InvalidUserIdException();
