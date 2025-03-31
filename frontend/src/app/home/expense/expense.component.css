@@ -185,6 +185,12 @@
   align-items: center;
 }
 
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
 .show-modal {
   display: flex;
 }
