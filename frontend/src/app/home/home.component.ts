@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { Router } from '@angular/router';
+import { DashboardService } from './dashboard/dashboard.service';
+import { categoryResponse } from '../entity/response/categoryResponse';
 
 @Component({
   selector: 'app-home',
@@ -17,16 +19,61 @@ export class HomeComponent implements OnInit {
   userName: string = ''; 
   userEmail: string = ''
   
+  protected Object = Object;
   private authService = inject(AuthService);
+  private dashboardService = inject(DashboardService);
   private router = inject(Router);
 
-  ngOnInit() {
+  currentMonth: Date = new Date();
+  totalIncome: number = 0;
+  totalExpenses: number = 0;
+  balance: number = 0;
+  incomeTrend: number = 0;
+  expenseTrend: number = 0;
+  highestExpense: any = null;
+  highestIncome: any = null;
+  topExpenseCategory: categoryResponse | null = null;
+  topIncomeCategory: categoryResponse | null = null;
+
+
+  async ngOnInit() {
     this.updateUserInfo();
+    await this.loadDashboardData();
   }
 
   updateUserInfo() {
     this.userName = this.getUserName();
     this.userEmail = this.getEmail();
+  }
+
+  private formatYearMonth(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+
+  async loadDashboardData() {
+    const formattedDate = this.formatYearMonth(this.currentMonth);
+
+    this.totalExpenses = await this.dashboardService.getTotalExpenseInMonthData(formattedDate);
+    this.totalIncome = await this.dashboardService.getTotalIncomeInMonthData(formattedDate);
+    this.balance = this.totalIncome - this.totalExpenses;
+  
+    this.highestIncome = await this.dashboardService.getBiggerIncomeData(formattedDate);
+    this.highestExpense = await this.dashboardService.getBiggerExpenseData(formattedDate);
+
+    this.topIncomeCategory = await this.dashboardService.getBiggerCategoryIncomeData(formattedDate);
+    this.topExpenseCategory = await this.dashboardService.getBiggerCategoryExpenseData(formattedDate);
+  }
+
+  previousMonth() {
+    this.currentMonth = new Date(this.currentMonth.setMonth(this.currentMonth.getMonth() - 1));
+    this.loadDashboardData();
+  }
+
+  nextMonth() {
+    this.currentMonth = new Date(this.currentMonth.setMonth(this.currentMonth.getMonth() + 1));
+    this.loadDashboardData();
   }
 
   isAdmin(): boolean {

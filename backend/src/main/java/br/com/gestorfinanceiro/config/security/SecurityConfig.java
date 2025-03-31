@@ -35,8 +35,10 @@ public class SecurityConfig {
                         .requestMatchers("/users/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/admin/**").hasRole(ADMIN_ROLE)
                         .requestMatchers("/users/**").authenticated() // Rotas protegidas
-                        .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE) // Apenas USER e ADMIN podem acessar as rotas de receitas
+                        .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .requestMatchers("/despesas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
+                        .requestMatchers("/categorias/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
+                        .requestMatchers("/orcamento-mensal/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
