@@ -86,4 +86,24 @@ public class DashboardController {
         String userId = getUserIdFromToken(request);
         return ResponseEntity.ok(dashboardService.getCategoriaComMaiorReceita(userId, periodo));
     }
+
+    @GetMapping("/despesa-total")
+    public ResponseEntity<SaldoTotalDTO> getTotalDespesasNoMes(@RequestParam YearMonth periodo,
+                                                      HttpServletRequest request) {
+        String userId = getUserIdFromToken(request);
+        BigDecimal despesaTotal = dashboardService.calcularTotalDespesasNoMes(userId, periodo);
+        SaldoTotalDTO response = new SaldoTotalDTO(periodo, despesaTotal);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/receita-total")
+    public ResponseEntity<SaldoTotalDTO> getTotalReceitasNoMes(@RequestParam YearMonth periodo,
+                                                      HttpServletRequest request) {
+        String userId = getUserIdFromToken(request);
+        BigDecimal receitaTotal = dashboardService.calcularTotalReceitasNoMes(userId, periodo);
+        SaldoTotalDTO response = new SaldoTotalDTO(periodo, receitaTotal);
+
+        return ResponseEntity.ok(response);
+    }
 }
