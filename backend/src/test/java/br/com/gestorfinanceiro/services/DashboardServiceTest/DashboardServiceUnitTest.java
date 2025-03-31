@@ -231,4 +231,50 @@ class DashboardServiceUnitTest {
             assertEquals(VALOR, resultado);
         }
     }
+
+    @Nested
+    class TestesCategoriaMaiorReceita {
+        @BeforeEach
+        void setUp() {
+            when(userRepository.existsById(USER_ID)).thenReturn(true);
+        }
+
+        @Test
+        void deveLancarDashboardOperationExceptionQuandoFalhaAoBuscarCategoriaMaiorReceita() {
+            // Arrange
+            when(receitaRepository.findCategoriaWithHighestReceitaByUserIdAndYearMonth(
+                    anyString(), anyInt(), anyInt()))
+                    .thenThrow(new RuntimeException("Erro na consulta SQL"));
+
+            // Act & Assert
+            Exception exception = assertThrows(DashboardOperationException.class, () ->
+                    dashboardService.getCategoriaComMaiorReceita(USER_ID, PERIODO));
+
+            // Verifica a mensagem da exceção
+            assertEquals("Erro ao buscar categoria com maior receita. Por favor, tente novamente.",
+                    exception.getMessage());
+
+            // Verifica se a causa original foi preservada
+            assertNotNull(exception.getCause());
+            assertEquals("Erro na consulta SQL", exception.getCause().getMessage());
+        }
+
+        @Test
+        void deveRetornarMapaComCategoriaMaiorReceita() {
+            // Arrange
+            Map<String, BigDecimal> resultadoEsperado = Map.of("Salário", BigDecimal.valueOf(5000));
+            when(receitaRepository.findCategoriaWithHighestReceitaByUserIdAndYearMonth(
+                    anyString(), anyInt(), anyInt()))
+                    .thenReturn(resultadoEsperado);
+
+            // Act
+            Map<String, BigDecimal> resultado = dashboardService.getCategoriaComMaiorReceita(USER_ID, PERIODO);
+
+            // Assert
+            assertNotNull(resultado);
+            assertEquals(1, resultado.size());
+            assertTrue(resultado.containsKey("Salário"));
+            assertEquals(BigDecimal.valueOf(5000), resultado.get("Salário"));
+        }
+    }
 }
