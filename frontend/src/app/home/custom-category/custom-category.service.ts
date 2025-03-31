@@ -104,7 +104,6 @@ export class CustomCategoryService {
   async changeNameCategory(id: string, nome: string): Promise<string[] | null> {
     try {
       const body = JSON.stringify({ nome });
-      console.log(body);
       const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'PATCH',
         headers: { 
