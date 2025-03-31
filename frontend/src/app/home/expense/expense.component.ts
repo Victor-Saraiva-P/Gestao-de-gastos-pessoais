@@ -16,6 +16,8 @@ import { ExpensePdfService } from './expense-pdf.service';
 
 import { Categoria } from '../../entity/categoria';
 import { CustomCategoryService } from '../custom-category/custom-category.service';
+import { CostTargetService } from '../cost-targets/cost-target.service';
+import { Target } from '../../entity/costTarget';
 
 @Component({
   selector: 'app-expense',
@@ -33,6 +35,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   title = 'expense';
   expenses: Expense[] = [];
   expenseCategories: Categoria[] = [];
+  budgetGoals: Target[] = []
   filteredExpenses: Expense[] = [];
   filteredBarData: Expense[] = [];
   filteredList: Expense[] = []; // Lista para filtro de valor e data
@@ -63,6 +66,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   // Injeção de dependências
   private expenseService = inject(ExpenseService);
   private customCategoryService = inject(CustomCategoryService);
+  private costTargetService = inject(CostTargetService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -122,6 +126,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses];
       this.filteredBarData = [...this.expenses];
+      this.loadBudgetGoals();
     }
   }
 
@@ -131,6 +136,13 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenseCategories = response.filter(categoria => 
         categoria.nome !== 'Sem Categoria'
       ).sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+  }
+
+  async loadBudgetGoals() {
+    const response = await this.costTargetService.getAllTargets();
+    if (response) {
+      this.budgetGoals = response; 
     }
   }
 
@@ -372,6 +384,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
+          this.checkBudgetWarnings()
           this.refreshPage();
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
@@ -404,6 +417,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         await this.expenseService.updateExpense(id, updatedExpense);
         alert('Despesa atualizada com sucesso!');
         this.refreshPage();
+        this.checkBudgetWarnings()
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
       }
@@ -461,5 +475,38 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   correctCategory(string: string): string {
     const newString = string.toLowerCase();
     return newString.charAt(0).toUpperCase() + newString.slice(1);
+  }
+  
+
+  checkBudgetWarnings() {
+    let warnings: string[] = []; 
+
+  this.budgetGoals.forEach(goal => {
+    const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
+
+    const totalGasto = this.expenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.data);
+        return (
+          expenseDate.getFullYear() === goalYear &&
+          expenseDate.getMonth() + 1 === goalMonth &&
+          expense.categoria === goal.categoria
+        );
+      })
+      .reduce((sum, expense) => sum + expense.valor, 0);
+
+    if (totalGasto > goal.valorLimite) {
+      warnings.push(
+        `⚠️ Alerta! No mês ${goalMonth}/${goalYear}, você ultrapassou a meta da categoria: ${goal.categoria}. Gasto total: R$${totalGasto.toFixed(2)} (Limite: R$${goal.valorLimite.toFixed(2)})`
+      );
+    }
+    });
+
+    console.log(warnings)
+
+    // Exibe todos os avisos de uma vez
+    if (warnings.length > 0) {
+      alert(warnings.join("\n\n"));
+  }
   }
 }
