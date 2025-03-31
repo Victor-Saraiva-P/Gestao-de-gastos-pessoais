@@ -7,7 +7,10 @@ public enum ProblemaType {
     PARAMETRO_INVALIDO("Parâmetro inválido", "/parametro-invalido"),
     MENSAGEM_INCOMPREENSIVEL("Mensagem incompreensível", "/mensagem-incompreensivel"),
     URI_INVALIDA("URI inválida", "/uri-invalida"),
-    ;
+    ACESSO_NEGADO("Acesso negado", "/acesso-negado"),
+    RECURSO_NAO_ENCONTRADO("Recurso não encontrado", "/recurso-nao-encontrado"),
+    OPERACAO_INVALIDA("Operação inválida", "/operacao-invalida"),
+    CONFLITO_DE_DADOS("Conflito de dados", "/conflito-de-dados");
 
 
     private final String title;
