@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/receitas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .requestMatchers("/despesas/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .requestMatchers("/categorias/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
+                        .requestMatchers("/orcamento-mensal/**").hasAnyRole(ADMIN_ROLE, USER_ROLE)
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
