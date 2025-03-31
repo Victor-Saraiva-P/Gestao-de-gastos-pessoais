@@ -1,12 +1,14 @@
 package br.com.gestorfinanceiro.dto.orcamentomensal;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
 public class OrcamentoMensalDTO {
+
+    private String uuid;
 
     @NotNull(message = "A categoria é obrigatória.")
     private String categoria;
@@ -49,5 +51,13 @@ public class OrcamentoMensalDTO {
                 ", valorLimite=" + valorLimite +
                 ", periodo=" + periodo +
                 '}';
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }
