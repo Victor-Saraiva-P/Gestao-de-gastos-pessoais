@@ -1,5 +1,6 @@
 package br.com.gestorfinanceiro.exceptions;
 
+import br.com.gestorfinanceiro.exceptions.categoria.*;
 import br.com.gestorfinanceiro.exceptions.dashboard.DashboardOperationException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
@@ -185,6 +186,70 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
         String detail = ex.getMessage();
         Problema problema = createProblemaBuilder(status, problemaType, detail).build();
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    // ----------------------------------------
+    // EXCEÇÕES RELACIONADAS A CATEGORIAS
+    // ----------------------------------------
+
+    @ExceptionHandler(CategoriaAcessDeniedException.class)
+    public ResponseEntity<Object> handleCategoriaAccessDeniedException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        ProblemaType problemaType = ProblemaType.ACESSO_NEGADO;
+
+        Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
+                .mensagem("Acesso negado à categoria")
+                .build();
+
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(CategoriaAlreadyExistsException.class)
+    public ResponseEntity<Object> handleCategoriaAlreadyExistsException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        ProblemaType problemaType = ProblemaType.DADOS_INVALIDOS;
+
+        Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
+                .mensagem("Categoria já existe")
+                .build();
+
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(CategoriaIdNotFoundException.class)
+    public ResponseEntity<Object> handleCategoriaIdNotFoundException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemaType problemaType = ProblemaType.RECURSO_NAO_ENCONTRADO;
+
+        Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
+                .mensagem("Categoria não encontrada por ID")
+                .build();
+
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(CategoriaNameNotFoundException.class)
+    public ResponseEntity<Object> handleCategoriaNameNotFoundException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemaType problemaType = ProblemaType.RECURSO_NAO_ENCONTRADO;
+
+        Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
+                .mensagem("Categoria não encontrada por nome")
+                .build();
+
+        return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
+    }
+
+    @ExceptionHandler(CategoriaOperationException.class)
+    public ResponseEntity<Object> handleCategoriaOperationException(RuntimeException ex, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemaType problemaType = ProblemaType.OPERACAO_INVALIDA;
+
+        Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
+                .mensagem("Erro na operação com categoria")
+                .build();
+
         return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
     }
 

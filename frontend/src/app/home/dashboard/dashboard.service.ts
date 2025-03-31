@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { Data } from '@angular/router';
+import { totalResponse } from '../../entity/response/totalResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -128,7 +129,10 @@ export class DashboardService {
         throw new Error('Falha ao obter dados do dashboard');
       }
 
-      return await response.json();
+      const data: totalResponse = await response.json();
+
+      return data.saldo;
+
     } catch (error) {
       console.error('Erro ao obter dados do dashboard:', error);
       return null;
@@ -149,7 +153,9 @@ export class DashboardService {
         throw new Error('Falha ao obter dados do dashboard');
       }
 
-      return await response.json();
+      const data: totalResponse = await response.json();
+
+      return data.saldo;
     } catch (error) {
       console.error('Erro ao obter dados do dashboard:', error);
       return null;
