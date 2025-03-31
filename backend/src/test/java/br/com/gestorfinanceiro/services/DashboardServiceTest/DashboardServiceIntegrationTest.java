@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class DashboardServiceIntegrationTest {
+class DashboardServiceIntegrationTest {
 
     private static final YearMonth PERIODO_PADRAO = YearMonth.of(2023, 1);
     private static final BigDecimal VALOR_PADRAO = BigDecimal.valueOf(1000);
@@ -115,7 +115,6 @@ public class DashboardServiceIntegrationTest {
             BigDecimal saldo = dashboardService.getSaldoTotal(userId, PERIODO_PADRAO);
 
             // Assert
-            BigDecimal expected = VALOR_PADRAO.add(VALOR_ALTO).subtract(VALOR_PADRAO).subtract(VALOR_ALTO);
             assertEquals(0, saldo.compareTo(BigDecimal.ZERO), "Saldo deveria ser zero");
         }
 
