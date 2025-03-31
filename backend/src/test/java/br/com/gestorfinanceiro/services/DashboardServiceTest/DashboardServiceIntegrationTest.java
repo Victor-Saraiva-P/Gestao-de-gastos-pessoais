@@ -10,6 +10,7 @@ import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DashboardService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,14 @@ public class DashboardServiceIntegrationTest {
         UserEntity user = criarUsuarioTest();
         userId = user.getUuid();
         criarDadosTeste(user);
+    }
+
+    @AfterEach
+    void tearDown() {
+        despesaRepository.deleteAllInBatch();
+        receitaRepository.deleteAllInBatch();
+        categoriaRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     private void limparBancoDeDados() {
