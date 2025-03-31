@@ -11,6 +11,9 @@ import {
 import { Expense } from '../../entity/expense';
 import { ExpenseService } from './expense.service';
 import { ChartUtils } from '../../utils/expense-chart-utils';
+
+import { ExpensePdfService } from './expense-pdf.service';
+
 import { Categoria } from '../../entity/categoria';
 import { CustomCategoryService } from '../custom-category/custom-category.service';
 
@@ -22,6 +25,9 @@ import { CustomCategoryService } from '../custom-category/custom-category.servic
   styleUrls: ['expense.component.css'],
 })
 export class ExpenseComponent implements OnInit, OnDestroy {
+  loading = false;
+  private pdfService = inject(ExpensePdfService)
+
   public chartUtils = ChartUtils;
   // Propriedades gerais
   title = 'expense';
@@ -59,6 +65,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   private customCategoryService = inject(CustomCategoryService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+
 
   // Formulários reativos
   createExpenseForm: FormGroup = this.fb.group({
@@ -402,6 +409,42 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  // Metodo para gerar o PDF
+  async generatePDF(): Promise<void> {
+    try {
+      this.loading = true;
+      
+      // Obter dados filtrados ou todos
+      const dataToExport = this.filteredList.length > 0 ? this.filteredList : this.expenses;
+      
+      // Obter dados dos gráficos
+      const pieData = this.pieChartData || null;
+      const barData = this.barChartData || null;
+
+      // Gerar PDF
+      await this.pdfService.generateExpenseReport(
+        dataToExport,
+        {
+          pieChart: pieData,
+          barChart: barData
+        },
+        {
+          startDate: this.startDate,
+          endDate: this.endDate,
+          minValue: this.minValue,
+          maxValue: this.maxValue
+        }
+      );
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar PDF!');
+    } finally {
+      this.loading = false;
+    }
+  }
+
 
   openEditModal(expense: Expense) {
     this.modalType = 'edit';
