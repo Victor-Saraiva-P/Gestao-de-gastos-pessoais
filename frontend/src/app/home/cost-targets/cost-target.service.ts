@@ -26,7 +26,7 @@ export class CostTargetService {
       }
 
       const data = await response.json();
-      
+
       return data;
     } catch (error) {
       console.error('Erro ao buscar metas:', error);
@@ -106,7 +106,7 @@ export class CostTargetService {
     try {
       const body = JSON.stringify(updateTarget);
       const response = await fetch(`${this.apiUrl}/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.authService.getToken()}`
