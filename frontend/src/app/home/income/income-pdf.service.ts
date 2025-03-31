@@ -80,8 +80,8 @@ export class IncomePdfService {
     }
 
     pdf.setFontSize(14);
-    pdf.text('Distribuição por Categoria', 10, yPosition);
-    yPosition += 10;
+    pdf.text('', 10, yPosition);
+    yPosition += 30;
 
     // Verifica se há dados para exibir
     if (!chartData || !chartData.categorias || Object.keys(chartData.categorias).length === 0) {
