@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
 
   private apiUrl = environment.apiUrl + '/auth'; 
+  private apiUrlDes = environment.apiUrl + '/admin'; 
   
 
   async register(newUser: User): Promise<User | null> {
@@ -81,6 +82,96 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  isActive(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      if(decodedToken.estaAtivo == 'true'){
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token error:', error);
+      return false;
+    }
+  }
+
+  getUserName(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.sub;
+    } catch (error) {
+      console.error('Token error:', error);
+      return '';
+    }
+  }
+
+  getUserEmail(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.email;
+    } catch (error) {
+      console.error('Token error:', error);
+      return '';
+    }
+  }
+
+  getUserId(): string {
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.id;
+    } catch (error) {
+      console.error('Token error:', error);
+      return '';
+    }
+  }
+
+    async disableAccount(id: string): Promise<boolean> {
+      try {
+          const body = JSON.stringify({ 
+              estaAtivo: false,
+              role: 'USER' 
+          });
+  
+          const response = await fetch(`${this.apiUrlDes}/users/${id}`, {
+              method: 'PATCH',
+              headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${this.getToken()}`
+              },
+              body: body
+          });
+  
+          if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
+          }
+  
+          //tem q esperar o logout ser feito para evitar que o token seja usado depois de desativar a conta
+          await this.logout();
+          return true;
+  
+      } catch (error) {
+          console.error('Erro ao desativar conta:', error);
+          throw error; 
+      }
   }
 
 }

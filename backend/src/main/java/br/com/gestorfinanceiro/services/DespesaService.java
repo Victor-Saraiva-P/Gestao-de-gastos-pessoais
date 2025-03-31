@@ -1,5 +1,7 @@
 package br.com.gestorfinanceiro.services;
 
+import br.com.gestorfinanceiro.dto.despesa.DespesaCreateDTO;
+import br.com.gestorfinanceiro.dto.despesa.DespesaUpdateDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoBarraDTO;
 import br.com.gestorfinanceiro.dto.grafico.GraficoPizzaDTO;
 import br.com.gestorfinanceiro.models.DespesaEntity;
@@ -11,13 +13,13 @@ import java.util.List;
 
 public interface DespesaService {
 
-    DespesaEntity criarDespesa(DespesaEntity despesa, String userId);
+    DespesaEntity criarDespesa(DespesaCreateDTO despesaCreateDTO, String userId);
 
     List<DespesaEntity> listarDespesasUsuario(String userId);
 
     DespesaEntity buscarDespesaPorId(String uuid);
 
-    DespesaEntity atualizarDespesa(String uuid, DespesaEntity despesaAtualizada);
+    DespesaEntity atualizarDespesa(String uuid, DespesaUpdateDTO despesaUpdateDTO);
 
     void excluirDespesa(String uuid);
 

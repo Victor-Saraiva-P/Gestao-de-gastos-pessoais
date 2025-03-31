@@ -10,12 +10,16 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
 
     private static final String USER_ID = "userId";
+    private static final String YEAR_PARAM = "year";
+    private static final String MONTH_PARAM = "month";
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -52,5 +56,74 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
                 .setParameter("min", min)
                 .setParameter("max", max)
                 .getResultList();
+    }
+
+    @Override
+    public BigDecimal sumDespesasByUserIdAndYearMonth(String userId, int year, int month) {
+        String jpql = "SELECT SUM(d.valor) FROM DespesaEntity d WHERE d.user.uuid = :userId AND YEAR(d.data) = :year AND MONTH(d.data) = :month";
+
+        BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter(USER_ID, userId)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
+                .getSingleResult();
+
+        return result != null ? result : BigDecimal.ZERO;
+    }
+
+    @Override
+    public DespesaEntity findTopByUserIdAndYearMonthOrderByValorDesc(String userId, int year, int month) {
+        String jpql = "SELECT d FROM DespesaEntity d WHERE d.user.uuid = :userId AND YEAR(d.data) = :year AND MONTH(d.data) = :month ORDER BY d.valor DESC";
+
+        List<DespesaEntity> result = entityManager.createQuery(jpql, DespesaEntity.class)
+                .setParameter(USER_ID, userId)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
+                .setMaxResults(1)
+                .getResultList();
+
+        return result.isEmpty() ? null : result.get(0);
+    }
+
+    @Override
+    public Map<String, BigDecimal> findCategoriaWithHighestDespesaByUserIdAndYearMonth(String userId, int year, int month) {
+        String jpql = "SELECT d.categoria.nome AS categoria, SUM(d.valor) AS total " +
+                "FROM DespesaEntity d " +
+                "WHERE d.user.uuid = :userId AND YEAR(d.data) = :year AND MONTH(d.data) = :month " +
+                "GROUP BY d.categoria.nome " +
+                "ORDER BY total DESC";
+
+        return getStringBigDecimalMap(userId, year, month, jpql, entityManager, USER_ID);
+    }
+
+    static Map<String, BigDecimal> getStringBigDecimalMap(String userId, int year, int month, String jpql, EntityManager entityManager, String userId2) {
+        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
+                .setParameter(userId2, userId)
+                .setParameter(YEAR_PARAM, year)
+                .setParameter(MONTH_PARAM, month)
+                .setMaxResults(1)
+                .getResultList();
+
+        if (results.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Object[] result = results.get(0);
+        return Map.of((String) result[0], (BigDecimal) result[1]);
+    }
+
+    @Override
+    public BigDecimal sumDespesasByUserIdAndYearMonth(String userId, YearMonth yearMonth) {
+        String jpql = String.format("SELECT SUM(d.valor) FROM DespesaEntity d WHERE d.user.uuid = :%s " +
+                        "AND YEAR(d.data) = :%s AND MONTH(d.data) = :%s",
+                USER_ID, YEAR_PARAM, MONTH_PARAM);
+
+        BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter(USER_ID, userId)
+                .setParameter(YEAR_PARAM, yearMonth.getYear())
+                .setParameter(MONTH_PARAM, yearMonth.getMonthValue())
+                .getSingleResult();
+
+        return result != null ? result : BigDecimal.ZERO;
     }
 }

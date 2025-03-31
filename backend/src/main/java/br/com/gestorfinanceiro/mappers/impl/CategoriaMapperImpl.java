@@ -3,6 +3,7 @@ package br.com.gestorfinanceiro.mappers.impl;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaDTO;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +18,17 @@ public class CategoriaMapperImpl implements Mapper<CategoriaEntity, CategoriaDTO
 
     @Override
     public CategoriaDTO mapTo(CategoriaEntity categoriaEntity) {
-        return modelMapper.map(categoriaEntity, CategoriaDTO.class);
+        CategoriaDTO dto = modelMapper.map(categoriaEntity, CategoriaDTO.class);
+        dto.setTipo(categoriaEntity.getTipo().name());
+
+        return dto;
     }
 
     @Override
     public CategoriaEntity mapFrom(CategoriaDTO categoriaDTO) {
-        return modelMapper.map(categoriaDTO, CategoriaEntity.class);
+        CategoriaEntity entity =  modelMapper.map(categoriaDTO, CategoriaEntity.class);
+        entity.setTipo(CategoriaType.valueOf(categoriaDTO.getTipo()));
+
+        return entity;
     }
 }

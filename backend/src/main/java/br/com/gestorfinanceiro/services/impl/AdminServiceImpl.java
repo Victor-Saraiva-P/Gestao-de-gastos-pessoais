@@ -1,8 +1,10 @@
 package br.com.gestorfinanceiro.services.impl;
 
+import br.com.gestorfinanceiro.dto.user.UserAdminUpdateDTO;
 import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.Roles;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.AdminService;
 import org.springframework.stereotype.Service;
@@ -24,15 +26,21 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UserEntity atualizarUserStatus(String userID, Boolean status) {
-        if (userID == null || userID.trim().isEmpty()) {
+    public UserEntity atualizarUser(String userID, UserAdminUpdateDTO userAdminUpdateDTO) {
+        // Validar o ID do usuário
+        if (userID == null || userID.isEmpty()) {
             throw new InvalidUserIdException();
         }
 
-        UserEntity userEncontrado = userRepository.findById(userID)
-                .orElseThrow(() -> new UserNotFoundException(userID));
+        // Buscar o usuário pelo ID
+        UserEntity user = userRepository.findById(userID)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + userID));
 
-        userEncontrado.setEstaAtivo(status);
-        return userRepository.save(userEncontrado);
+        // Atualizar os campos do usuário com base no DTO
+        user.setEstaAtivo(userAdminUpdateDTO.getEstaAtivo());
+        user.setRole(Roles.valueOf(userAdminUpdateDTO.getRole()));
+
+        // Salvar e retornar o usuário atualizado
+        return userRepository.save(user);
     }
 }

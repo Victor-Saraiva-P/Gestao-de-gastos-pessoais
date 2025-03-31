@@ -38,6 +38,9 @@ export class CostTargetsComponent {
       }
     }
   }
+  voltar() {
+    window.history.back(); // Volta para a página anterior no navegador
+  }
 
   // Função para salvar os limites definidos
   salvarLimite() {

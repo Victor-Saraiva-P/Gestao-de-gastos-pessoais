@@ -11,6 +11,8 @@ import {
 import { Expense } from '../../entity/expense';
 import { ExpenseService } from './expense.service';
 import { ChartUtils } from '../../utils/expense-chart-utils';
+import { Categoria } from '../../entity/categoria';
+import { CustomCategoryService } from '../custom-category/custom-category.service';
 
 @Component({
   selector: 'app-expense',
@@ -24,6 +26,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   // Propriedades gerais
   title = 'expense';
   expenses: Expense[] = [];
+  expenseCategories: Categoria[] = [];
   filteredExpenses: Expense[] = [];
   filteredBarData: Expense[] = [];
   filteredList: Expense[] = []; // Lista para filtro de valor e data
@@ -53,6 +56,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
 
   // Injeção de dependências
   private expenseService = inject(ExpenseService);
+  private customCategoryService = inject(CustomCategoryService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -76,6 +80,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   // ---------------------- Ciclo de Vida ----------------------
   async ngOnInit() {
     await this.loadExpenses();
+    await this.loadCategories();
     this.initializeDates();
     await this.loadPieChartData();
     await this.loadBarChartData();
@@ -110,6 +115,15 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses];
       this.filteredBarData = [...this.expenses];
+    }
+  }
+
+  async loadCategories() {
+    const response = await this.customCategoryService.getAllExpenseCategories();
+    if (response) {
+      this.expenseCategories = response.filter(categoria => 
+        categoria.nome !== 'Sem Categoria'
+      ).sort((a, b) => a.nome.localeCompare(b.nome));
     }
   }
 
@@ -154,6 +168,10 @@ export class ExpenseComponent implements OnInit, OnDestroy {
 
   home() {
     this.router.navigate(['/home']);
+  }
+
+  categoriasPersonalizadas() {
+    this.router.navigate(['/home/expense/custom-category']);
   }
 
   costTarget() {
@@ -337,7 +355,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       const { data, categoria, valor, destinoPagamento, observacoes } = this.createExpenseForm.value;
       const newExpense: Expense = {
         data,
-        categoria,
+        categoria: this.correctCategory(categoria),
         valor,
         destinoPagamento,
         observacoes,
@@ -371,7 +389,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         const { data, categoria, valor, destinoPagamento, observacoes } = this.editExpenseForm.value;
         const updatedExpense: Expense = {
           data,
-          categoria,
+          categoria: this.correctCategory(categoria),
           valor,
           destinoPagamento,
           observacoes,
@@ -395,5 +413,10 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       destinoPagamento: expense.destinoPagamento,
       observacoes: expense.observacoes,
     });
+  }
+
+  correctCategory(string: string): string {
+    const newString = string.toLowerCase();
+    return newString.charAt(0).toUpperCase() + newString.slice(1);
   }
 }

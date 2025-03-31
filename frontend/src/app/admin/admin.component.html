@@ -1,1 +1,69 @@
-<p>admin works!</p>
+<section class="admin-container">
+  <button class="home-button" (click)="home()">Home</button>
+
+  <div class="left-section">
+    <button class="edit" 
+            [class.cancel-mode]="isManagingStatus"
+            (click)="toggleStatusMode()">
+      {{ isManagingStatus ? 'Cancelar Gerenciamento' : 'Gerenciar Status' }}
+    </button>
+
+    <button class="edit" 
+            [class.cancel-mode]="isEditing" 
+            (click)="toggleEditMode()">
+      {{ isEditing ? 'Cancelar Edição' : 'Alterar função' }}
+    </button>
+  </div>
+
+  <div class="main-content">
+    <div class="admin-list">
+      <h2>Usuários Cadastrados</h2>
+      <ul>
+        <li *ngFor="let user of users">
+          <div class="user-info">
+            <strong>Username:</strong> {{ user.username }} <br>
+            <strong>Email:</strong> {{ user.email }} <br>
+            <strong>Role:</strong> {{ user.role }} <br>
+            <strong>Status:</strong> 
+            <span [class.active]="user.estaAtivo" [class.inactive]="!user.estaAtivo">
+              {{ user.estaAtivo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </div>
+
+          <div class="action-buttons">
+            <button *ngIf="isManagingStatus && !user.estaAtivo"
+                    class="toggle-status btn-success"
+                    (click)="toggleUserStatus(user)">
+              Reativar Usuário
+            </button>
+            
+            <button *ngIf="isEditing"
+                    class="edit-remove"
+                    (click)="openEditModal(user)">
+              <img src="assets/edit-bnt.png" alt="Editar">
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="modalType === 'edit'" [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+      <div class="modal-content">
+        <button class="close" (click)="closeModal()">&times;</button>
+        <h2>Alterar função</h2>
+        <form [formGroup]="editUserForm" (ngSubmit)="onSubmitEditRole(editingUser!)">
+
+          <label>Role</label>
+          <div>
+            <select id="role" formControlName="role" required>
+              <option value="" disabled selected>Selecione uma categoria</option>
+              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+            </select>
+          </div>
+          <button type="submit" [disabled]="editUserForm.invalid">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
