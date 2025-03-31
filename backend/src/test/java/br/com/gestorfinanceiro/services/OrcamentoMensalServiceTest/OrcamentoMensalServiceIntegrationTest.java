@@ -1,6 +1,7 @@
 package br.com.gestorfinanceiro.services.OrcamentoMensalServiceTest;
 
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaNameNotFoundException;
+import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
@@ -13,6 +14,7 @@ import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.OrcamentoMensalRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.OrcamentoMensalService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,6 +68,13 @@ class OrcamentoMensalServiceIntegrationTest {
         userRepository.deleteAll();
     }
 
+    @AfterEach
+    void tearDown() {
+        orcamentoMensalRepository.deleteAllInBatch();
+        categoriaRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+    }
+
     @Nested
     class CriarOrcamentoMensal {
         @Test
@@ -115,6 +124,41 @@ class OrcamentoMensalServiceIntegrationTest {
                         userId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_PADRAO);
             });
         }
+
+        @Test
+        void deveTestarMetodoValidarParametro() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(null, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal("", CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(userId, CATEGORIA_PADRAO, null, PERIODO_PADRAO);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(userId, CATEGORIA_PADRAO, VALOR_PADRAO, null);
+            });
+        }
+
+        @Test
+        void deveTestarMetodoVerificarOrcamentoDuplicado() {
+            // Arrange
+            orcamentoMensalService.criarOrcamentoMensal(
+                    userId, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+
+            // Assert
+            assertThrows(OrcamentoMensalAlreadyExistsException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(
+                        userId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_PADRAO);
+            });
+        }
     }
 
     @Nested
@@ -135,6 +179,19 @@ class OrcamentoMensalServiceIntegrationTest {
         }
 
         @Test
+        void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.listarTodosPorUsuario(null);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.listarTodosPorUsuario("");
+            });
+        }
+
+        @Test
         void deveLancarExcecaoQuandoNenhumOrcamentoEncontrado() {
             // Assert
             assertThrows(OrcamentoMensalNotFoundException.class, () -> {
@@ -142,7 +199,10 @@ class OrcamentoMensalServiceIntegrationTest {
                 orcamentoMensalService.listarTodosPorUsuario(userId);
             });
         }
+    }
 
+    @Nested
+    class listarOrcamentosPorPeriodo {
         @Test
         void deveListarOrcamentosPorPeriodo() {
             // Arrange
@@ -165,6 +225,74 @@ class OrcamentoMensalServiceIntegrationTest {
             assertThrows(InvalidDataException.class, () -> {
                 // Act
                 orcamentoMensalService.listarPorPeriodo(userId, null);
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.listarPorPeriodo(null, PERIODO_PADRAO);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.listarPorPeriodo("", PERIODO_PADRAO);
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoOrcamentoMensalVazio() {
+            // Assert
+            assertThrows(OrcamentoMensalNotFoundException.class, () -> {
+                // Act
+                orcamentoMensalService.listarPorPeriodo(userId, PERIODO_PADRAO);
+            });
+        }
+    }
+
+    @Nested
+    class BuscarOrcamentoMensalPorId {
+
+        @Test
+        void deveBuscarOrcamentoMensalPorId() {
+            // Arrange
+            OrcamentoMensalEntity orcamento = orcamentoMensalService.criarOrcamentoMensal(
+                    userId, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+
+            // Act
+            OrcamentoMensalEntity orcamentoBuscado = orcamentoMensalService.buscarPorId(userId, orcamento.getUuid());
+
+            // Assert
+            assertEquals(orcamento.getUuid(), orcamentoBuscado.getUuid());
+            assertEquals(orcamento.getCategoria().getNome(), orcamentoBuscado.getCategoria().getNome());
+            assertEquals(0, orcamento.getValorLimite().compareTo(orcamentoBuscado.getValorLimite()));
+            assertEquals(orcamento.getPeriodo(), orcamentoBuscado.getPeriodo());
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.buscarPorId(null, "uuid-inexistente");
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.buscarPorId("", "uuid-inexistente");
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoOrcamentoNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.buscarPorId(userId, null);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.buscarPorId(userId, "");
             });
         }
     }
@@ -215,6 +343,40 @@ class OrcamentoMensalServiceIntegrationTest {
                         userId, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
             });
         }
+
+        @Test
+        void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(null, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal("", orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
+        }
+
+        @Test
+        void deveTestarMetodoValidarParametro() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, null, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, "", CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, orcamentoId, CATEGORIA_PADRAO, null, PERIODO_DIFERENTE);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, null);
+            });
+        }
     }
 
     @Nested
@@ -245,6 +407,32 @@ class OrcamentoMensalServiceIntegrationTest {
             assertThrows(OrcamentoMensalNotFoundException.class, () -> {
                 // Act
                 orcamentoMensalService.excluirOrcamentoMensal(userId, "uuid-inexistente");
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoUsuarioNaoEncontrado() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.excluirOrcamentoMensal(null, orcamentoId);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.excluirOrcamentoMensal("", orcamentoId);
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoQuandoUuidForNuloOuVazio() {
+            // Assert
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.excluirOrcamentoMensal(userId, null);
+            });
+            assertThrows(InvalidUuidException.class, () -> {
+                // Act
+                orcamentoMensalService.excluirOrcamentoMensal(userId, "");
             });
         }
     }

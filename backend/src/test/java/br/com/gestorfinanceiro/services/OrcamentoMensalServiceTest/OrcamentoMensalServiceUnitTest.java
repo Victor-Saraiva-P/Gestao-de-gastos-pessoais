@@ -5,6 +5,7 @@ import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalAlready
 import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalNotFoundException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidUuidException;
+import br.com.gestorfinanceiro.exceptions.orcamentomensal.OrcamentoMensalOperationException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
 import br.com.gestorfinanceiro.models.OrcamentoMensalEntity;
@@ -34,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class OrcamentoMensalServiceUnitTest {
+class OrcamentoMensalServiceUnitTest {
 
     private static final String USER_ID = UUID.randomUUID().toString();
     private static final String ORCAMENTO_ID = UUID.randomUUID().toString();
@@ -161,6 +162,23 @@ public class OrcamentoMensalServiceUnitTest {
             assertThrows(InvalidUuidException.class, () -> {
                 orcamentoMensalService.criarOrcamentoMensal(
                         null, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoAoFalharAoCriarOrcamento() {
+            // Arrange
+            when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+            when(categoriaRepository.findByNomeAndUserUuid(CATEGORIA_PADRAO, USER_ID))
+                    .thenReturn(Optional.of(categoria));
+            when(orcamentoMensalRepository.findByCategoriaAndPeriodoAndUserUuid(categoria, PERIODO_PADRAO, USER_ID))
+                    .thenReturn(Optional.empty());
+            when(orcamentoMensalRepository.save(any(OrcamentoMensalEntity.class)))
+                    .thenThrow(new RuntimeException("Erro no banco de dados"));
+
+            // Act & Assert
+            assertThrows(OrcamentoMensalOperationException.class, () -> {
+                orcamentoMensalService.criarOrcamentoMensal(USER_ID, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
             });
         }
     }
@@ -312,6 +330,24 @@ public class OrcamentoMensalServiceUnitTest {
                         USER_ID, ORCAMENTO_ID, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
             });
         }
+
+        @Test
+        void deveLancarExcecaoAoFalharAoAtualizarOrcamento() {
+            // Arrange
+            when(orcamentoMensalRepository.findByUuidAndUserUuid(ORCAMENTO_ID, USER_ID))
+                    .thenReturn(Optional.of(orcamentoExistente));
+            when(categoriaRepository.findByNomeAndUserUuid(CATEGORIA_PADRAO, USER_ID))
+                    .thenReturn(Optional.of(categoria));
+            when(orcamentoMensalRepository.findByCategoriaAndPeriodoAndUserUuid(categoria, PERIODO_PADRAO, USER_ID))
+                    .thenReturn(Optional.empty());
+            when(orcamentoMensalRepository.save(any(OrcamentoMensalEntity.class)))
+                    .thenThrow(new RuntimeException("Erro no banco de dados"));
+
+            // Act & Assert
+            assertThrows(OrcamentoMensalOperationException.class, () -> {
+                orcamentoMensalService.atualizarOrcamentoMensal(USER_ID, ORCAMENTO_ID, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+            });
+        }
     }
 
     @Nested
@@ -338,6 +374,19 @@ public class OrcamentoMensalServiceUnitTest {
 
             // Act & Assert
             assertThrows(OrcamentoMensalNotFoundException.class, () -> {
+                orcamentoMensalService.excluirOrcamentoMensal(USER_ID, ORCAMENTO_ID);
+            });
+        }
+
+        @Test
+        void deveLancarExcecaoAoFalharAoExcluirOrcamento() {
+            // Arrange
+            when(orcamentoMensalRepository.findByUuidAndUserUuid(ORCAMENTO_ID, USER_ID))
+                    .thenReturn(Optional.of(orcamentoExistente));
+            doThrow(new RuntimeException("Erro no banco de dados")).when(orcamentoMensalRepository).delete(orcamentoExistente);
+
+            // Act & Assert
+            assertThrows(OrcamentoMensalOperationException.class, () -> {
                 orcamentoMensalService.excluirOrcamentoMensal(USER_ID, ORCAMENTO_ID);
             });
         }
