@@ -17,4 +17,5 @@ public interface ReceitaRepositoryCustom {
     BigDecimal sumReceitasByUserIdAndYearMonth(String userId, int year, int month);
     ReceitaEntity findTopByUserIdAndYearMonthOrderByValorDesc(String userId, int year, int month);
     Map<String, BigDecimal> findCategoriaWithHighestReceitaByUserIdAndYearMonth(String userId, int year, int month);
+    BigDecimal sumReceitasByUserIdAndYearMonth(String userId, YearMonth yearMonth);
 }

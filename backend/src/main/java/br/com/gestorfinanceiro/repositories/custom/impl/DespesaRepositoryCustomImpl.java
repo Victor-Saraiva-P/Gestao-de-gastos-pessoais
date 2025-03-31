@@ -111,4 +111,19 @@ public class DespesaRepositoryCustomImpl implements DespesaRepositoryCustom {
         Object[] result = results.get(0);
         return Map.of((String) result[0], (BigDecimal) result[1]);
     }
+
+    @Override
+    public BigDecimal sumDespesasByUserIdAndYearMonth(String userId, YearMonth yearMonth) {
+        String jpql = String.format("SELECT SUM(d.valor) FROM DespesaEntity d WHERE d.user.uuid = :%s " +
+                        "AND YEAR(d.data) = :%s AND MONTH(d.data) = :%s",
+                USER_ID, YEAR_PARAM, MONTH_PARAM);
+
+        BigDecimal result = entityManager.createQuery(jpql, BigDecimal.class)
+                .setParameter(USER_ID, userId)
+                .setParameter(YEAR_PARAM, yearMonth.getYear())
+                .setParameter(MONTH_PARAM, yearMonth.getMonthValue())
+                .getSingleResult();
+
+        return result != null ? result : BigDecimal.ZERO;
+    }
 }
