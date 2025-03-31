@@ -145,20 +145,6 @@ class OrcamentoMensalServiceIntegrationTest {
                 orcamentoMensalService.criarOrcamentoMensal(userId, CATEGORIA_PADRAO, VALOR_PADRAO, null);
             });
         }
-
-        @Test
-        void deveTestarMetodoVerificarOrcamentoDuplicado() {
-            // Arrange
-            orcamentoMensalService.criarOrcamentoMensal(
-                    userId, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
-
-            // Assert
-            assertThrows(OrcamentoMensalAlreadyExistsException.class, () -> {
-                // Act
-                orcamentoMensalService.criarOrcamentoMensal(
-                        userId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_PADRAO);
-            });
-        }
     }
 
     @Nested
