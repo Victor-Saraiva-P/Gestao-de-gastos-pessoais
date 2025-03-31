@@ -223,7 +223,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemaType problemaType = ProblemaType.RECURSO_NAO_ENCONTRADO;
 
         Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
-                .mensagem("Categoria não encontrada")
+                .mensagem("Categoria não encontrada por ID")
                 .build();
 
         return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
@@ -235,7 +235,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemaType problemaType = ProblemaType.RECURSO_NAO_ENCONTRADO;
 
         Problema problema = createProblemaBuilder(status, problemaType, ex.getMessage())
-                .mensagem("Categoria não encontrada")
+                .mensagem("Categoria não encontrada por nome")
                 .build();
 
         return this.handleExceptionInternal(ex, problema, new HttpHeaders(), status, webRequest);
