@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class OrcamentoMensalServiceIntegrationTest {
+class OrcamentoMensalServiceIntegrationTest {
 
     private static final String CATEGORIA_PADRAO = "Alimentacao";
     private static final String CATEGORIA_INVALIDA = "CategoriaInexistente";
@@ -53,7 +53,7 @@ public class OrcamentoMensalServiceIntegrationTest {
     private String userId;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         limparBancoDeDados();
         UserEntity user = criarUsuarioTest();
         userId = user.getUuid();
