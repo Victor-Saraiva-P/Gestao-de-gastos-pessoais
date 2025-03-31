@@ -479,34 +479,38 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   
 
   checkBudgetWarnings() {
-    let warnings: string[] = []; 
-
-  this.budgetGoals.forEach(goal => {
-    const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
-
-    const totalGasto = this.expenses
-      .filter(expense => {
+    let warnings: string[] = [];
+  
+    this.budgetGoals.forEach(goal => {
+      const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
+  
+      const despesasFiltradas = this.expenses.filter(expense => {
         const expenseDate = new Date(expense.data);
-        return (
-          expenseDate.getFullYear() === goalYear &&
-          expenseDate.getMonth() + 1 === goalMonth &&
-          expense.categoria === goal.categoria
+        const expenseYear = expenseDate.getFullYear();
+
+        const expenseDateString = expenseDate.toISOString().split('T')[0];
+        const expenseMonthFixed = Number(expenseDateString.split('-')[1]); 
+  
+
+        const mesmaCategoria = expense.categoria.trim().toLowerCase() === goal.categoria.trim().toLowerCase();
+        const mesmoMesAno = expenseYear === goalYear && expenseMonthFixed === goalMonth;
+  
+        return mesmaCategoria && mesmoMesAno;
+      });
+  
+
+      const totalGasto = despesasFiltradas.reduce((sum, expense) => sum + Number(expense.valor), 0);
+  
+      if (totalGasto > goal.valorLimite) {
+        warnings.push(
+          `⚠️ Alerta! No mês ${goalMonth}/${goalYear}, você ultrapassou a meta da categoria: ${goal.categoria}. 
+           Gasto total: R$${totalGasto.toFixed(2)} (Limite: R$${goal.valorLimite.toFixed(2)})`
         );
-      })
-      .reduce((sum, expense) => sum + expense.valor, 0);
-
-    if (totalGasto > goal.valorLimite) {
-      warnings.push(
-        `⚠️ Alerta! No mês ${goalMonth}/${goalYear}, você ultrapassou a meta da categoria: ${goal.categoria}. Gasto total: R$${totalGasto.toFixed(2)} (Limite: R$${goal.valorLimite.toFixed(2)})`
-      );
-    }
+      }
     });
-
-    console.log(warnings)
-
-    // Exibe todos os avisos de uma vez
+  
     if (warnings.length > 0) {
       alert(warnings.join("\n\n"));
-  }
+    }
   }
 }
