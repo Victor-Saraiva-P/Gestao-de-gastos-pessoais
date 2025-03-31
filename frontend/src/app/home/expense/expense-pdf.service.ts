@@ -79,7 +79,7 @@ export class ExpensePdfService {
     }
 
     pdf.setFontSize(14);
-    pdf.text('Distribuição por Categoria', 10, yPosition);
+    //pdf.text('Distribuição por Categoria', 10, yPosition);
     yPosition += 10;
 
     // Verifica se há dados para exibir
