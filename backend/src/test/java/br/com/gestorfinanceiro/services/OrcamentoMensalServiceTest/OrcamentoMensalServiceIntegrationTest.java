@@ -144,6 +144,14 @@ class OrcamentoMensalServiceIntegrationTest {
                 // Act
                 orcamentoMensalService.criarOrcamentoMensal(userId, CATEGORIA_PADRAO, VALOR_PADRAO, null);
             });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(userId, null, VALOR_PADRAO, PERIODO_PADRAO);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.criarOrcamentoMensal(userId, "", VALOR_PADRAO, PERIODO_PADRAO);
+            });
         }
     }
 
@@ -362,6 +370,14 @@ class OrcamentoMensalServiceIntegrationTest {
                 // Act
                 orcamentoMensalService.atualizarOrcamentoMensal(userId, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, null);
             });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, orcamentoId, null, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
+            assertThrows(InvalidDataException.class, () -> {
+                // Act
+                orcamentoMensalService.atualizarOrcamentoMensal(userId, orcamentoId, "", VALOR_ATUALIZADO, PERIODO_DIFERENTE);
+            });
         }
     }
 
@@ -419,6 +435,53 @@ class OrcamentoMensalServiceIntegrationTest {
             assertThrows(InvalidUuidException.class, () -> {
                 // Act
                 orcamentoMensalService.excluirOrcamentoMensal(userId, "");
+            });
+        }
+    }
+
+    @Nested
+    class DuplicacaoOrcamentoTest {
+        private String orcamentoId;
+
+        @BeforeEach
+        void setUp() {
+            // Cria um orçamento inicial para os testes de duplicação
+            OrcamentoMensalEntity orcamento = orcamentoMensalService.criarOrcamentoMensal(
+                    userId, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_PADRAO);
+            orcamentoId = orcamento.getUuid();
+        }
+
+        @Test
+        void deveLancarExcecaoAoCriarOrcamentoDuplicado() {
+            // Assert
+            assertThrows(OrcamentoMensalAlreadyExistsException.class, () -> {
+                // Tentativa de criar outro orçamento com mesma categoria e período
+                orcamentoMensalService.criarOrcamentoMensal(
+                        userId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_PADRAO);
+            });
+        }
+
+        @Test
+        void devePermitirAtualizarOrcamentoSemDuplicacao() {
+            // Act (deve passar pois está atualizando o mesmo orçamento)
+            OrcamentoMensalEntity atualizado = orcamentoMensalService.atualizarOrcamentoMensal(
+                    userId, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_PADRAO);
+
+            // Assert
+            assertEquals(VALOR_ATUALIZADO, atualizado.getValorLimite());
+        }
+
+        @Test
+        void deveLancarExcecaoAoAtualizarParaCategoriaEPeriodoDuplicado() {
+            // Arrange - cria um segundo orçamento
+            orcamentoMensalService.criarOrcamentoMensal(
+                    userId, CATEGORIA_PADRAO, VALOR_PADRAO, PERIODO_DIFERENTE);
+
+            // Assert
+            assertThrows(OrcamentoMensalAlreadyExistsException.class, () -> {
+                // Tenta atualizar o segundo orçamento para mesma categoria/periodo do primeiro
+                orcamentoMensalService.atualizarOrcamentoMensal(
+                        userId, orcamentoId, CATEGORIA_PADRAO, VALOR_ATUALIZADO, PERIODO_DIFERENTE);
             });
         }
     }
