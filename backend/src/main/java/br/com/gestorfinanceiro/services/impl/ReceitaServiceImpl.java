@@ -13,6 +13,7 @@ import br.com.gestorfinanceiro.exceptions.user.InvalidUserIdException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.mappers.Mapper;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
+import br.com.gestorfinanceiro.models.DespesaEntity;
 import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
 import br.com.gestorfinanceiro.models.enums.CategoriaType;
@@ -20,6 +21,7 @@ import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.ReceitaService;
+import br.com.gestorfinanceiro.utils.DataUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -184,33 +186,13 @@ public class ReceitaServiceImpl implements ReceitaService {
         
         Map<String, BigDecimal> dadosMensais = receitas.stream()
             .collect(Collectors.groupingBy(
-                r -> formatarMesAno(r.getData()),
+                d -> DataUtils.formatarMesAno(d.getData()),
                 Collectors.reducing(BigDecimal.ZERO, ReceitaEntity::getValor, BigDecimal::add)
             ));
         
-        // Garantir que meses sem dados tenham valor zero
-        preencherMesesVazios(dadosMensais, inicio, fim);
+        DataUtils.preencherMesesVazios(dadosMensais, inicio, fim);
         
         return new GraficoBarraDTO(dadosMensais);
-    }
-    
-    // Métodos auxiliares
-    private String formatarMesAno(LocalDate data) {
-        Locale ptBr = Locale.forLanguageTag("pt-BR");
-        return data.format(DateTimeFormatter.ofPattern("MMMM yyyy", ptBr))
-                .toLowerCase();
-    }
-
-    private void preencherMesesVazios(Map<String, BigDecimal> map, YearMonth inicio, YearMonth fim) {
-        Locale ptBr = Locale.forLanguageTag("pt-BR");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", ptBr);
-        
-        YearMonth current = inicio;
-        while (!current.isAfter(fim)) {
-            String mesAno = current.format(formatter).toLowerCase();
-            map.putIfAbsent(mesAno, BigDecimal.ZERO);
-            current = current.plusMonths(1);
-        }
     }
 
     @Override

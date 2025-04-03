@@ -20,6 +20,7 @@ import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DespesaService;
+import br.com.gestorfinanceiro.utils.DataUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,32 +170,13 @@ public class DespesaServiceImpl implements DespesaService {
         
         Map<String, BigDecimal> dadosMensais = despesas.stream()
             .collect(Collectors.groupingBy(
-                d -> formatarMesAno(d.getData()),
+                d -> DataUtils.formatarMesAno(d.getData()),
                 Collectors.reducing(BigDecimal.ZERO, DespesaEntity::getValor, BigDecimal::add)
             ));
         
-        preencherMesesVazios(dadosMensais, inicio, fim);
+        DataUtils.preencherMesesVazios(dadosMensais, inicio, fim);
         
         return new GraficoBarraDTO(dadosMensais);
-    }
-
-    // Métodos auxiliaress
-    private String formatarMesAno(LocalDate data) {
-        Locale ptBr = Locale.forLanguageTag("pt-BR");
-        return data.format(DateTimeFormatter.ofPattern("MMMM yyyy", ptBr))
-                .toLowerCase();
-    }
-
-    private void preencherMesesVazios(Map<String, BigDecimal> map, YearMonth inicio, YearMonth fim) {
-        Locale ptBr = Locale.forLanguageTag("pt-BR");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", ptBr);
-        
-        YearMonth current = inicio;
-        while (!current.isAfter(fim)) {
-            String mesAno = current.format(formatter).toLowerCase();
-            map.putIfAbsent(mesAno, BigDecimal.ZERO);
-            current = current.plusMonths(1);
-        }
     }
 
     @Override
