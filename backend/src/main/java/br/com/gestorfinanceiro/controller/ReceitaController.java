@@ -132,18 +132,19 @@ public class ReceitaController {
 
     @GetMapping("/grafico-barras")
     public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(BEARER_PREFIX.length());
         String userId = jwtUtil.extractUserId(token);
-
+    
         if (inicio.isAfter(fim)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data inicial não pode ser posterior à data final");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Data inicial não pode ser posterior à data final");
         }
-
+    
         return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
     }
 
