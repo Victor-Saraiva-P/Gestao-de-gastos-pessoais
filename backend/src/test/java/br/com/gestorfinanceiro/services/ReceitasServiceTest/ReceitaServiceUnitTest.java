@@ -305,18 +305,23 @@ class ReceitaServiceUnitTest {
     class gerarGraficoTest {
 
         @Test
-        void deveGerarGrafico() {
-            when(receitaRepository.findByUserAndYearMonthRange(anyString(), any(YearMonth.class), any(YearMonth.class)))
-                    .thenReturn(List.of(receita));
-
-            YearMonth inicio = YearMonth.of(2025, 1);
-            YearMonth fim = YearMonth.of(2025, 3);
-
-            GraficoBarraDTO grafico = receitaService.gerarGraficoBarras(user.getUuid(), inicio, fim);
-
-            assertNotNull(grafico);
-            assertEquals(1, grafico.dadosMensais().size());
-            assertEquals(BigDecimal.valueOf(10000), grafico.dadosMensais().get("março 2025"));
+        void deveGerarGraficoBarras() {
+            ReceitaEntity receita = mock(ReceitaEntity.class);
+            when(receita.getValor()).thenReturn(BigDecimal.valueOf(10000));
+            when(receita.getData()).thenReturn(LocalDate.of(2025, 3, 1));
+            
+            when(receitaRepository.findByUserAndYearMonthRange(anyString(), any(), any()))
+                .thenReturn(List.of(receita));
+            
+            GraficoBarraDTO resultado = receitaService.gerarGraficoBarras("user123", 
+                YearMonth.of(2025, 1), 
+                YearMonth.of(2025, 3));
+            
+            assertNotNull(resultado);
+            assertEquals(3, resultado.dadosMensais().size());
+            assertEquals(BigDecimal.valueOf(10000), resultado.dadosMensais().get("março 2025"));
+            assertEquals(BigDecimal.ZERO, resultado.dadosMensais().get("janeiro 2025"));
+            assertEquals(BigDecimal.ZERO, resultado.dadosMensais().get("fevereiro 2025"));
         }
 
         @Test
