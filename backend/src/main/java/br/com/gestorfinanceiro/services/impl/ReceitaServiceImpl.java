@@ -182,24 +182,36 @@ public class ReceitaServiceImpl implements ReceitaService {
     @Override
     public GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim) {
         List<ReceitaEntity> receitas = receitaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
-
-        // Formata datas para o padrão "Mês Ano" em português
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("pt-BR"));
-
-        // Cria um mapa ordenado com os dados mensais
-        Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
-        receitas.stream()
-                .collect(Collectors.groupingBy(
-                        d -> YearMonth.from(d.getData()),
-                        Collectors.reducing(BigDecimal.ZERO, ReceitaEntity::getValor, BigDecimal::add)))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .forEach(e -> dadosMensais.put(e.getKey()
-                        .format(formatter), e.getValue()));
-
-        // Retorna o DTO com os dados mensais
+        
+        Map<String, BigDecimal> dadosMensais = receitas.stream()
+            .collect(Collectors.groupingBy(
+                r -> formatarMesAno(r.getData()),
+                Collectors.reducing(BigDecimal.ZERO, ReceitaEntity::getValor, BigDecimal::add)
+            ));
+        
+        // Garantir que meses sem dados tenham valor zero
+        preencherMesesVazios(dadosMensais, inicio, fim);
+        
         return new GraficoBarraDTO(dadosMensais);
+    }
+    
+    // Métodos auxiliares
+    private String formatarMesAno(LocalDate data) {
+        Locale ptBr = Locale.forLanguageTag("pt-BR");
+        return data.format(DateTimeFormatter.ofPattern("MMMM yyyy", ptBr))
+                .toLowerCase();
+    }
+
+    private void preencherMesesVazios(Map<String, BigDecimal> map, YearMonth inicio, YearMonth fim) {
+        Locale ptBr = Locale.forLanguageTag("pt-BR");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", ptBr);
+        
+        YearMonth current = inicio;
+        while (!current.isAfter(fim)) {
+            String mesAno = current.format(formatter).toLowerCase();
+            map.putIfAbsent(mesAno, BigDecimal.ZERO);
+            current = current.plusMonths(1);
+        }
     }
 
     @Override
