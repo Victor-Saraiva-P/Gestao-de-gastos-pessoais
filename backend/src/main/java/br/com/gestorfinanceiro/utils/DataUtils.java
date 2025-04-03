@@ -11,6 +11,10 @@ public class DataUtils {
     private static final Locale PT_BR = Locale.forLanguageTag("pt-BR");
     private static final DateTimeFormatter MES_ANO_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy", PT_BR);
 
+    private DataUtils() {
+        throw new UnsupportedOperationException("Classe utilitária - não deve ser instanciada");
+    }
+
     public static String formatarMesAno(LocalDate data) {
         return data.format(MES_ANO_FORMATTER).toLowerCase();
     }
