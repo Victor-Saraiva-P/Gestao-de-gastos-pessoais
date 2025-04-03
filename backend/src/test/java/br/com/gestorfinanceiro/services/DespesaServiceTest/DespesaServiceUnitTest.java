@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -300,17 +301,22 @@ class DespesaServiceUnitTest {
 
         @Test
         void deveGerarGraficoBarras() {
-            when(despesaRepository.findByUserAndYearMonthRange(anyString(), any(YearMonth.class), any(YearMonth.class)))
-                    .thenReturn(List.of(despesa));
-
-            YearMonth inicio = YearMonth.of(2025, 1);
-            YearMonth fim = YearMonth.of(2025, 3);
-
-            GraficoBarraDTO grafico = despesaService.gerarGraficoBarras(user.getUuid(), inicio, fim);
-
-            assertNotNull(grafico);
-            assertEquals(1, grafico.dadosMensais().size());
-            assertEquals(BigDecimal.valueOf(100), grafico.dadosMensais().get("março 2025"));
+            DespesaEntity despesaMock = mock(DespesaEntity.class);
+            when(despesaMock.getValor()).thenReturn(BigDecimal.valueOf(100));
+            when(despesaMock.getData()).thenReturn(LocalDate.of(2025, 3, 1));
+            
+            when(despesaRepository.findByUserAndYearMonthRange(anyString(), any(), any()))
+                .thenReturn(List.of(despesaMock));
+            
+            GraficoBarraDTO resultado = despesaService.gerarGraficoBarras("user123", 
+                YearMonth.of(2025, 1), 
+                YearMonth.of(2025, 3));
+            
+            assertNotNull(resultado);
+            assertEquals(3, resultado.dadosMensais().size());
+            assertEquals(BigDecimal.valueOf(100), resultado.dadosMensais().get("março 2025"));
+            assertEquals(BigDecimal.ZERO, resultado.dadosMensais().get("janeiro 2025"));
+            assertEquals(BigDecimal.ZERO, resultado.dadosMensais().get("fevereiro 2025"));
         }
 
         @Test
