@@ -306,12 +306,12 @@ class ReceitaServiceUnitTest {
 
         @Test
         void deveGerarGraficoBarras() {
-            ReceitaEntity receita = mock(ReceitaEntity.class);
-            when(receita.getValor()).thenReturn(BigDecimal.valueOf(10000));
-            when(receita.getData()).thenReturn(LocalDate.of(2025, 3, 1));
+            ReceitaEntity receitaMock = mock(ReceitaEntity.class);
+            when(receitaMock.getValor()).thenReturn(BigDecimal.valueOf(10000));
+            when(receitaMock.getData()).thenReturn(LocalDate.of(2025, 3, 1));
             
             when(receitaRepository.findByUserAndYearMonthRange(anyString(), any(), any()))
-                .thenReturn(List.of(receita));
+                .thenReturn(List.of(receitaMock));
             
             GraficoBarraDTO resultado = receitaService.gerarGraficoBarras("user123", 
                 YearMonth.of(2025, 1), 
