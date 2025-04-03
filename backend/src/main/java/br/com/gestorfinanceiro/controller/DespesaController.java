@@ -108,29 +108,38 @@ public class DespesaController {
     }
 
     @GetMapping("/grafico-barras")
-    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
-        String userId = jwtUtil.extractUserId(token);
-
-        return ResponseEntity.ok(despesaService.gerarGraficoBarras(userId, inicio, fim));
-    }
-
-    @GetMapping("/grafico-barras")
-    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasDespesa(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasDespesa(
+            @RequestParam YearMonth inicio, 
+            @RequestParam YearMonth fim, 
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-    
+
         String token = authHeader.substring(BEARER_PREFIX.length());
         String userId = jwtUtil.extractUserId(token);
-    
+
         if (inicio.isAfter(fim)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Data inicial não pode ser posterior à data final");
         }
-    
+
         return ResponseEntity.ok(despesaService.gerarGraficoBarras(userId, inicio, fim));
+    }
+
+    @GetMapping("/grafico-pizza")
+    public ResponseEntity<GraficoPizzaDTO> gerarGraficoPizza(
+            @RequestParam LocalDate inicio,
+            @RequestParam LocalDate fim,
+            HttpServletRequest request) {
+
+        String token = request.getHeader(AUTHORIZATION_HEADER).replace(BEARER_PREFIX, "");
+        String userId = jwtUtil.extractUserId(token);
+
+        GraficoPizzaDTO graficoPizza = despesaService.gerarGraficoPizza(userId, inicio, fim);
+
+        return ResponseEntity.ok(graficoPizza);
     }
 
     @GetMapping("/por-intervalo-de-datas")
