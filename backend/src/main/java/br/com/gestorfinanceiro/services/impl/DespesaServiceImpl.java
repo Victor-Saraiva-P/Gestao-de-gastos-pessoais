@@ -20,16 +20,14 @@ import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.DespesaService;
+import br.com.gestorfinanceiro.utils.DataUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -167,23 +165,15 @@ public class DespesaServiceImpl implements DespesaService {
     @Override
     public GraficoBarraDTO gerarGraficoBarras(String userId, YearMonth inicio, YearMonth fim) {
         List<DespesaEntity> despesas = despesaRepository.findByUserAndYearMonthRange(userId, inicio, fim);
-
-        // Formata datas para o padrão "Mês Ano" em português
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.forLanguageTag("pt-BR"));
-
-        // Cria um mapa ordenado com os dados mensais
-        Map<String, BigDecimal> dadosMensais = new LinkedHashMap<>();
-        despesas.stream()
-                .collect(Collectors.groupingBy(
-                        d -> YearMonth.from(d.getData()),
-                        Collectors.reducing(BigDecimal.ZERO, DespesaEntity::getValor, BigDecimal::add)))
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .forEach(e -> dadosMensais.put(e.getKey()
-                        .format(formatter), e.getValue()));
-
-        // Retorna o DTO com os dados mensais
+        
+        Map<String, BigDecimal> dadosMensais = despesas.stream()
+            .collect(Collectors.groupingBy(
+                d -> DataUtils.formatarMesAno(d.getData()),
+                Collectors.reducing(BigDecimal.ZERO, DespesaEntity::getValor, BigDecimal::add)
+            ));
+        
+        DataUtils.preencherMesesVazios(dadosMensais, inicio, fim);
+        
         return new GraficoBarraDTO(dadosMensais);
     }
 

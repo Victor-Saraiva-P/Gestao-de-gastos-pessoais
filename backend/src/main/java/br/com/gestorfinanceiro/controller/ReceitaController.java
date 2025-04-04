@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -130,11 +131,20 @@ public class ReceitaController {
     }
 
     @GetMapping("/grafico-barras")
-    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, HttpServletRequest request) {
-        String token = request.getHeader(AUTHORIZATION_HEADER)
-                .replace(BEARER_PREFIX, "");
+    public ResponseEntity<GraficoBarraDTO> gerarGraficoBarrasReceita(@RequestParam YearMonth inicio, @RequestParam YearMonth fim, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    
+        String token = authHeader.substring(BEARER_PREFIX.length());
         String userId = jwtUtil.extractUserId(token);
-
+    
+        if (inicio.isAfter(fim)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Data inicial não pode ser posterior à data final");
+        }
+    
         return ResponseEntity.ok(receitaService.gerarGraficoBarras(userId, inicio, fim));
     }
 

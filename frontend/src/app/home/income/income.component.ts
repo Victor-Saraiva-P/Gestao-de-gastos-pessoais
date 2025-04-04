@@ -13,6 +13,8 @@ import { IncomeService } from './income.service';
 import { ChartUtils } from '../../utils/income-chart-utils';
 import { Categoria } from '../../entity/categoria';
 import { CustomCategoryService } from '../custom-category/custom-category.service';
+import { IncomePdfService } from './income-pdf.service';
+
 
 @Component({
   selector: 'app-home',
@@ -21,7 +23,10 @@ import { CustomCategoryService } from '../custom-category/custom-category.servic
   templateUrl: 'income.component.html',
   styleUrls: ['income.component.css'],
 })
+
 export class IncomeComponent implements OnInit, OnDestroy {
+  loading = false;
+  
   public chartUtils = ChartUtils;
   // Propriedades gerais
   title = 'income';
@@ -55,10 +60,12 @@ export class IncomeComponent implements OnInit, OnDestroy {
   filterType: 'value' | 'date' | null = null;
 
   // Injeção de dependências
+  private pdfService = inject(IncomePdfService);
   private incomeService = inject(IncomeService);
   private customCategoryService = inject(CustomCategoryService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+
 
   // Formulários reativos
   createIncomeForm: FormGroup = this.fb.group({
@@ -400,6 +407,43 @@ export class IncomeComponent implements OnInit, OnDestroy {
       }
     }
   }
+  
+
+  // Metodo para gerar o PDF
+  async generatePDF(): Promise<void> {
+    try {
+      this.loading = true;
+      
+      // Obter dados filtrados ou todos
+      const dataToExport = this.filteredList.length > 0 ? this.filteredList : this.incomes;
+      
+      // Obter dados dos gráficos
+      const pieData = this.pieChartData || null;
+      const barData = this.barChartData || null;
+
+      // Gerar PDF
+      await this.pdfService.generateIncomeReport(
+        dataToExport,
+        {
+          pieChart: pieData,
+          barChart: barData
+        },
+        {
+          startDate: this.startDate,
+          endDate: this.endDate,
+          minValue: this.minValue,
+          maxValue: this.maxValue
+        }
+      );
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar PDF!');
+    } finally {
+      this.loading = false;
+    }
+  }
+
 
   openEditModal(income: Income) {
     this.modalType = 'edit';

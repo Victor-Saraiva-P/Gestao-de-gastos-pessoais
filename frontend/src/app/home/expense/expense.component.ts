@@ -11,8 +11,13 @@ import {
 import { Expense } from '../../entity/expense';
 import { ExpenseService } from './expense.service';
 import { ChartUtils } from '../../utils/expense-chart-utils';
+
+import { ExpensePdfService } from './expense-pdf.service';
+
 import { Categoria } from '../../entity/categoria';
 import { CustomCategoryService } from '../custom-category/custom-category.service';
+import { CostTargetService } from '../cost-targets/cost-target.service';
+import { Target } from '../../entity/costTarget';
 
 @Component({
   selector: 'app-expense',
@@ -22,11 +27,15 @@ import { CustomCategoryService } from '../custom-category/custom-category.servic
   styleUrls: ['expense.component.css'],
 })
 export class ExpenseComponent implements OnInit, OnDestroy {
+  loading = false;
+  private pdfService = inject(ExpensePdfService)
+
   public chartUtils = ChartUtils;
   // Propriedades gerais
   title = 'expense';
   expenses: Expense[] = [];
   expenseCategories: Categoria[] = [];
+  budgetGoals: Target[] = []
   filteredExpenses: Expense[] = [];
   filteredBarData: Expense[] = [];
   filteredList: Expense[] = []; // Lista para filtro de valor e data
@@ -57,8 +66,10 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   // Injeção de dependências
   private expenseService = inject(ExpenseService);
   private customCategoryService = inject(CustomCategoryService);
+  private costTargetService = inject(CostTargetService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+
 
   // Formulários reativos
   createExpenseForm: FormGroup = this.fb.group({
@@ -115,6 +126,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses];
       this.filteredBarData = [...this.expenses];
+      this.loadBudgetGoals();
     }
   }
 
@@ -124,6 +136,13 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenseCategories = response.filter(categoria => 
         categoria.nome !== 'Sem Categoria'
       ).sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+  }
+
+  async loadBudgetGoals() {
+    const response = await this.costTargetService.getAllTargets();
+    if (response) {
+      this.budgetGoals = response; 
     }
   }
 
@@ -365,6 +384,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
+          this.checkBudgetWarnings()
           this.refreshPage();
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
@@ -397,11 +417,48 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         await this.expenseService.updateExpense(id, updatedExpense);
         alert('Despesa atualizada com sucesso!');
         this.refreshPage();
+        this.checkBudgetWarnings()
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
       }
     }
   }
+
+  // Metodo para gerar o PDF
+  async generatePDF(): Promise<void> {
+    try {
+      this.loading = true;
+      
+      // Obter dados filtrados ou todos
+      const dataToExport = this.filteredList.length > 0 ? this.filteredList : this.expenses;
+      
+      // Obter dados dos gráficos
+      const pieData = this.pieChartData || null;
+      const barData = this.barChartData || null;
+
+      // Gerar PDF
+      await this.pdfService.generateExpenseReport(
+        dataToExport,
+        {
+          pieChart: pieData,
+          barChart: barData
+        },
+        {
+          startDate: this.startDate,
+          endDate: this.endDate,
+          minValue: this.minValue,
+          maxValue: this.maxValue
+        }
+      );
+      
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar PDF!');
+    } finally {
+      this.loading = false;
+    }
+  }
+
 
   openEditModal(expense: Expense) {
     this.modalType = 'edit';
@@ -418,5 +475,42 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   correctCategory(string: string): string {
     const newString = string.toLowerCase();
     return newString.charAt(0).toUpperCase() + newString.slice(1);
+  }
+  
+
+  checkBudgetWarnings() {
+    let warnings: string[] = [];
+  
+    this.budgetGoals.forEach(goal => {
+      const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
+  
+      const despesasFiltradas = this.expenses.filter(expense => {
+        const expenseDate = new Date(expense.data);
+        const expenseYear = expenseDate.getFullYear();
+
+        const expenseDateString = expenseDate.toISOString().split('T')[0];
+        const expenseMonthFixed = Number(expenseDateString.split('-')[1]); 
+  
+
+        const mesmaCategoria = expense.categoria.trim().toLowerCase() === goal.categoria.trim().toLowerCase();
+        const mesmoMesAno = expenseYear === goalYear && expenseMonthFixed === goalMonth;
+  
+        return mesmaCategoria && mesmoMesAno;
+      });
+  
+
+      const totalGasto = despesasFiltradas.reduce((sum, expense) => sum + Number(expense.valor), 0);
+  
+      if (totalGasto > goal.valorLimite) {
+        warnings.push(
+          `⚠️ Alerta! No mês ${goalMonth}/${goalYear}, você ultrapassou a meta da categoria: ${goal.categoria}. 
+           Gasto total: R$${totalGasto.toFixed(2)} (Limite: R$${goal.valorLimite.toFixed(2)})`
+        );
+      }
+    });
+  
+    if (warnings.length > 0) {
+      alert(warnings.join("\n\n"));
+    }
   }
 }

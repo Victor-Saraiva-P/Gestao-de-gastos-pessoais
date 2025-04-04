@@ -9,6 +9,11 @@
         {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
       </button>
       <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias</button>
+      <button class="criar-edit-trash" (click)="generatePDF()" [disabled]="loading">
+        <i class="fas fa-file-pdf"></i>
+        <span *ngIf="!loading">Exportar PDF</span>
+        <span *ngIf="loading">Gerando...</span>
+      </button>
     </div>
 
     <div class="main-content">
