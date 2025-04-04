@@ -10,7 +10,7 @@ public class UserAdminUpdateDTO {
 
     @NotBlank(message = "A Role é obrigatória.")
     @Pattern(regexp = "^(ADMIN|USER)$", message = "A Role deve ser ADMIN ou ROLE_USER.")
-    private String Role;
+    private String role;
 
     // Construtores
     public UserAdminUpdateDTO() {
@@ -26,10 +26,10 @@ public class UserAdminUpdateDTO {
     }
 
     public String getRole() {
-        return Role;
+        return role;
     }
 
     public void setRole(String role) {
-        Role = role;
+        this.role = role;
     }
 }
