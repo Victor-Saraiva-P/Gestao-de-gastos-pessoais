@@ -14,6 +14,7 @@ public class UserAdminUpdateDTO {
 
     // Construtores
     public UserAdminUpdateDTO() {
+        // Construtor padrão necessário para testes
     }
 
     // Getters and Setters
