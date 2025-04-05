@@ -43,7 +43,7 @@ import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.services.CategoriaService;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoriaControllerUnitTest {
+class CategoriaControllerUnitTest {
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -63,18 +63,18 @@ public class CategoriaControllerUnitTest {
     @InjectMocks
     private CategoriaController categoriaController;
 
-    private final String USER_ID = UUID.randomUUID().toString();
-    private final String VALID_TOKEN = "valid.token.here";
-    private final String AUTHORIZATION_HEADER = "Authorization";
-    private final String BEARER_TOKEN = "Bearer " + VALID_TOKEN;
-    private final String CATEGORIA_ID = "12345";
+    private final String userId = UUID.randomUUID().toString();
+    private final String validToken = "valid.token.here";
+    private final String authorizationHeader = "Authorization";
+    private final String bearerToken = "Bearer " + validToken;
+    private final String categoriaId = "12345";
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(categoriaController).build();
         // Configuração comum para os mocks
-        lenient().when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn(BEARER_TOKEN);
-        lenient().when(jwtUtil.extractUserId(VALID_TOKEN)).thenReturn(USER_ID);
+        lenient().when(request.getHeader(authorizationHeader)).thenReturn(bearerToken);
+        lenient().when(jwtUtil.extractUserId(validToken)).thenReturn(userId);
     }
 
     private UserEntity createUserEntity(String userId) {
@@ -95,23 +95,23 @@ public class CategoriaControllerUnitTest {
     @Test
     void criarCategoria_DeveRetornar201ComLocationHeader_QuandoSucesso() throws Exception {
         CategoriaCreateDTO createDTO = new CategoriaCreateDTO("Alimentação", "DESPESAS");
-        CategoriaEntity entity = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, USER_ID);
-        entity.setUuid(CATEGORIA_ID);
-        CategoriaDTO dto = new CategoriaDTO(CATEGORIA_ID, "Alimentação", "DESPESAS", USER_ID);
+        CategoriaEntity entity = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, userId);
+        entity.setUuid(categoriaId);
+        CategoriaDTO dto = new CategoriaDTO(categoriaId, "Alimentação", "DESPESAS", userId);
 
         when(categoriaService.criarCategoria(any(CategoriaCreateDTO.class), anyString())).thenReturn(entity);
         when(categoriaMapper.mapTo(any(CategoriaEntity.class))).thenReturn(dto);
 
         mockMvc.perform(post("/categorias")
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN)
+                .header(authorizationHeader, bearerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createDTO)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/categorias/" + CATEGORIA_ID))
-                .andExpect(jsonPath("$.uuid").value(CATEGORIA_ID))
+                .andExpect(header().string("Location", "http://localhost/categorias/" + categoriaId))
+                .andExpect(jsonPath("$.uuid").value(categoriaId))
                 .andExpect(jsonPath("$.nome").value("Alimentação"))
                 .andExpect(jsonPath("$.tipo").value("DESPESAS"))
-                .andExpect(jsonPath("$.userUuid").value(USER_ID));
+                .andExpect(jsonPath("$.userUuid").value(userId));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class CategoriaControllerUnitTest {
         String invalidJson = "{\"nome\":\"\",\"tipo\":\"\"}";
 
         mockMvc.perform(post("/categorias")
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN)
+                .header(authorizationHeader, bearerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -127,19 +127,19 @@ public class CategoriaControllerUnitTest {
 
     @Test
     void listarCategorias_DeveRetornar200ComListaDeCategorias_QuandoSucesso() throws Exception {
-        CategoriaEntity entity1 = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, USER_ID);
-        CategoriaEntity entity2 = createCategoriaEntity("Salário", CategoriaType.RECEITAS, USER_ID);
+        CategoriaEntity entity1 = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, userId);
+        CategoriaEntity entity2 = createCategoriaEntity("Salário", CategoriaType.RECEITAS, userId);
         List<CategoriaEntity> entities = Arrays.asList(entity1, entity2);
 
-        CategoriaDTO dto1 = new CategoriaDTO("1", "Alimentação", "DESPESAS", USER_ID);
-        CategoriaDTO dto2 = new CategoriaDTO("2", "Salário", "RECEITAS", USER_ID);
+        CategoriaDTO dto1 = new CategoriaDTO("1", "Alimentação", "DESPESAS", userId);
+        CategoriaDTO dto2 = new CategoriaDTO("2", "Salário", "RECEITAS", userId);
 
         when(categoriaService.listarCategorias(anyString())).thenReturn(entities);
         when(categoriaMapper.mapTo(entity1)).thenReturn(dto1);
         when(categoriaMapper.mapTo(entity2)).thenReturn(dto2);
 
         mockMvc.perform(get("/categorias")
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN))
+                .header(authorizationHeader, bearerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].uuid").value("1"))
                 .andExpect(jsonPath("$[0].nome").value("Alimentação"))
@@ -151,19 +151,19 @@ public class CategoriaControllerUnitTest {
 
     @Test
     void listarCategoriasDespesas_DeveRetornar200ComListaDeDespesas_QuandoSucesso() throws Exception {
-        CategoriaEntity entity1 = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, USER_ID);
-        CategoriaEntity entity2 = createCategoriaEntity("Transporte", CategoriaType.DESPESAS, USER_ID);
+        CategoriaEntity entity1 = createCategoriaEntity("Alimentação", CategoriaType.DESPESAS, userId);
+        CategoriaEntity entity2 = createCategoriaEntity("Transporte", CategoriaType.DESPESAS, userId);
         List<CategoriaEntity> entities = Arrays.asList(entity1, entity2);
 
-        CategoriaDTO dto1 = new CategoriaDTO("1", "Alimentação", "DESPESAS", USER_ID);
-        CategoriaDTO dto2 = new CategoriaDTO("2", "Transporte", "DESPESAS", USER_ID);
+        CategoriaDTO dto1 = new CategoriaDTO("1", "Alimentação", "DESPESAS", userId);
+        CategoriaDTO dto2 = new CategoriaDTO("2", "Transporte", "DESPESAS", userId);
 
         when(categoriaService.listarCategoriasDespesas(anyString())).thenReturn(entities);
         when(categoriaMapper.mapTo(entity1)).thenReturn(dto1);
         when(categoriaMapper.mapTo(entity2)).thenReturn(dto2);
 
         mockMvc.perform(get("/categorias/despesas")
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN))
+                .header(authorizationHeader, bearerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tipo").value("DESPESAS"))
                 .andExpect(jsonPath("$[1].tipo").value("DESPESAS"));
@@ -171,19 +171,19 @@ public class CategoriaControllerUnitTest {
 
     @Test
     void listarCategoriasReceitas_DeveRetornar200ComListaDeReceitas_QuandoSucesso() throws Exception {
-        CategoriaEntity entity1 = createCategoriaEntity("Salário", CategoriaType.RECEITAS, USER_ID);
-        CategoriaEntity entity2 = createCategoriaEntity("Investimentos", CategoriaType.RECEITAS, USER_ID);
+        CategoriaEntity entity1 = createCategoriaEntity("Salário", CategoriaType.RECEITAS, userId);
+        CategoriaEntity entity2 = createCategoriaEntity("Investimentos", CategoriaType.RECEITAS, userId);
         List<CategoriaEntity> entities = Arrays.asList(entity1, entity2);
 
-        CategoriaDTO dto1 = new CategoriaDTO("1", "Salário", "RECEITAS", USER_ID);
-        CategoriaDTO dto2 = new CategoriaDTO("2", "Investimentos", "RECEITAS", USER_ID);
+        CategoriaDTO dto1 = new CategoriaDTO("1", "Salário", "RECEITAS", userId);
+        CategoriaDTO dto2 = new CategoriaDTO("2", "Investimentos", "RECEITAS", userId);
 
         when(categoriaService.listarCategoriasReceitas(anyString())).thenReturn(entities);
         when(categoriaMapper.mapTo(entity1)).thenReturn(dto1);
         when(categoriaMapper.mapTo(entity2)).thenReturn(dto2);
 
         mockMvc.perform(get("/categorias/receitas")
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN))
+                .header(authorizationHeader, bearerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tipo").value("RECEITAS"))
                 .andExpect(jsonPath("$[1].tipo").value("RECEITAS"));
@@ -192,19 +192,19 @@ public class CategoriaControllerUnitTest {
     @Test
     void atualizarCategoria_DeveRetornar200ComCategoriaAtualizada_QuandoSucesso() throws Exception {
         CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Alimentação Atualizada");
-        CategoriaEntity entity = createCategoriaEntity("Alimentação Atualizada", CategoriaType.DESPESAS, USER_ID);
-        entity.setUuid(CATEGORIA_ID);
-        CategoriaDTO dto = new CategoriaDTO(CATEGORIA_ID, "Alimentação Atualizada", "DESPESAS", USER_ID);
+        CategoriaEntity entity = createCategoriaEntity("Alimentação Atualizada", CategoriaType.DESPESAS, userId);
+        entity.setUuid(categoriaId);
+        CategoriaDTO dto = new CategoriaDTO(categoriaId, "Alimentação Atualizada", "DESPESAS", userId);
 
         when(categoriaService.atualizarCategoria(anyString(), any(CategoriaUpdateDTO.class), anyString())).thenReturn(entity);
         when(categoriaMapper.mapTo(any(CategoriaEntity.class))).thenReturn(dto);
 
-        mockMvc.perform(patch("/categorias/{categoriaId}", CATEGORIA_ID)
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN)
+        mockMvc.perform(patch("/categorias/{categoriaId}", categoriaId)
+                .header(authorizationHeader, bearerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid").value(CATEGORIA_ID))
+                .andExpect(jsonPath("$.uuid").value(categoriaId))
                 .andExpect(jsonPath("$.nome").value("Alimentação Atualizada"));
     }
 
@@ -212,8 +212,8 @@ public class CategoriaControllerUnitTest {
     void atualizarCategoria_DeveRetornar400_QuandoDadosInvalidos() throws Exception {
         String invalidJson = "{\"nome\":\"\"}";
 
-        mockMvc.perform(patch("/categorias/{categoriaId}", CATEGORIA_ID)
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN)
+        mockMvc.perform(patch("/categorias/{categoriaId}", categoriaId)
+                .header(authorizationHeader, bearerToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -221,10 +221,10 @@ public class CategoriaControllerUnitTest {
 
     @Test
     void deletarCategoria_DeveRetornar204_QuandoSucesso() throws Exception {
-        mockMvc.perform(delete("/categorias/{categoriaId}", CATEGORIA_ID)
-                .header(AUTHORIZATION_HEADER, BEARER_TOKEN))
+        mockMvc.perform(delete("/categorias/{categoriaId}", categoriaId)
+                .header(authorizationHeader, bearerToken))
                 .andExpect(status().isNoContent());
 
-        verify(categoriaService).excluirCategoria(CATEGORIA_ID, USER_ID);
+        verify(categoriaService).excluirCategoria(categoriaId, userId);
     }
 }
