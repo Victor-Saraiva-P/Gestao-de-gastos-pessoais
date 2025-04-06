@@ -32,26 +32,26 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.apiUrl}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
 
-      if (!response.ok) {
-        throw new Error('Login falhou');
-      }
-      const data = await response.json();
+    const response = await fetch(`${this.apiUrl}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      //salva o token JWT recebido
-      localStorage.setItem('token', data.token);
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      return false;
+    if (response.status === 400) {
+      throw new Error('Credenciais inválidas. Verifique seu email e senha.');
     }
+
+    if (!response.ok) {
+      throw new Error('Login falhou');
+    }
+    const data = await response.json();
+
+    //salva o token JWT recebido
+    localStorage.setItem('token', data.token);
+
+    return true;
   }
   
   hasRole(requiredRole: string): boolean {

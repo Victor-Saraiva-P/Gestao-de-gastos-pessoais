@@ -35,6 +35,12 @@ import { RouterModule } from '@angular/router';
                 <img src="assets/mail-icon.svg" alt="ícone cadeado">
               </i>
             </div>
+            <p class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')">
+              O email é obrigatório.
+            </p>
+            <p class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')">
+              O email não é válido.
+            </p>
           </div>
 
           <div class="input-container">
@@ -50,7 +56,11 @@ import { RouterModule } from '@angular/router';
                 <img [src]="passwordVisible ? 'assets/open-lock.svg' : 'assets/lock-icon.svg'" alt="ícone senha">
               </i>
             </div>
+            <p class="error-message" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')">
+              A senha é obrigatória.
+            </p>
           </div>
+
           <button class="entrar-bnt" type="submit" [disabled]="loginForm.invalid">Entrar</button>
         </form>
         <p>Não tem uma conta?</p>
@@ -89,7 +99,9 @@ export class LoginComponent {
       const { email, password } = this.loginForm.value;
       this.authService.login(email, password)
       .then(user => this.router.navigate(['/home']))
-      .catch(err => alert('Login error: ' + err));
+      .catch((err) => {
+        alert(err.message); 
+      })
     }
   }
 
