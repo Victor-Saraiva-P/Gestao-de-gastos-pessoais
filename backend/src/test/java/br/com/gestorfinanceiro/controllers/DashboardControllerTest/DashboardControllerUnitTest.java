@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -235,7 +234,7 @@ class DashboardControllerUnitTest {
                 .param("periodo", periodo.toString())
                 .header("Authorization", "Bearer " + expectedToken));
 
-        verify(jwtUtil).extractUserId(eq(expectedToken));
-        verify(dashboardService).getSaldoTotal(eq(user.getUuid()), eq(periodo));
+        verify(jwtUtil).extractUserId(expectedToken);
+        verify(dashboardService).getSaldoTotal(user.getUuid(), periodo);
     }
 }
