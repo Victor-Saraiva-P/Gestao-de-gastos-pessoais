@@ -15,8 +15,16 @@
     <div class="category-list">
       
       <h2>Limites para despesas cadastrados</h2>
+      <div class="legend">
+        <span class="legend-item">
+          <span class="legend-color green"></span> Dentro do limite
+        </span>
+        <span class="legend-item">
+          <span class="legend-color red"></span> Limite ultrapassado
+        </span>
+      </div>
       <ul>
-        <li *ngFor="let target of expensesTarget">
+        <li *ngFor="let target of expensesTarget" [ngClass]="{'limit-exceeded': isLimitExceeded(target)}">
           <div>
             <strong>Categoria:</strong> {{ target.categoria }}<br>
             <strong>Valor limite:</strong> {{ target.valorLimite }}<br>

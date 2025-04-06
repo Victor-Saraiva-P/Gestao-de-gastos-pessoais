@@ -7,6 +7,8 @@ import { CustomCategoryService } from '../custom-category/custom-category.servic
 import { Router } from '@angular/router';
 import { Target } from '../../entity/costTarget';
 import { CostTargetService } from './cost-target.service';
+import { Expense } from '../../entity/expense';
+import { ExpenseService } from '../expense/expense.service';
 
 @Component({
   selector: 'app-cost-targets',
@@ -18,6 +20,7 @@ export class CostTargetsComponent implements OnInit{
   
   expensesTarget: Target[] = [];
   expenseCategories: Categoria[] = [];
+  expenses: Expense[] = [];
   isRemoving = false;
   isEditing = false;
   modalType: 'create' | 'edit' | null = null;
@@ -26,6 +29,7 @@ export class CostTargetsComponent implements OnInit{
 
   private router = inject(Router);
   private costTargetService = inject(CostTargetService);
+  private expenseService = inject(ExpenseService);
   private customCategoryService = inject(CustomCategoryService);
   private fb = inject(FormBuilder);
 
@@ -44,12 +48,20 @@ export class CostTargetsComponent implements OnInit{
   async ngOnInit() {
     await this.loadTarget();
     await this.loadCategories();
+    await this.loadExpenses();
   }
 
   async loadTarget() {
     const response = await this.costTargetService.getAllTargets();
     if (response) {
       this.expensesTarget = response.sort((a, b) => a.categoria.localeCompare(b.categoria));
+    }
+  }
+
+  async loadExpenses() {
+    const response = await this.expenseService.getExpenses();
+    if (response) {
+      this.expenses = response;
     }
   }
 
@@ -174,5 +186,26 @@ export class CostTargetsComponent implements OnInit{
       target.periodo === periodo &&
       target.uuid !== excludeId 
     );
+  }
+
+  isLimitExceeded(target: Target): boolean {
+    const [goalYear, goalMonth] = target.periodo.split('-').map(Number);
+  
+    const despesasFiltradas = this.expenses.filter(expense => {
+      const expenseDate = new Date(expense.data);
+      const expenseYear = expenseDate.getFullYear();
+  
+      const expenseDateString = expenseDate.toISOString().split('T')[0];
+      const expenseMonthFixed = Number(expenseDateString.split('-')[1]);
+  
+      const mesmaCategoria = expense.categoria.trim().toLowerCase() === target.categoria.trim().toLowerCase();
+      const mesmoMesAno = expenseYear === goalYear && expenseMonthFixed === goalMonth;
+  
+      return mesmaCategoria && mesmoMesAno;
+    });
+  
+    const totalGasto = despesasFiltradas.reduce((sum, expense) => sum + Number(expense.valor), 0);
+  
+    return totalGasto > target.valorLimite;
   }
 }
