@@ -14,13 +14,13 @@
     <!-- Lista de categorias de despesas -->
     <div class="category-list">
       
-      <h2>Limites de despesas cadastrados</h2>
+      <h2>Limites para despesas cadastrados</h2>
       <ul>
         <li *ngFor="let target of expensesTarget">
           <div>
             <strong>Categoria:</strong> {{ target.categoria }}<br>
             <strong>Valor limite:</strong> {{ target.valorLimite }}<br>
-            <strong>Periodo:</strong> {{ target.periodo }}<br>
+            <strong>Período:</strong> {{ target.periodo }}<br>
           </div>
           <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(target)">
             <img src="assets/edit-bnt.png">
@@ -52,7 +52,7 @@
           <label for="valorLimite">Valor limite</label>
           <input type="number" formControlName="valorLimite"/>
 
-          <label for="periodo">Periodo</label>
+          <label for="periodo">Período</label>
           <input type="month" formControlName="periodo" placeholder="Escolha o periodo"/>
 
           <button type="submit" [disabled]="createTargetExpenseForm.invalid">Criar Categoria</button>
@@ -80,7 +80,7 @@
           <label for="valorLimite">Valor limite</label>
           <input type="number" formControlName="valorLimite"/>
 
-          <label for="periodo">Periodo</label>
+          <label for="periodo">Período</label>
           <input type="month" formControlName="periodo" placeholder="Escolha o periodo"/>
 
         <button type="submit" [disabled]="editTargetExpenseForm.invalid">Salvar Alterações</button>
