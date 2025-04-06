@@ -20,6 +20,10 @@ export class CustomCategoryExpenseComponent implements OnInit{
   modalType: 'create' | 'edit' | null = null;
   editingCategoryId: string | null = null;
 
+
+  createCategoryError: string = '';
+  editCategoryError: string = '';
+
   private router = inject(Router);
   private customCategoryService = inject(CustomCategoryService);
   private fb = inject(FormBuilder);
@@ -39,7 +43,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
   async loadCategories() {
     const response = await this.customCategoryService.getAllExpenseCategories();
     if (response) {
-      this.expensesCatories = response.filter(categoria => 
+      this.expensesCatories = response.filter(categoria =>
         categoria.nome !== 'Sem Categoria'
       ).sort((a, b) => a.nome.localeCompare(b.nome));
     }
@@ -48,10 +52,22 @@ export class CustomCategoryExpenseComponent implements OnInit{
 
   openModal(type: 'create' | 'edit') {
     this.modalType = type;
+    this.createCategoryError = '';
+    this.editCategoryError = '';
+    if (type === 'edit' && this.editingCategoryId) {
+      const categoria = this.expensesCatories.find(cat => cat.uuid === this.editingCategoryId);
+      if (categoria) {
+        this.editCategoryExpenseForm.setValue({ nome: categoria.nome });
+      }
+    } else if (type === 'create') {
+      this.createCategoryExpenseForm.reset();
+    }
   }
 
   closeModal() {
     this.modalType = null;
+    this.createCategoryError = '';
+    this.editCategoryError = '';
   }
 
 
@@ -78,31 +94,41 @@ export class CustomCategoryExpenseComponent implements OnInit{
   }
 
   onSubmitCreate() {
-      if (this.createCategoryExpenseForm.valid) {
-        const nome: string = this.createCategoryExpenseForm.value.name;
-    
-        this.customCategoryService
-          .createCategories('DESPESAS', this.correctCategory(nome))
-          .then(() => {
-            alert('Categoria criada com sucesso!');
-            this.refreshPage();
-          })
-          .catch((err) => alert('Erro ao criar Categoria: ' + err));
-      }
-  }
+    if (this.createCategoryExpenseForm.valid) {
+      const nome: string = this.createCategoryExpenseForm.value.name;
+  
+      this.customCategoryService
+        .createCategories('DESPESAS', this.correctCategory(nome))
+        .then(() => {
+          alert('Categoria criada com sucesso!');
+          this.refreshPage();
+        })
+        .catch((err) => alert('Erro ao criar Categoria: ' + err));
+    }
+}
 
   async onSubmitEdit(id: string) {
-      if (this.editCategoryExpenseForm.valid) {
-        try {
-          const nome: string = this.editCategoryExpenseForm.value.nome;
-          await this.customCategoryService.changeNameCategory(id, this.correctCategory(nome));
-          alert('Categoria atualizada com sucesso!');
-          this.refreshPage();
-        } catch (err) {
-          alert('Erro ao atualizar Categoria: ' + err);
+    if (this.editCategoryExpenseForm.valid) {
+      try {
+        const nome: string = this.editCategoryExpenseForm.value.nome;
+
+        const categoriaExistente = this.expensesCatories.find(
+          (cat) => cat.uuid !== id && cat.nome.toLowerCase() === nome.toLowerCase()
+        );
+
+        if (categoriaExistente) {
+          this.editCategoryError = `A categoria "${nome}" já existe.`;
+          return;
         }
+
+        await this.customCategoryService.changeNameCategory(id, this.correctCategory(nome));
+        alert('Categoria atualizada com sucesso!');
+        this.refreshPage();
+      } catch (err) {
+        this.editCategoryError = 'Erro ao atualizar Categoria: ' + err;
       }
     }
+  }
 
   async onSubmitRemove(id: string) {
     try {
@@ -120,6 +146,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
       this.editCategoryExpenseForm.setValue({
         nome: categoria.nome
       });
+      this.editCategoryError = ''; 
   }
 
   correctCategory(string: string): string {
