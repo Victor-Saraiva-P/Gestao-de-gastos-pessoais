@@ -30,19 +30,31 @@
       </ul>
     </div>
 
-    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
-      <div class="modal-content">
-        <button class="close" (click)="closeModal()">&times;</button>
-        <h2>Criar Categorias</h2>
-        <form [formGroup]="createCategoryExpenseForm" (ngSubmit)="onSubmitCreate()">
-
-          <label for="name">Nome</label>
-          <input type="text" formControlName="name" placeholder="Digite o nome da categoria"/>
-          <p class="error-message" *ngIf="createCategoryError">{{ createCategoryError }}</p>
-
-          <button type="submit" [disabled]="createCategoryExpenseForm.invalid">Criar Categoria</button>
-        </form>
-      </div>
+  </div>
+  <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
+    <div class="modal-content">
+      <button class="close" (click)="closeModal()">&times;</button>
+      <h2>Criar Categorias</h2>
+      <form [formGroup]="createCategoryExpenseForm" (ngSubmit)="onSubmitCreate()">
+        <label for="name">Nome</label>
+        <input 
+          type="text" 
+          formControlName="name" 
+          placeholder="Digite o nome da categoria"
+          (blur)="onNameBlur()"
+        />
+        
+        <div *ngIf="(createCategoryExpenseForm.get('name')?.invalid && submitted) || createCategoryExpenseForm.get('name')?.touched">
+          <p class="error-message" *ngIf="createCategoryExpenseForm.get('name')?.hasError('required')">
+            O nome da categoria é necessário para criação.
+          </p>
+          <p class="error-message" *ngIf="createCategoryError">
+            {{ createCategoryError }}
+          </p>
+        </div>
+  
+        <button type="submit" [disabled]="createCategoryExpenseForm.invalid">Criar Categoria</button>
+      </form>
     </div>
   </div>
 

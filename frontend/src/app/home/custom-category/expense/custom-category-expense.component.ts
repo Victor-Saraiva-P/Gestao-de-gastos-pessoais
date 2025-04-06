@@ -19,6 +19,7 @@ export class CustomCategoryExpenseComponent implements OnInit{
   isEditing = false;
   modalType: 'create' | 'edit' | null = null;
   editingCategoryId: string | null = null;
+  submitted = false;
 
 
   createCategoryError: string = '';
@@ -93,19 +94,49 @@ export class CustomCategoryExpenseComponent implements OnInit{
     window.location.reload();
   }
 
-  onSubmitCreate() {
-    if (this.createCategoryExpenseForm.valid) {
-      const nome: string = this.createCategoryExpenseForm.value.name;
+  async onSubmitCreate() {
+    this.submitted = true;
+    this.createCategoryError = '';
   
-      this.customCategoryService
-        .createCategories('DESPESAS', this.correctCategory(nome))
-        .then(() => {
-          alert('Categoria criada com sucesso!');
-          this.refreshPage();
-        })
-        .catch((err) => alert('Erro ao criar Categoria: ' + err));
+    if (this.createCategoryExpenseForm.invalid) {
+      return;
     }
-}
+  
+    const nome: string = this.createCategoryExpenseForm.value.name.trim();
+  
+    // Verificação local de duplicatas
+    const categoriaExistente = this.expensesCatories.find(
+      (cat) => cat.nome.toLowerCase() === nome.toLowerCase()
+    );
+  
+    if (categoriaExistente) {
+      this.createCategoryError = `A categoria "${nome}" já existe.`;
+      return;
+    }
+  
+    try {
+      await this.customCategoryService.createCategories('DESPESAS', this.correctCategory(nome));
+      alert('Categoria criada com sucesso!');
+      this.refreshPage();
+    } catch (err) {
+      this.handleCreateError(err, nome);
+    }
+  }
+ 
+  private handleCreateError(err: any, nome: string) {
+    if (err.status === 409) { 
+      this.createCategoryError = `A categoria "${nome}" já existe.`;
+    } else {
+      this.createCategoryError = 'Erro ao criar categoria: ' + err.message;
+    }
+  }
+
+  onNameBlur() {
+    if (!this.createCategoryExpenseForm.get('name')?.value.trim()) {
+      this.createCategoryExpenseForm.get('name')?.setErrors({ 'required': true });
+    }
+  }
+  
 
   async onSubmitEdit(id: string) {
     if (this.editCategoryExpenseForm.valid) {
