@@ -31,13 +31,13 @@ export class CostTargetsComponent implements OnInit{
 
   createTargetExpenseForm: FormGroup = this.fb.group({
     categoria: ['', Validators.required],
-    valorLimite: ['', Validators.required],
+    valorLimite: ['', [Validators.required, Validators.min(0.01)]],
     periodo: ['', Validators.required],
   });
 
   editTargetExpenseForm: FormGroup = this.fb.group({
     categoria: ['', Validators.required],
-    valorLimite: ['', Validators.required],
+    valorLimite: ['', [Validators.required, Validators.min(0.01)]],
     periodo: ['', Validators.required],
   });
 
@@ -105,21 +105,21 @@ export class CostTargetsComponent implements OnInit{
         this.costTargetService
           .createTarget(newTarget)
           .then(() => {
-            alert('Meta criada com sucesso!');
+            alert('Limite criada com sucesso!');
             this.refreshPage();
           })
-          .catch((err) => alert('Erro ao criar meta: ' + err));
+          .catch((err) => alert('Erro ao criar Limite: ' + err));
       }
   }
 
   async onSubmitRemove(id: string) {
     try {
       await this.costTargetService.deleteTarget(id);
-      alert('Meta removida com sucesso!');
+      alert('Limite removida com sucesso!');
       await this.loadTarget();
       this.refreshPage();
     } catch (err) {
-      alert('Erro ao remover meta: ' + err);
+      alert('Erro ao remover Limite: ' + err);
     }
   }
 
@@ -133,10 +133,10 @@ export class CostTargetsComponent implements OnInit{
           periodo
         };
         await this.costTargetService.uptadeTarget(id, newTarget);
-        alert('Meta atualizada com sucesso!');
+        alert('Limite atualizada com sucesso!');
         this.refreshPage();
       } catch (err) {
-        alert('Erro ao atualizar Meta: ' + err);
+        alert('Erro ao atualizar Limite: ' + err);
       }
     }
   }
