@@ -96,6 +96,12 @@ export class CostTargetsComponent implements OnInit{
   onSubmitCreate() {
       if (this.createTargetExpenseForm.valid) {
         const { categoria, valorLimite, periodo } = this.createTargetExpenseForm.value;
+
+        if (this.isDuplicateTarget(categoria, periodo)) {
+          alert('Já existe um limite para essa categoria e período.');
+          return;
+        }
+
         const newTarget: Target = {
           categoria: this.correctCategory(categoria),
           valorLimite,
@@ -127,6 +133,12 @@ export class CostTargetsComponent implements OnInit{
     if (this.editTargetExpenseForm.valid) {
       try {
         const { categoria, valorLimite, periodo }: Target = this.editTargetExpenseForm.value;
+
+        if (this.isDuplicateTarget(categoria, periodo, id)) {
+          alert('Já existe um limite para essa categoria e período.');
+          return;
+        }
+
         const newTarget: Target = {
           categoria: this.correctCategory(categoria),
           valorLimite,
@@ -156,4 +168,11 @@ export class CostTargetsComponent implements OnInit{
     return newString.charAt(0).toUpperCase() + newString.slice(1);
   }
 
+  isDuplicateTarget(categoria: string, periodo: string, excludeId: string | null = null): boolean {
+    return this.expensesTarget.some(target => 
+      target.categoria === categoria &&
+      target.periodo === periodo &&
+      target.uuid !== excludeId 
+    );
+  }
 }
