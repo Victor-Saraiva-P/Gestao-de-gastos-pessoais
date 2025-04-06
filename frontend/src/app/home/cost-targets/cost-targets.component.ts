@@ -7,6 +7,8 @@ import { CustomCategoryService } from '../custom-category/custom-category.servic
 import { Router } from '@angular/router';
 import { Target } from '../../entity/costTarget';
 import { CostTargetService } from './cost-target.service';
+import { Expense } from '../../entity/expense';
+import { ExpenseService } from '../expense/expense.service';
 
 @Component({
   selector: 'app-cost-targets',
@@ -18,6 +20,7 @@ export class CostTargetsComponent implements OnInit{
   
   expensesTarget: Target[] = [];
   expenseCategories: Categoria[] = [];
+  expenses: Expense[] = [];
   isRemoving = false;
   isEditing = false;
   modalType: 'create' | 'edit' | null = null;
@@ -26,30 +29,39 @@ export class CostTargetsComponent implements OnInit{
 
   private router = inject(Router);
   private costTargetService = inject(CostTargetService);
+  private expenseService = inject(ExpenseService);
   private customCategoryService = inject(CustomCategoryService);
   private fb = inject(FormBuilder);
 
   createTargetExpenseForm: FormGroup = this.fb.group({
     categoria: ['', Validators.required],
-    valorLimite: ['', Validators.required],
+    valorLimite: ['', [Validators.required, Validators.min(0.01)]],
     periodo: ['', Validators.required],
   });
 
   editTargetExpenseForm: FormGroup = this.fb.group({
     categoria: ['', Validators.required],
-    valorLimite: ['', Validators.required],
+    valorLimite: ['', [Validators.required, Validators.min(0.01)]],
     periodo: ['', Validators.required],
   });
 
   async ngOnInit() {
     await this.loadTarget();
     await this.loadCategories();
+    await this.loadExpenses();
   }
 
   async loadTarget() {
     const response = await this.costTargetService.getAllTargets();
     if (response) {
       this.expensesTarget = response.sort((a, b) => a.categoria.localeCompare(b.categoria));
+    }
+  }
+
+  async loadExpenses() {
+    const response = await this.expenseService.getExpenses();
+    if (response) {
+      this.expenses = response;
     }
   }
 
@@ -96,6 +108,12 @@ export class CostTargetsComponent implements OnInit{
   onSubmitCreate() {
       if (this.createTargetExpenseForm.valid) {
         const { categoria, valorLimite, periodo } = this.createTargetExpenseForm.value;
+
+        if (this.isDuplicateTarget(categoria, periodo)) {
+          alert('Já existe um limite para essa categoria e período.');
+          return;
+        }
+
         const newTarget: Target = {
           categoria: this.correctCategory(categoria),
           valorLimite,
@@ -105,21 +123,21 @@ export class CostTargetsComponent implements OnInit{
         this.costTargetService
           .createTarget(newTarget)
           .then(() => {
-            alert('Meta criada com sucesso!');
+            alert('Limite criada com sucesso!');
             this.refreshPage();
           })
-          .catch((err) => alert('Erro ao criar meta: ' + err));
+          .catch((err) => alert('Erro ao criar Limite: ' + err));
       }
   }
 
   async onSubmitRemove(id: string) {
     try {
       await this.costTargetService.deleteTarget(id);
-      alert('Meta removida com sucesso!');
+      alert('Limite removida com sucesso!');
       await this.loadTarget();
       this.refreshPage();
     } catch (err) {
-      alert('Erro ao remover meta: ' + err);
+      alert('Erro ao remover Limite: ' + err);
     }
   }
 
@@ -127,16 +145,22 @@ export class CostTargetsComponent implements OnInit{
     if (this.editTargetExpenseForm.valid) {
       try {
         const { categoria, valorLimite, periodo }: Target = this.editTargetExpenseForm.value;
+
+        if (this.isDuplicateTarget(categoria, periodo, id)) {
+          alert('Já existe um limite para essa categoria e período.');
+          return;
+        }
+
         const newTarget: Target = {
           categoria: this.correctCategory(categoria),
           valorLimite,
           periodo
         };
         await this.costTargetService.uptadeTarget(id, newTarget);
-        alert('Meta atualizada com sucesso!');
+        alert('Limite atualizada com sucesso!');
         this.refreshPage();
       } catch (err) {
-        alert('Erro ao atualizar Meta: ' + err);
+        alert('Erro ao atualizar Limite: ' + err);
       }
     }
   }
@@ -156,4 +180,32 @@ export class CostTargetsComponent implements OnInit{
     return newString.charAt(0).toUpperCase() + newString.slice(1);
   }
 
+  isDuplicateTarget(categoria: string, periodo: string, excludeId: string | null = null): boolean {
+    return this.expensesTarget.some(target => 
+      target.categoria === categoria &&
+      target.periodo === periodo &&
+      target.uuid !== excludeId 
+    );
+  }
+
+  isLimitExceeded(target: Target): boolean {
+    const [goalYear, goalMonth] = target.periodo.split('-').map(Number);
+  
+    const despesasFiltradas = this.expenses.filter(expense => {
+      const expenseDate = new Date(expense.data);
+      const expenseYear = expenseDate.getFullYear();
+  
+      const expenseDateString = expenseDate.toISOString().split('T')[0];
+      const expenseMonthFixed = Number(expenseDateString.split('-')[1]);
+  
+      const mesmaCategoria = expense.categoria.trim().toLowerCase() === target.categoria.trim().toLowerCase();
+      const mesmoMesAno = expenseYear === goalYear && expenseMonthFixed === goalMonth;
+  
+      return mesmaCategoria && mesmoMesAno;
+    });
+  
+    const totalGasto = despesasFiltradas.reduce((sum, expense) => sum + Number(expense.valor), 0);
+  
+    return totalGasto > target.valorLimite;
+  }
 }
