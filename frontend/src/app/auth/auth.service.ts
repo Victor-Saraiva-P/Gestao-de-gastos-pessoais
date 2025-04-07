@@ -11,25 +11,22 @@ export class AuthService {
   private apiUrl = environment.apiUrl + '/auth'; 
   private apiUrlDes = environment.apiUrl + '/admin'; 
   
-
-  async register(newUser: User): Promise<User | null> {
-    try {
-      const response = await fetch(`${this.apiUrl}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser)
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha no registro');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Erro ao registrar usuário:', error);
-      return null;
+  async register(newUser: User): Promise<User> {
+    const response = await fetch(`${this.apiUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    });
+  
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.detail); 
     }
+  
+    return data;
   }
+
 
   async login(email: string, password: string): Promise<boolean> {
 
