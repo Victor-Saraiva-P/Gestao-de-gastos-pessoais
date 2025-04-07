@@ -117,21 +117,119 @@ export class ChartUtils {
   ): void {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas || !barChartData) return;
-
+  
     // Destruir gráfico existente se houver
     if (this.barChart) {
       this.barChart.destroy();
     }
+  
+    // Converte os meses para um formato ordenável
+    const monthMap: { [key: string]: number } = {
+      janeiro: 1, fevereiro: 2, março: 3, abril: 4, maio: 5, junho: 6,
+      julho: 7, agosto: 8, setembro: 9, outubro: 10, novembro: 11, dezembro: 12
+    };
+  
+    const parsedData = Object.entries(barChartData.dadosMensais).map(([key, value]) => {
+      const [monthName, year] = key.split(' ');
+      return {
+        month: monthMap[monthName.toLowerCase()],
+        year: parseInt(year, 10),
+        value
+      };
+    });
+  
+    // Ordena os dados cronologicamente
+    const sortedData = parsedData.sort((a, b) => {
+      if (a.year === b.year) {
+        return a.month - b.month;
+      }
+      return a.year - b.year;
+    });
+  
+    // Extrai os rótulos e valores ordenados
+    const labels = sortedData.map(data => `${this.getMonthName(data.month)} ${data.year}`);
+    const values = sortedData.map(data => data.value);
+  
+    // Cria o gráfico
+    this.barChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Receitas por Mês',
+          data: values,
+          backgroundColor: labels.map((_, index) => this.getColor(index)),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Valor (R$)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Mês'
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Receitas por Mês'
+          }
+        }
+      }
+    });
+  }
 
-    const months = Object.keys(barChartData.dadosMensais);
-    const values = months.map(m => barChartData.dadosMensais[m]);
-
+  // Gera o gráfico de barras a partir das receitas filtradas
+  static generateBarChart(filteredBarData: Income[], canvasId: string): void {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+  
+    if (this.barChart) {
+      this.barChart.destroy();
+    }
+  
+    // Agrupar receitas por mês/ano
+    const totals: { [key: string]: number } = {};
+    const dateMap: { [key: string]: Date } = {};
+  
+    filteredBarData.forEach(income => {
+      const date = new Date(income.data);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1; // 1 a 12
+      const key = `${year}-${String(month).padStart(2, '0')}`; // chave única no formato YYYY-MM
+  
+      totals[key] = (totals[key] || 0) + income.valor;
+      dateMap[key] = new Date(year, month - 1); // salvar data real
+    });
+  
+    // Ordenar pelas datas reais
+    const sortedKeys = Object.keys(totals).sort((a, b) => {
+      return dateMap[a].getTime() - dateMap[b].getTime();
+    });
+  
+    const months = sortedKeys.map(key => {
+      const [year, month] = key.split('-');
+      return `${this.getMonthName(Number(month))} ${year}`; // Exibe o nome do mês e o ano
+    });
+    const values = sortedKeys.map(key => totals[key]);
+  
+    // Criar gráfico
     this.barChart = new Chart(canvas, {
       type: 'bar',
       data: {
         labels: months,
         datasets: [{
-          label: 'Receitas por Mês',
+          label: 'Receitas',
           data: values,
           backgroundColor: months.map((_, index) => this.getColor(index)),
           borderWidth: 1
@@ -155,9 +253,6 @@ export class ChartUtils {
           }
         },
         plugins: {
-          legend: {
-            display: false
-          },
           title: {
             display: true,
             text: 'Receitas por Mês'
@@ -166,61 +261,13 @@ export class ChartUtils {
       }
     });
   }
-
-  // Gera o gráfico de barras a partir das receitas filtradas
-  static generateBarChart(filteredBarData: Income[], canvasId: string): void {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    // Destruir gráfico existente se houver
-    if (this.barChart) {
-      this.barChart.destroy();
-    }
-
-    // Agrega receitas por mês
-    const totals: { [key: string]: number } = {};
-    filteredBarData.forEach(income => {
-      const date = new Date(income.data);
-      const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-      totals[monthYear] = (totals[monthYear] || 0) + income.valor;
-    });
-
-    const months = Object.keys(totals).sort((a, b) => {
-      const [monthA, yearA] = a.split(' ');
-      const [monthB, yearB] = b.split(' ');
-      const dateA = new Date(`${yearA}-${this.getMonthNumber(monthA)}-01`);
-      const dateB = new Date(`${yearB}-${this.getMonthNumber(monthB)}-01`);
-      return dateA.getTime() - dateB.getTime();
-    });
-
-    const values = months.map(m => totals[m]);
-
-    this.barChart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Receitas',
-          data: values,
-          backgroundColor: months.map((_, index) => this.getColor(index)),
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        },
-        plugins: {
-          title: {
-            display: true,
-            text: 'Receitas por Mês'
-          }
-        }
-      }
-    });
+  
+  private static getMonthName(month: number): string {
+    const monthNames = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return monthNames[month - 1];
   }
 
   // Métodos auxiliares

@@ -284,6 +284,12 @@ select:focus {
   background: #f1f1f1;
 }
 
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+  }
+
 
 @media (max-width: 768px) {
   .category-income-container {
