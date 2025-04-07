@@ -152,6 +152,9 @@
           <form [formGroup]="createIncomeForm" (ngSubmit)="onSubmitCreate()">
             <label for="data">Data</label>
             <input type="date" formControlName="data" placeholder="Digite a data"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('data')?.touched && createIncomeForm.get('data')?.hasError('required')">
+              A data é obrigatória.
+            </p>
 
             <label for="categoria">Categoria</label>
             <div>
@@ -161,17 +164,32 @@
                   {{category.nome}}
                 </option>
               </select>
+              <p class="error-message" *ngIf="createIncomeForm.get('categoria')?.touched && createIncomeForm.get('categoria')?.hasError('required')">
+                A categoria é obrigatória.
+              </p>
             </div>
 
             <label for="valor">Valor</label>
             <input type="text" formControlName="valor"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('valor')?.touched && createIncomeForm.get('valor')?.hasError('required')">
+              O valor é obrigatório.
+            </p>
+            <p class="error-message" *ngIf="createIncomeForm.get('valor')?.touched && createIncomeForm.get('valor')?.hasError('pattern')">
+              O valor deve ser um número válido (exemplo: 100).
+            </p>
 
             <label for="origemDoPagamento">Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('origemDoPagamento')?.touched && createIncomeForm.get('origemDoPagamento')?.hasError('required')">
+              A origem do pagamento é obrigatória.
+            </p>
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
-
+            <p class="error-message" *ngIf="createIncomeForm.get('observacoes')?.touched && createIncomeForm.get('observacoes')?.hasError('required')">
+              A observação é obrigatória.
+            </p>
+            
             <button type="submit" [disabled]="createIncomeForm.invalid">Criar Receita</button>
           </form>
         </div>
@@ -185,6 +203,9 @@
           <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit(editingIncomeId!)">
             <label>Data</label>
             <input type="date" formControlName="data"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('data')?.touched && editIncomeForm.get('data')?.hasError('required')">
+              A data é obrigatória.
+            </p>
 
             <label>Categoria</label>
             <div>
@@ -194,16 +215,31 @@
                   {{category.nome}}
                 </option>
               </select>
+              <p class="error-message" *ngIf="editIncomeForm.get('categoria')?.touched && editIncomeForm.get('categoria')?.hasError('required')">
+                A categoria é obrigatória.
+              </p>
             </div>
 
             <label>Valor</label>
             <input type="number" formControlName="valor"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('valor')?.touched && editIncomeForm.get('valor')?.hasError('required')">
+              O valor é obrigatório.
+            </p>
+            <p class="error-message" *ngIf="editIncomeForm.get('valor')?.touched && editIncomeForm.get('valor')?.hasError('min')">
+              O valor deve ser maior que 0.
+            </p>
 
             <label>Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('origemDoPagamento')?.touched && editIncomeForm.get('origemDoPagamento')?.hasError('required')">
+              A origem do pagamento é obrigatória.
+            </p>
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('observacoes')?.touched && editIncomeForm.get('observacoes')?.hasError('required')">
+              A observação é obrigatória.
+            </p>
 
             <button type="submit" [disabled]="editIncomeForm.invalid">Salvar Alterações</button>
           </form>

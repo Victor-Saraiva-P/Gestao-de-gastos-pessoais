@@ -142,6 +142,11 @@
   color: black;
 }
 
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
+
 .chart-container {
   flex: 1;
   max-width: 100%;
