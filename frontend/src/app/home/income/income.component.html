@@ -186,7 +186,10 @@
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
-
+            <p class="error-message" *ngIf="createIncomeForm.get('observacoes')?.touched && createIncomeForm.get('observacoes')?.hasError('required')">
+              A observação é obrigatória.
+            </p>
+            
             <button type="submit" [disabled]="createIncomeForm.invalid">Criar Receita</button>
           </form>
         </div>
@@ -234,6 +237,9 @@
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('observacoes')?.touched && editIncomeForm.get('observacoes')?.hasError('required')">
+              A observação é obrigatória.
+            </p>
 
             <button type="submit" [disabled]="editIncomeForm.invalid">Salvar Alterações</button>
           </form>
