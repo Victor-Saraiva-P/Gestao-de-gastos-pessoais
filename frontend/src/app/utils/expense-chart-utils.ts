@@ -115,23 +115,48 @@ export class ChartUtils {
   ): void {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas || !barChartData) return;
-
+  
     // Destruir gráfico existente se houver
     if (this.barChart) {
       this.barChart.destroy();
     }
-
-    const months = Object.keys(barChartData.dadosMensais);
-    const values = months.map(m => barChartData.dadosMensais[m]);
-
+  
+    // Converte os meses para um formato ordenável
+    const monthMap: { [key: string]: number } = {
+      janeiro: 1, fevereiro: 2, março: 3, abril: 4, maio: 5, junho: 6,
+      julho: 7, agosto: 8, setembro: 9, outubro: 10, novembro: 11, dezembro: 12
+    };
+  
+    const parsedData = Object.entries(barChartData.dadosMensais).map(([key, value]) => {
+      const [monthName, year] = key.split(' ');
+      return {
+        month: monthMap[monthName.toLowerCase()],
+        year: parseInt(year, 10),
+        value
+      };
+    });
+  
+    // Ordena os dados cronologicamente
+    const sortedData = parsedData.sort((a, b) => {
+      if (a.year === b.year) {
+        return a.month - b.month;
+      }
+      return a.year - b.year;
+    });
+  
+    // Extrai os rótulos e valores ordenados
+    const labels = sortedData.map(data => `${this.getMonthName(data.month)} ${data.year}`);
+    const values = sortedData.map(data => data.value);
+  
+    // Cria o gráfico
     this.barChart = new Chart(canvas, {
       type: 'bar',
       data: {
-        labels: months,
+        labels,
         datasets: [{
           label: 'Despesas por Mês',
           data: values,
-          backgroundColor: months.map((_, index) => this.getColor(index)),
+          backgroundColor: labels.map((_, index) => this.getColor(index)),
           borderWidth: 1
         }]
       },
@@ -219,6 +244,14 @@ export class ChartUtils {
         }
       }
     });
+  }
+
+  private static getMonthName(month: number): string {
+    const monthNames = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return monthNames[month - 1];
   }
 
   // Métodos auxiliares

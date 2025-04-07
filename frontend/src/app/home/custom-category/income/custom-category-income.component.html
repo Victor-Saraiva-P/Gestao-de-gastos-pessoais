@@ -40,7 +40,9 @@
 
             <label for="name">Nome</label>
             <input type="text" formControlName="name" placeholder="Digite o nome da categoria"/>
-  
+            <p class="error-message" *ngIf="createCategoryincomeForm.get('name')?.touched && createCategoryincomeForm.get('name')?.hasError('required')">
+              O nome é obrigatório.
+            </p>
             <button type="submit" [disabled]="createCategoryincomeForm.invalid">Criar Categoria</button>
           </form>
         </div>
@@ -56,7 +58,9 @@
 
           <label>Nome</label>
           <input type="text" formControlName="nome" placeholder="Digite o nome atualizado da categoria"/>
-
+          <p class="error-message" *ngIf="editCategoryIncomeForm.get('nome')?.touched && editCategoryIncomeForm.get('nome')?.hasError('required')">
+            O nome é obrigatório.
+          </p>
           <button type="submit" [disabled]="editCategoryIncomeForm.invalid">Salvar Alterações</button>
         </form>
       </div>
