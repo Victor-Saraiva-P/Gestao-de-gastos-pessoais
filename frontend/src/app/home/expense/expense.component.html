@@ -191,6 +191,9 @@
 
           <label>Observação</label>
           <input type="text" formControlName="observacoes"/>
+          <p class="error-message" *ngIf="createExpenseForm.get('observacoes')?.touched && createExpenseForm.get('observacoes')?.hasError('required')">
+            A observação é obrigatória.
+          </p>
 
           <button type="submit" [disabled]="createExpenseForm.invalid">Criar Despesa</button>
         </form>
@@ -239,6 +242,9 @@
 
           <label>Observação</label>
           <input type="text" formControlName="observacoes"/>
+          <p class="error-message" *ngIf="editExpenseForm.get('observacoes')?.touched && editExpenseForm.get('observacoes')?.hasError('required')">
+            A observação é obrigatória.
+          </p>
 
           <button type="submit" [disabled]="editExpenseForm.invalid">Salvar Alterações</button>
         </form>
