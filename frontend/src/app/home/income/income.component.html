@@ -152,6 +152,9 @@
           <form [formGroup]="createIncomeForm" (ngSubmit)="onSubmitCreate()">
             <label for="data">Data</label>
             <input type="date" formControlName="data" placeholder="Digite a data"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('data')?.touched && createIncomeForm.get('data')?.hasError('required')">
+              A data é obrigatória.
+            </p>
 
             <label for="categoria">Categoria</label>
             <div>
@@ -161,13 +164,25 @@
                   {{category.nome}}
                 </option>
               </select>
+              <p class="error-message" *ngIf="createIncomeForm.get('categoria')?.touched && createIncomeForm.get('categoria')?.hasError('required')">
+                A categoria é obrigatória.
+              </p>
             </div>
 
             <label for="valor">Valor</label>
             <input type="text" formControlName="valor"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('valor')?.touched && createIncomeForm.get('valor')?.hasError('required')">
+              O valor é obrigatório.
+            </p>
+            <p class="error-message" *ngIf="createIncomeForm.get('valor')?.touched && createIncomeForm.get('valor')?.hasError('pattern')">
+              O valor deve ser um número válido (exemplo: 100).
+            </p>
 
             <label for="origemDoPagamento">Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
+            <p class="error-message" *ngIf="createIncomeForm.get('origemDoPagamento')?.touched && createIncomeForm.get('origemDoPagamento')?.hasError('required')">
+              A origem do pagamento é obrigatória.
+            </p>
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>
