@@ -46,11 +46,30 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       const { username, email, password, role } = this.registerForm.value;
       const newUser: User = { username, email, password, role: role.toUpperCase() };
-
+  
       this.authService.register(newUser)
-      .then(() => this.router.navigate(['/login']))
-      .catch(err => alert('Error registering user: ' + err));
+        .then(() => this.router.navigate(['/login']))
+        .catch((error: Error) => {
+          const errorMessage = error.message;
+          const lowerMessage = errorMessage.toLowerCase();
+  
+          // Verifica o conteúdo da mensagem
+          if (lowerMessage.includes('usuário') || lowerMessage.includes('username')) {
+            this.registerForm.get('username')?.setErrors({
+              ...this.registerForm.get('username')?.errors,
+              serverError: errorMessage
+            });
+          } 
+          else if (lowerMessage.includes('email') || lowerMessage.includes('cadastrado')) {
+                this.registerForm.get('email')?.setErrors({
+                  ...this.registerForm.get('email')?.errors,
+                  serverError: errorMessage
+            });
+          }
+          else {
+            alert(errorMessage); 
+          }
+        });
     }
   }
-
-}
+    }

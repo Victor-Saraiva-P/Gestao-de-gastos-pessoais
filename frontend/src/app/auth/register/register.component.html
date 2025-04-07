@@ -22,8 +22,12 @@
               <img src="assets/mail-icon.svg" alt="ícone usuário">
             </i>
           </div>
-          <p class="error" *ngIf="registerForm.controls['username'].invalid && registerForm.controls['username'].touched">
-            {{ registerForm.controls['username'].hasError('required') ? 'Campo obrigatório' : 'Mínimo de 3 caracteres' }}
+          <p class="error" *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+            <span *ngIf="registerForm.get('username')?.hasError('required')">Campo obrigatório</span>
+            <span *ngIf="registerForm.get('username')?.hasError('minlength')">Mínimo de 3 caracteres</span>
+            <span *ngIf="registerForm.get('username')?.hasError('serverError')">
+              {{ registerForm.get('username')?.getError('serverError') }}
+            </span>
           </p>
         </div>
   
@@ -41,8 +45,12 @@
               <img src="assets/mail-icon.svg" alt="ícone email">
             </i>
           </div>
-          <p class="error" *ngIf="registerForm.controls['email'].invalid && registerForm.controls['email'].touched">
-            {{ registerForm.controls['email'].hasError('required') ? 'Campo obrigatório' : 'E-mail inválido' }}
+          <p class="error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <span *ngIf="registerForm.get('email')?.hasError('required')">Campo obrigatório</span>
+            <span *ngIf="registerForm.get('email')?.hasError('email')">E-mail inválido</span>
+            <span *ngIf="registerForm.get('email')?.hasError('serverError')">
+              {{ registerForm.get('email')?.getError('serverError') }}
+            </span>
           </p>
         </div>
   
