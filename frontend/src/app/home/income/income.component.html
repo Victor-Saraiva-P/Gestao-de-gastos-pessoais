@@ -200,6 +200,9 @@
           <form [formGroup]="editIncomeForm" (ngSubmit)="onSubmitEdit(editingIncomeId!)">
             <label>Data</label>
             <input type="date" formControlName="data"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('data')?.touched && editIncomeForm.get('data')?.hasError('required')">
+              A data é obrigatória.
+            </p>
 
             <label>Categoria</label>
             <div>
@@ -209,13 +212,25 @@
                   {{category.nome}}
                 </option>
               </select>
+              <p class="error-message" *ngIf="editIncomeForm.get('categoria')?.touched && editIncomeForm.get('categoria')?.hasError('required')">
+                A categoria é obrigatória.
+              </p>
             </div>
 
             <label>Valor</label>
             <input type="number" formControlName="valor"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('valor')?.touched && editIncomeForm.get('valor')?.hasError('required')">
+              O valor é obrigatório.
+            </p>
+            <p class="error-message" *ngIf="editIncomeForm.get('valor')?.touched && editIncomeForm.get('valor')?.hasError('min')">
+              O valor deve ser maior que 0.
+            </p>
 
             <label>Origem</label>
             <input type="text" formControlName="origemDoPagamento"/>
+            <p class="error-message" *ngIf="editIncomeForm.get('origemDoPagamento')?.touched && editIncomeForm.get('origemDoPagamento')?.hasError('required')">
+              A origem do pagamento é obrigatória.
+            </p>
 
             <label>Observação</label>
             <input type="text" formControlName="observacoes"/>

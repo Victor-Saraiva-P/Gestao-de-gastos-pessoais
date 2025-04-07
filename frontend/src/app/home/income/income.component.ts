@@ -79,7 +79,7 @@ export class IncomeComponent implements OnInit, OnDestroy {
   editIncomeForm: FormGroup = this.fb.group({
     data: ['', Validators.required],
     categoria: ['', Validators.required],
-    valor: ['', Validators.required],
+    valor: ['', [Validators.required, Validators.min(0.01)]],
     origemDoPagamento: ['', Validators.required],
     observacoes: ['', Validators.required],
   });
