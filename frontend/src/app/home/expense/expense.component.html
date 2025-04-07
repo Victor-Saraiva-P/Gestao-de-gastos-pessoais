@@ -157,7 +157,7 @@
         <form [formGroup]="createExpenseForm" (ngSubmit)="onSubmitCreate()">
           <label for="data">Data</label>
           <input type="date" formControlName="data" placeholder="Digite a data"/>
-          <p class="error-message" *ngIf="editExpenseForm.get('data')?.touched && editExpenseForm.get('data')?.hasError('required')">
+          <p class="error-message" *ngIf="createExpenseForm.get('data')?.touched && createExpenseForm.get('data')?.hasError('required')">
             A data é obrigatória.
           </p>
 
