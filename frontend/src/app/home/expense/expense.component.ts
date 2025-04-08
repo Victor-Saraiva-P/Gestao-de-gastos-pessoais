@@ -126,7 +126,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses];
       this.filteredBarData = [...this.expenses];
-      this.loadBudgetGoals();
+      await this.loadBudgetGoals();
     }
   }
 
@@ -384,7 +384,6 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
-          this.refreshPage();
           this.checkBudgetWarnings()
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
@@ -416,7 +415,6 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         };
         await this.expenseService.updateExpense(id, updatedExpense);
         alert('Despesa atualizada com sucesso!');
-        this.refreshPage();
         this.checkBudgetWarnings()
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
@@ -512,5 +510,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
     if (warnings.length > 0) {
       alert(warnings.join("\n\n"));
     }
+
+    this.refreshPage();
   }
 }
