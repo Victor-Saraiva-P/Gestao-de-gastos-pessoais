@@ -478,8 +478,11 @@ export class ExpenseComponent implements OnInit, OnDestroy {
 
   async checkBudgetWarnings() {
     let warnings: string[] = [];
-    await this.loadBudgetGoals(); 
-    await this.loadExpenses();
+
+    const [budgetGoals, expenses] = await Promise.all([
+      this.loadBudgetGoals(), 
+      this.loadExpenses()     
+    ]);
 
     this.budgetGoals.forEach(goal => {
       const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
