@@ -384,8 +384,8 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
-          this.checkBudgetWarnings()
           this.refreshPage();
+          this.checkBudgetWarnings()
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
     }
