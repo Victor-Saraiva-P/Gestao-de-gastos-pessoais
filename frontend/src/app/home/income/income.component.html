@@ -8,7 +8,7 @@
       <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
         {{ isRemoving ? 'Cancelar Remoção' : 'Remover Receita' }}
       </button>
-      <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias</button>
+      <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias personalizadas</button>
       <button class="criar-edit-trash" (click)="generatePDF()" [disabled]="loading">
         <i class="fas fa-file-pdf"></i>
         <span *ngIf="!loading">Exportar PDF</span>
