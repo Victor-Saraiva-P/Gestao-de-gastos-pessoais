@@ -384,7 +384,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
-          this.checkBudgetWarnings()
+          this.checkBudgetWarnings().then(() => { this.refreshPage() });
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
     }
@@ -415,7 +415,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         };
         await this.expenseService.updateExpense(id, updatedExpense);
         alert('Despesa atualizada com sucesso!');
-        this.checkBudgetWarnings()
+        this.checkBudgetWarnings().then(() => { this.refreshPage() });
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
       }
@@ -476,9 +476,11 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   }
   
 
-  checkBudgetWarnings() {
+  async checkBudgetWarnings() {
     let warnings: string[] = [];
-  
+    await this.loadBudgetGoals(); 
+    await this.loadExpenses();
+
     this.budgetGoals.forEach(goal => {
       const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
   
@@ -510,7 +512,5 @@ export class ExpenseComponent implements OnInit, OnDestroy {
     if (warnings.length > 0) {
       alert(warnings.join("\n\n"));
     }
-
-    this.refreshPage();
   }
 }
