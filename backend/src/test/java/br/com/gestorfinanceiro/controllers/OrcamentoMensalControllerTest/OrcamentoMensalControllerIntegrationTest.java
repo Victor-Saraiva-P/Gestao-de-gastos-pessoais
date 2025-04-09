@@ -14,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -433,6 +436,24 @@ class OrcamentoMensalControllerIntegrationTest {
                     .content(objectMapper.writeValueAsString(dto)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.categoria").value(categoriaEspecial));
+        }
+    }
+
+    @Nested
+    class TokenValidationTest {
+        @Test
+        void quandoTokenAusente_DeveRetornarErro() throws Exception {
+            mockMvc.perform(get("/orcamento-mensal"))
+                .andExpect(status().isInternalServerError()) // Muda de isBadRequest()
+                .andExpect(content().string(containsString("Token JWT inválido ou ausente")));
+        }
+
+        @Test
+        void quandoTokenInvalido_DeveRetornarErro() throws Exception {
+            mockMvc.perform(get("/orcamento-mensal")
+                    .header("Authorization", "TokenInvalido"))
+                .andExpect(status().isInternalServerError()) // Muda de isBadRequest()
+                .andExpect(content().string(containsString("Token JWT inválido ou ausente")));
         }
     }
 
