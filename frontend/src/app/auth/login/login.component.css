@@ -186,6 +186,12 @@ p {
   }
 
 
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 5px;
+  }
+
   @media (max-width: 768px) {
     .image-container {
         display: none;

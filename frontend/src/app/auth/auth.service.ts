@@ -11,47 +11,44 @@ export class AuthService {
   private apiUrl = environment.apiUrl + '/auth'; 
   private apiUrlDes = environment.apiUrl + '/admin'; 
   
-
-  async register(newUser: User): Promise<User | null> {
-    try {
-      const response = await fetch(`${this.apiUrl}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser)
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha no registro');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Erro ao registrar usuário:', error);
-      return null;
+  async register(newUser: User): Promise<User> {
+    const response = await fetch(`${this.apiUrl}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser)
+    });
+  
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.detail); 
     }
+  
+    return data;
   }
 
+
   async login(email: string, password: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.apiUrl}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
 
-      if (!response.ok) {
-        throw new Error('Login falhou');
-      }
-      const data = await response.json();
+    const response = await fetch(`${this.apiUrl}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      //salva o token JWT recebido
-      localStorage.setItem('token', data.token);
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      return false;
+    if (response.status === 400) {
+      throw new Error('Credenciais inválidas. Verifique seu email e senha.');
     }
+
+    if (!response.ok) {
+      throw new Error('Login falhou');
+    }
+    const data = await response.json();
+
+    //salva o token JWT recebido
+    localStorage.setItem('token', data.token);
+
+    return true;
   }
   
   hasRole(requiredRole: string): boolean {

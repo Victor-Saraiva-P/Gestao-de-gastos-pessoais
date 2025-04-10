@@ -21,3 +21,4 @@ describe('CustomCategoryExpenseComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+

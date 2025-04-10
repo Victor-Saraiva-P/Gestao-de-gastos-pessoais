@@ -447,6 +447,11 @@ select:focus {
   padding-bottom: 5px;
   border-bottom: 1px solid #dee2e6;
 }
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
 
 /* Layout Responsivo */
 @media (max-width: 768px) {

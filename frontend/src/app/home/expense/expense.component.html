@@ -8,8 +8,7 @@
     <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
       {{ isRemoving ? 'Cancelar Remoção' : 'Remover Despesa' }}
     </button>
-    <button class="criar-edit-trash" (click)="costTarget()">Definir metas</button>
-    <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias</button>
+    <button class="criar-edit-trash" (click)="costTarget()">Definir limites</button>
     <button class="criar-edit-trash" (click)="categoriasPersonalizadas()">Categorias personalizadas</button>
     <button class="criar-edit-trash" (click)="generatePDF()" [disabled]="loading">
       <i class="fas fa-file-pdf"></i>
@@ -158,6 +157,9 @@
         <form [formGroup]="createExpenseForm" (ngSubmit)="onSubmitCreate()">
           <label for="data">Data</label>
           <input type="date" formControlName="data" placeholder="Digite a data"/>
+          <p class="error-message" *ngIf="createExpenseForm.get('data')?.touched && createExpenseForm.get('data')?.hasError('required')">
+            A data é obrigatória.
+          </p>
 
           <label for="categoria">Categoria</label>
           <div>
@@ -167,16 +169,31 @@
                 {{category.nome}}
               </option>
             </select>
+            <p class="error-message" *ngIf="createExpenseForm.get('categoria')?.touched && createExpenseForm.get('categoria')?.hasError('required')">
+              A categoria é obrigatória.
+            </p>
           </div>
 
           <label for="valor">Valor</label>
-          <input type="text" formControlName="valor"/>
+          <input type="text" formControlName="valor" pattern="^[0-9]+(\.[0-9]{1,2})?$" />
+          <p class="error-message" *ngIf="createExpenseForm.get('valor')?.touched && createExpenseForm.get('valor')?.hasError('required')">
+            O valor é obrigatório.
+          </p>
+          <p class="error-message" *ngIf="createExpenseForm.get('valor')?.touched && createExpenseForm.get('valor')?.hasError('pattern')">
+            O valor deve ser um número válido.
+          </p>
 
           <label for="destinoPagamento">Destino</label>
           <input type="text" formControlName="destinoPagamento"/>
+          <div class="error-message" *ngIf="createExpenseForm.get('destinoPagamento')?.touched && createExpenseForm.get('destinoPagamento')?.invalid">
+            O destino do pagamento é obrigatório.
+          </div>
 
           <label>Observação</label>
           <input type="text" formControlName="observacoes"/>
+          <p class="error-message" *ngIf="createExpenseForm.get('observacoes')?.touched && createExpenseForm.get('observacoes')?.hasError('required')">
+            A observação é obrigatória.
+          </p>
 
           <button type="submit" [disabled]="createExpenseForm.invalid">Criar Despesa</button>
         </form>
@@ -191,6 +208,9 @@
         <form [formGroup]="editExpenseForm" (ngSubmit)="onSubmitEdit(editingExpenseId!)">
           <label>Data</label>
           <input type="date" formControlName="data"/>
+          <p class="error-message" *ngIf="editExpenseForm.get('data')?.touched && editExpenseForm.get('data')?.hasError('required')">
+            A data é obrigatória.
+          </p>
 
           <label>Categoria</label>
           <div>
@@ -200,16 +220,31 @@
                 {{category.nome}}
               </option>
             </select>
+            <p class="error-message" *ngIf="editExpenseForm.get('categoria')?.touched && editExpenseForm.get('categoria')?.hasError('required')">
+              A categoria é obrigatória.
+            </p>
           </div>
 
           <label>Valor</label>
           <input type="number" formControlName="valor"/>
+          <p class="error-message" *ngIf="editExpenseForm.get('valor')?.touched && editExpenseForm.get('valor')?.hasError('required')">
+            O valor é obrigatório.
+          </p>
+          <p class="error-message" *ngIf="editExpenseForm.get('valor')?.touched && editExpenseForm.get('valor')?.hasError('pattern')">
+            O valor deve ser um número válido.
+          </p>
 
           <label>Destino</label>
           <input type="text" formControlName="destinoPagamento"/>
+          <p class="error-message" *ngIf="editExpenseForm.get('destinoPagamento')?.touched && editExpenseForm.get('destinoPagamento')?.hasError('required')">
+            O destino do pagamento é obrigatório.
+          </p>
 
           <label>Observação</label>
           <input type="text" formControlName="observacoes"/>
+          <p class="error-message" *ngIf="editExpenseForm.get('observacoes')?.touched && editExpenseForm.get('observacoes')?.hasError('required')">
+            A observação é obrigatória.
+          </p>
 
           <button type="submit" [disabled]="editExpenseForm.invalid">Salvar Alterações</button>
         </form>

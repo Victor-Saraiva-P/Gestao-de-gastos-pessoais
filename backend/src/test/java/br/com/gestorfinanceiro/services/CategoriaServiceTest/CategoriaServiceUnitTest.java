@@ -3,14 +3,20 @@ package br.com.gestorfinanceiro.services.CategoriaServiceTest;
 import br.com.gestorfinanceiro.TestDataUtil;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaCreateDTO;
 import br.com.gestorfinanceiro.dto.categoria.CategoriaUpdateDTO;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAcessDeniedException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaAlreadyExistsException;
 import br.com.gestorfinanceiro.exceptions.categoria.CategoriaIdNotFoundException;
+import br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException;
 import br.com.gestorfinanceiro.exceptions.common.InvalidDataException;
 import br.com.gestorfinanceiro.exceptions.user.UserNotFoundException;
 import br.com.gestorfinanceiro.models.CategoriaEntity;
+import br.com.gestorfinanceiro.models.DespesaEntity;
+import br.com.gestorfinanceiro.models.ReceitaEntity;
 import br.com.gestorfinanceiro.models.UserEntity;
+import br.com.gestorfinanceiro.models.enums.CategoriaType;
 import br.com.gestorfinanceiro.repositories.CategoriaRepository;
 import br.com.gestorfinanceiro.repositories.DespesaRepository;
+import br.com.gestorfinanceiro.repositories.ReceitaRepository;
 import br.com.gestorfinanceiro.repositories.UserRepository;
 import br.com.gestorfinanceiro.services.impl.CategoriaServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -23,11 +29,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +53,9 @@ class CategoriaServiceUnitTest {
 
     @Mock
     private CategoriaRepository categoriaRepository;
+    
+    @Mock
+    private ReceitaRepository receitaRepository;
 
     //------------------TESTES DO criarCategoria ----------------------//
     @Test
@@ -252,5 +265,282 @@ class CategoriaServiceUnitTest {
 
         assertThrows(br.com.gestorfinanceiro.exceptions.categoria.CategoriaOperationException.class,
                 () -> categoriaService.excluirCategoria(categoria.getUuid(), "123-456"));
+    }
+
+    private final String usuarioId = "user-123";
+    private final String categoriaUuid = "cat-456";
+    private final String tipoDespesa = "DESPESAS";
+    private final String tipoReceitas = "RECEITAS";
+    
+    private UserEntity createUser() {
+        UserEntity user = new UserEntity();
+        user.setUuid(usuarioId);
+        return user;
+    }
+    
+    private CategoriaEntity createCategoria(String nome, CategoriaType tipo, boolean semCategoria) {
+        CategoriaEntity categoria = new CategoriaEntity();
+        categoria.setUuid(categoriaUuid);
+        categoria.setNome(nome);
+        categoria.setTipo(tipo);
+        categoria.setUser(createUser());
+        categoria.setSemCategoria(semCategoria);
+        return categoria;
+    }
+
+    @Test
+    void atualizarCategoria_DeveRetornarCategoriaAtualizada_QuandoDadosValidos() {
+        CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Novo Nome");
+        CategoriaEntity categoriaExistente = createCategoria("Nome Antigo", CategoriaType.DESPESAS, false);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaExistente));
+        when(categoriaRepository.findByNomeAndTipoAndUserUuid(any(), any(), any())).thenReturn(Optional.empty());
+        when(categoriaRepository.save(any())).thenReturn(categoriaExistente);
+        
+        CategoriaEntity result = categoriaService.atualizarCategoria(categoriaUuid, updateDTO, usuarioId);
+        
+        assertEquals("Novo Nome", result.getNome());
+        verify(categoriaRepository).findById(categoriaUuid);
+        verify(categoriaRepository).findByNomeAndTipoAndUserUuid("Novo Nome", CategoriaType.DESPESAS, usuarioId);
+        verify(categoriaRepository).save(categoriaExistente);
+    }
+
+    @Test
+    void atualizarCategoria_DeveLancarExcecao_QuandoNomeJaExiste() {
+        CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Nome Existente");
+        CategoriaEntity categoriaExistente = createCategoria("Nome Antigo", CategoriaType.DESPESAS, false);
+        CategoriaEntity outraCategoria = createCategoria("Nome Existente", CategoriaType.DESPESAS, false);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaExistente));
+        when(categoriaRepository.findByNomeAndTipoAndUserUuid("Nome Existente", CategoriaType.DESPESAS, usuarioId))
+            .thenReturn(Optional.of(outraCategoria));
+        
+        assertThrows(CategoriaAlreadyExistsException.class, 
+            () -> categoriaService.atualizarCategoria(categoriaUuid, updateDTO, usuarioId));
+    }
+
+    @Test
+    void excluirCategoria_DeveExcluirERedirecionarDespesas_QuandoCategoriaValida() {
+        CategoriaEntity categoriaParaExcluir = createCategoria("Alimentação", CategoriaType.DESPESAS, false);
+        CategoriaEntity semCategoria = createCategoria("Sem Categoria", CategoriaType.DESPESAS, true);
+        DespesaEntity despesa = new DespesaEntity();
+        despesa.setCategoria(categoriaParaExcluir);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaParaExcluir));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.DESPESAS, usuarioId))
+            .thenReturn(Optional.of(semCategoria));
+        when(despesaRepository.findAllByCategoria(categoriaParaExcluir)).thenReturn(List.of(despesa));
+        
+        categoriaService.excluirCategoria(categoriaUuid, usuarioId);
+        
+        verify(despesaRepository).save(despesa);
+        assertEquals(semCategoria, despesa.getCategoria());
+        verify(categoriaRepository).delete(categoriaParaExcluir);
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoTentarExcluirSemCategoria() {
+        CategoriaEntity semCategoria = createCategoria("Sem Categoria", CategoriaType.DESPESAS, true);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(semCategoria));
+        
+        assertThrows(CategoriaOperationException.class, 
+            () -> categoriaService.excluirCategoria(categoriaUuid, usuarioId));
+    }
+
+    @Test
+    void criarSemCategoria_DeveCriarNovaCategoria_QuandoNaoExistir() {
+        when(userRepository.findById(usuarioId)).thenReturn(Optional.of(createUser()));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.DESPESAS, usuarioId))
+            .thenReturn(Optional.empty());
+        when(categoriaRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        
+        CategoriaEntity result = categoriaService.criarSemCategoria(usuarioId, tipoDespesa);
+        
+        assertEquals("Sem Categoria", result.getNome());
+        assertTrue(result.isSemCategoria());
+        assertEquals(CategoriaType.DESPESAS, result.getTipo());
+        assertEquals(usuarioId, result.getUser().getUuid());
+    }
+
+    @Test
+    void criarSemCategoria_DeveLancarExcecao_QuandoJaExistir() {
+        CategoriaEntity semCategoriaExistente = createCategoria("Sem Categoria", CategoriaType.DESPESAS, true);
+        
+        when(userRepository.findById(usuarioId)).thenReturn(Optional.of(createUser()));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.DESPESAS, usuarioId))
+            .thenReturn(Optional.of(semCategoriaExistente));
+        
+        assertThrows(CategoriaAlreadyExistsException.class, 
+            () -> categoriaService.criarSemCategoria(usuarioId, tipoDespesa));
+    }
+
+    @Test
+    void atualizarCategoria_DeveLancarExcecao_QuandoCategoriaUpdateDTONull() {
+        CategoriaUpdateDTO updateDTONull = null;
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.atualizarCategoria(categoriaUuid, updateDTONull, usuarioId),
+            "Passar a categoria é obrigatório.");
+    }
+
+    @Test
+    void atualizarCategoria_DeveLancarExcecao_QuandoNomeNull() {
+        CategoriaUpdateDTO updateDTOComNomeNull = new CategoriaUpdateDTO(null);
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.atualizarCategoria(categoriaUuid, updateDTOComNomeNull, usuarioId),
+            "O nome é obrigatório.");
+    }
+
+    @Test
+    void atualizarCategoria_DeveLancarExcecao_QuandoNomeVazio() {
+        CategoriaUpdateDTO updateDTOComNomeVazio = new CategoriaUpdateDTO("   ");
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.atualizarCategoria(categoriaUuid, updateDTOComNomeVazio, usuarioId),
+            "O nome é obrigatório.");
+    }
+
+    @Test
+    void atualizarCategoria_DeveLancarExcecao_QuandoUsuarioNaoDono() {
+        String outroUsuarioId = "outro-user-456";
+        CategoriaUpdateDTO updateDTO = new CategoriaUpdateDTO("Novo Nome");
+        CategoriaEntity categoriaExistente = createCategoria("Nome Antigo", CategoriaType.DESPESAS, false);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaExistente));
+        
+        assertThrows(CategoriaAcessDeniedException.class,
+            () -> categoriaService.atualizarCategoria(categoriaUuid, updateDTO, outroUsuarioId));
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoCategoriaIdNull() {
+        String categoriaIdNull = null;
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.excluirCategoria(categoriaIdNull, usuarioId),
+            "O id da categoria é obrigatório.");
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoCategoriaIdVazio() {
+        String categoriaIdVazio = "   ";
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.excluirCategoria(categoriaIdVazio, usuarioId),
+            "O id da categoria é obrigatório.");
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoUsuarioNaoDono() {
+        String outroUsuarioId = "outro-user-456";
+        CategoriaEntity categoriaExistente = createCategoria("Alimentação", CategoriaType.DESPESAS, false);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaExistente));
+        
+        assertThrows(CategoriaAcessDeniedException.class,
+            () -> categoriaService.excluirCategoria(categoriaUuid, outroUsuarioId));
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoCategoriaNaoExiste() {
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.empty());
+        
+        assertThrows(CategoriaIdNotFoundException.class,
+            () -> categoriaService.excluirCategoria(categoriaUuid, usuarioId));
+    }
+
+    @Test
+    void criarSemCategoria_DeveLancarExcecao_QuandoTipoNull() {
+        String tipoNull = null;
+        when(userRepository.findById(usuarioId)).thenReturn(Optional.of(createUser()));
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.criarSemCategoria(usuarioId, tipoNull),
+            "O tipo é obrigatório.");
+    }
+
+    @Test
+    void criarSemCategoria_DeveLancarExcecao_QuandoTipoVazio() {
+        String tipoVazio = "   ";
+        when(userRepository.findById(usuarioId)).thenReturn(Optional.of(createUser()));
+        
+        assertThrows(InvalidDataException.class,
+            () -> categoriaService.criarSemCategoria(usuarioId, tipoVazio),
+            "O tipo é obrigatório.");
+    }
+
+    @Test
+    void criarSemCategoria_DeveLancarExcecao_QuandoTipoInvalido() {
+        String tipoInvalido = "INVALIDO";
+        when(userRepository.findById(usuarioId)).thenReturn(Optional.of(createUser()));
+        
+        assertThrows(IllegalArgumentException.class,
+            () -> categoriaService.criarSemCategoria(usuarioId, tipoInvalido));
+    }
+
+    @Test
+    void criarSemCategoria_DeveLancarExcecao_QuandoUsuarioNaoExiste() {
+        String usuarioInexistente = "usuario-inexistente";
+        when(userRepository.findById(usuarioInexistente)).thenReturn(Optional.empty());
+        
+        assertThrows(UserNotFoundException.class,
+            () -> categoriaService.criarSemCategoria(usuarioInexistente, tipoDespesa));
+    }
+
+    @Test
+    void excluirCategoria_DeveRedirecionarReceitasParaSemCategoria_QuandoTipoReceitas() {
+        CategoriaEntity categoriaParaExcluir = createCategoria("Investimentos", CategoriaType.RECEITAS, false);
+        CategoriaEntity semCategoria = createCategoria("Sem Categoria", CategoriaType.RECEITAS, true);
+        ReceitaEntity receita1 = new ReceitaEntity();
+        receita1.setCategoria(categoriaParaExcluir);
+        ReceitaEntity receita2 = new ReceitaEntity();
+        receita2.setCategoria(categoriaParaExcluir);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaParaExcluir));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.RECEITAS, usuarioId))
+            .thenReturn(Optional.of(semCategoria));
+        when(receitaRepository.findAllByCategoria(categoriaParaExcluir)).thenReturn(List.of(receita1, receita2));
+        
+        categoriaService.excluirCategoria(categoriaUuid, usuarioId);
+        
+        assertEquals(semCategoria, receita1.getCategoria());
+        assertEquals(semCategoria, receita2.getCategoria());
+        verify(receitaRepository, times(2)).save(any(ReceitaEntity.class));
+        verify(categoriaRepository).delete(categoriaParaExcluir);
+    }
+
+    @Test
+    void excluirCategoria_NaoDeveLancarErro_QuandoNaoHaReceitasAssociadas() {
+        CategoriaEntity categoriaParaExcluir = createCategoria("Investimentos", CategoriaType.RECEITAS, false);
+        CategoriaEntity semCategoria = createCategoria("Sem Categoria", CategoriaType.RECEITAS, true);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaParaExcluir));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.RECEITAS, usuarioId))
+            .thenReturn(Optional.of(semCategoria));
+        when(receitaRepository.findAllByCategoria(categoriaParaExcluir)).thenReturn(List.of());
+        
+        assertDoesNotThrow(() -> categoriaService.excluirCategoria(categoriaUuid, usuarioId));
+        verify(categoriaRepository).delete(categoriaParaExcluir);
+    }
+
+    @Test
+    void excluirCategoria_DeveLancarExcecao_QuandoErroAoAtualizarReceitas() {
+        CategoriaEntity categoriaParaExcluir = createCategoria("Investimentos", CategoriaType.RECEITAS, false);
+        CategoriaEntity semCategoria = createCategoria("Sem Categoria", CategoriaType.RECEITAS, true);
+        ReceitaEntity receita = new ReceitaEntity();
+        receita.setCategoria(categoriaParaExcluir);
+        
+        when(categoriaRepository.findById(categoriaUuid)).thenReturn(Optional.of(categoriaParaExcluir));
+        when(categoriaRepository.findByIsSemCategoriaAndTipoAndUserUuid(true, CategoriaType.RECEITAS, usuarioId))
+            .thenReturn(Optional.of(semCategoria));
+        when(receitaRepository.findAllByCategoria(categoriaParaExcluir)).thenReturn(List.of(receita));
+        doThrow(new RuntimeException("Erro ao salvar receita")).when(receitaRepository).save(receita);
+        
+        CategoriaOperationException exception = assertThrows(CategoriaOperationException.class,
+            () -> categoriaService.excluirCategoria(categoriaUuid, usuarioId));
+        
+        assertTrue(exception.getMessage().contains("Erro ao excluir categoria"));
     }
 }

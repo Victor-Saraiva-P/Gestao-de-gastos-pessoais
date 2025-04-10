@@ -126,7 +126,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
       this.expenses = response;
       this.filteredExpenses = [...this.expenses];
       this.filteredBarData = [...this.expenses];
-      this.loadBudgetGoals();
+      await this.loadBudgetGoals();
     }
   }
 
@@ -384,8 +384,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         .createExpense(newExpense)
         .then(() => {
           alert('Despesa criada com sucesso!');
-          this.checkBudgetWarnings()
-          this.refreshPage();
+          this.checkBudgetWarnings().then(() => { this.refreshPage() });
         })
         .catch((err) => alert('Erro ao criar despesa: ' + err));
     }
@@ -416,8 +415,7 @@ export class ExpenseComponent implements OnInit, OnDestroy {
         };
         await this.expenseService.updateExpense(id, updatedExpense);
         alert('Despesa atualizada com sucesso!');
-        this.refreshPage();
-        this.checkBudgetWarnings()
+        this.checkBudgetWarnings().then(() => { this.refreshPage() });
       } catch (err) {
         alert('Erro ao atualizar despesa: ' + err);
       }
@@ -478,9 +476,14 @@ export class ExpenseComponent implements OnInit, OnDestroy {
   }
   
 
-  checkBudgetWarnings() {
+  async checkBudgetWarnings() {
     let warnings: string[] = [];
-  
+
+    const [budgetGoals, expenses] = await Promise.all([
+      this.loadBudgetGoals(), 
+      this.loadExpenses()     
+    ]);
+
     this.budgetGoals.forEach(goal => {
       const [goalYear, goalMonth] = goal.periodo.split('-').map(Number);
   

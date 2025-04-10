@@ -16,6 +16,7 @@ import br.com.gestorfinanceiro.mappers.Mapper;
 
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,7 +37,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.UUID;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -430,5 +434,123 @@ class DespesaControllerUnitTest {
                     .header("Authorization", "Bearer token"))
                 .andExpect(status().isBadRequest());
         }
+    }
+
+    @Nested
+    class GraficoBarrasTest {
+        @Test
+        void gerarGraficoBarras_DeveRetornarOk() throws Exception {
+            YearMonth inicio = YearMonth.of(2023, 1);
+            YearMonth fim = YearMonth.of(2023, 12);
+            GraficoBarraDTO graficoMock = new GraficoBarraDTO(Map.of("Janeiro", BigDecimal.valueOf(1500)));
+
+            when(jwtUtil.extractUserId(anyString())).thenReturn(user.getUuid());
+            when(despesaService.gerarGraficoBarras(anyString(), any(YearMonth.class), any(YearMonth.class)))
+                .thenReturn(graficoMock);
+
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", inicio.toString())
+                    .param("fim", fim.toString())
+                    .header("Authorization", "Bearer token_valido"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dadosMensais.Janeiro").value(1500));
+        }
+
+        @Test
+        void gerarGraficoBarras_SemToken_DeveRetornarUnauthorized() throws Exception {
+            YearMonth inicio = YearMonth.of(2023, 1);
+            YearMonth fim = YearMonth.of(2023, 12);
+
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", inicio.toString())
+                    .param("fim", fim.toString()))
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void gerarGraficoBarras_TokenInvalido_DeveRetornarUnauthorized() throws Exception {
+            YearMonth inicio = YearMonth.of(2023, 1);
+            YearMonth fim = YearMonth.of(2023, 12);
+
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", inicio.toString())
+                    .param("fim", fim.toString())
+                    .header("Authorization", "TokenInvalido"))
+                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        void gerarGraficoBarras_FormatoDataInvalido_DeveRetornarBadRequest() throws Exception {
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", "2023/01")
+                    .param("fim", "2023-12")
+                    .header("Authorization", "Bearer token_valido"))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void gerarGraficoBarras_MesmaDataInicioEFim_DeveRetornarOk() throws Exception {
+            YearMonth data = YearMonth.of(2023, 6);
+            GraficoBarraDTO graficoMock = new GraficoBarraDTO(Map.of("Junho", BigDecimal.valueOf(1200)));
+
+            when(jwtUtil.extractUserId(anyString())).thenReturn(user.getUuid());
+            when(despesaService.gerarGraficoBarras(anyString(), any(YearMonth.class), any(YearMonth.class)))
+                .thenReturn(graficoMock);
+
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", data.toString())
+                    .param("fim", data.toString())
+                    .header("Authorization", "Bearer token_valido"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dadosMensais.Junho").value(1200));
+        }
+
+        @Test
+        void gerarGraficoBarras_DeveChamarServiceComParametrosCorretos() throws Exception {
+            YearMonth inicio = YearMonth.of(2023, 1);
+            YearMonth fim = YearMonth.of(2023, 3);
+            GraficoBarraDTO graficoMock = new GraficoBarraDTO(new HashMap<>());
+
+            when(jwtUtil.extractUserId(anyString())).thenReturn(user.getUuid());
+            when(despesaService.gerarGraficoBarras(anyString(), any(YearMonth.class), any(YearMonth.class)))
+                .thenReturn(graficoMock);
+
+            mockMvc.perform(get("/despesas/grafico-barras")
+                    .param("inicio", inicio.toString())
+                    .param("fim", fim.toString())
+                    .header("Authorization", "Bearer token_valido"));
+
+            ArgumentCaptor<YearMonth> inicioCaptor = ArgumentCaptor.forClass(YearMonth.class);
+            ArgumentCaptor<YearMonth> fimCaptor = ArgumentCaptor.forClass(YearMonth.class);
+
+            verify(despesaService).gerarGraficoBarras(eq(user.getUuid()), inicioCaptor.capture(), fimCaptor.capture());
+            
+            assertEquals(inicio, inicioCaptor.getValue());
+            assertEquals(fim, fimCaptor.getValue());
+        }
+    }
+
+    @Test
+    void gerarGraficoBarras_DataInicialPosteriorAFinal_DeveLancarExcecaoComMensagemCorreta() throws Exception {
+        YearMonth inicio = YearMonth.of(2023, 12);
+        YearMonth fim = YearMonth.of(2023, 1);
+        
+        when(jwtUtil.extractUserId(anyString())).thenReturn(user.getUuid());
+    
+        mockMvc = MockMvcBuilders.standaloneSetup(despesaController)
+                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+                .build();
+    
+        mockMvc.perform(get("/despesas/grafico-barras")
+                .param("inicio", inicio.toString())
+                .param("fim", fim.toString())
+                .header("Authorization", "Bearer token_valido"))
+            .andExpect(status().isBadRequest())
+            .andExpect(result -> {
+                assertTrue(result.getResolvedException() instanceof ResponseStatusException);
+                ResponseStatusException ex = (ResponseStatusException) result.getResolvedException();
+                assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+                assertEquals("Data inicial não pode ser posterior à data final", ex.getReason());
+            });
     }
 }

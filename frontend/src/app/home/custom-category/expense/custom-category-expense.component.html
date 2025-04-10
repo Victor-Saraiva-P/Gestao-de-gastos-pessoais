@@ -1,64 +1,76 @@
 <section class="category-expense-container">
-    <button class="home-button" (click)="expense()">Voltar</button>
-    <div class="left-section">
-      <button class="criar-edit-trash" (click)="openModal('create')">Criar categoria</button>
-      <button class="criar-edit-trash" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
-        {{ isEditing ? 'Cancelar Edição' : 'Editar Categoria' }}
-      </button>
-      <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
-        {{ isRemoving ? 'Cancelar Remoção' : 'Remover Categoria' }}
-      </button>
+  <button class="home-button" (click)="expense()">Voltar</button>
+  <div class="left-section">
+    <button class="criar-edit-trash" (click)="openModal('create')">Criar categoria</button>
+    <button class="criar-edit-trash" [class.cancel-mode]="isEditing" (click)="toggleEditMode()">
+      {{ isEditing ? 'Cancelar Edição' : 'Editar Categoria' }}
+    </button>
+    <button class="criar-edit-trash" [class.cancel-mode]="isRemoving" (click)="toggleRemoveMode()">
+      {{ isRemoving ? 'Cancelar Remoção' : 'Remover Categoria' }}
+    </button>
+  </div>
+
+  <div class="main-content">
+
+    <div class="category-list">
+      
+      <h2>Categorias de despesas Cadastradas</h2>
+      <ul>
+        <li *ngFor="let expenseCategory of expensesCatories">
+          <div>
+            <strong>Nome:</strong> {{ expenseCategory.nome }}<br>
+          </div>
+          <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(expenseCategory)">
+            <img src="assets/edit-bnt.png">
+          </button>
+          <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(expenseCategory.uuid!)">
+            <img src="assets/trash-bnt.png">
+          </button>
+        </li>
+      </ul>
     </div>
 
-    <div class="main-content">
-
-      <!-- Lista de categorias de despesas -->
-      <div class="category-list">
+  </div>
+  <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
+    <div class="modal-content">
+      <button class="close" (click)="closeModal()">&times;</button>
+      <h2>Criar Categorias</h2>
+      <form [formGroup]="createCategoryExpenseForm" (ngSubmit)="onSubmitCreate()">
+        <label for="name">Nome</label>
+        <input 
+          type="text" 
+          formControlName="name" 
+          placeholder="Digite o nome da categoria"
+          (blur)="onNameBlur()"
+        />
         
-        <h2>Categorias de despesas Cadastradas</h2>
-        <ul>
-          <li *ngFor="let expenseCategory of expensesCatories">
-            <div>
-              <strong>Nome:</strong> {{ expenseCategory.nome }}<br>
-            </div>
-            <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(expenseCategory)">
-              <img src="assets/edit-bnt.png">
-            </button>
-            <button class="edit-remove" *ngIf="isRemoving" (click)="onSubmitRemove(expenseCategory.uuid!)">
-              <img src="assets/trash-bnt.png">
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Modal Criar Categoria -->
-      <div [ngClass]="{'modal': true, 'show-modal': modalType === 'create'}">
-        <div class="modal-content">
-          <button class="close" (click)="closeModal()">&times;</button>
-          <h2>Criar Categorias</h2>
-          <form [formGroup]="createCategoryExpenseForm" (ngSubmit)="onSubmitCreate()">
-
-            <label for="name">Nome</label>
-            <input type="text" formControlName="name" placeholder="Digite o nome da categoria"/>
-  
-            <button type="submit" [disabled]="createCategoryExpenseForm.invalid">Criar Categoria</button>
-          </form>
+        <div *ngIf="(createCategoryExpenseForm.get('name')?.invalid && submitted) || createCategoryExpenseForm.get('name')?.touched">
+          <p class="error-message" *ngIf="createCategoryExpenseForm.get('name')?.hasError('required')">
+            O nome da categoria é necessário para criação.
+          </p>
+          <p class="error-message" *ngIf="createCategoryError">
+            {{ createCategoryError }}
+          </p>
         </div>
-      </div>
+  
+        <button type="submit" [disabled]="createCategoryExpenseForm.invalid">Criar Categoria</button>
+      </form>
     </div>
+  </div>
 
-    <!-- Modal Editar categoria -->
-    <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
-      <div class="modal-content">
-        <button class="close" (click)="closeModal()">&times;</button>
-        <h2>Editar Categoria</h2>
-        <form [formGroup]="editCategoryExpenseForm" (ngSubmit)="onSubmitEdit(editingCategoryId!)">
+  <div [ngClass]="{'modal': true, 'show-modal': modalType === 'edit'}">
+    <div class="modal-content">
+      <button class="close" (click)="closeModal()">&times;</button>
+      <h2>Editar Categoria</h2>
+      <form [formGroup]="editCategoryExpenseForm" (ngSubmit)="onSubmitEdit(editingCategoryId!)">
 
-          <label>Nome</label>
-          <input type="text" formControlName="nome" placeholder="Digite o nome atualizado da categoria"/>
+        <label>Nome</label>
+        <input type="text" formControlName="nome" placeholder="Digite o nome atualizado da categoria"/>
+        <p class="error-message" *ngIf="editCategoryError">{{ editCategoryError }}</p>
 
-          <button type="submit" [disabled]="editCategoryExpenseForm.invalid">Salvar Alterações</button>
-        </form>
-      </div>
+        <button type="submit" [disabled]="editCategoryExpenseForm.invalid">Salvar Alterações</button>
+      </form>
     </div>
-  </section>
+  </div>
+</section>
+

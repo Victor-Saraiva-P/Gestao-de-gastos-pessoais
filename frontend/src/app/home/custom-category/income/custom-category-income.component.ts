@@ -79,7 +79,11 @@ export class CustomCategoryIncomeComponent implements OnInit {
         if (this.createCategoryincomeForm.valid) {
           const nome: string = this.createCategoryincomeForm.value.name;
       
-    
+          if (this.isDuplicateTarget(nome)) {
+            alert('Já existe um nome para essa categoria.');
+            return;
+          }
+
           this.customCategoryService
             .createCategories('RECEITAS', this.correctCategory(nome))
             .then(() => {
@@ -94,6 +98,12 @@ export class CustomCategoryIncomeComponent implements OnInit {
       if (this.editCategoryIncomeForm.valid) {
         try {
           const nome: string = this.editCategoryIncomeForm.value.nome;
+
+          if (this.isDuplicateTarget(nome, id)) {
+            alert('Já existe um nome para essa categoria.');
+            return;
+          }
+
           await this.customCategoryService.changeNameCategory(id, this.correctCategory(nome));
           alert('Categoria atualizada com sucesso!');
           this.refreshPage();
@@ -124,5 +134,12 @@ export class CustomCategoryIncomeComponent implements OnInit {
     correctCategory(string: string): string {
       const newString = string.toLowerCase();
       return newString.charAt(0).toUpperCase() + newString.slice(1);
+    }
+
+    isDuplicateTarget(nome: string, excludeId: string | null = null): boolean {
+      return this.incomesCatories.some(target => 
+        target.nome.toLowerCase() === nome.toLowerCase() &&
+        target.uuid !== excludeId 
+      );
     }
 }

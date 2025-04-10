@@ -14,13 +14,21 @@
     <!-- Lista de categorias de despesas -->
     <div class="category-list">
       
-      <h2>Limites de despesas cadastrados</h2>
+      <h2>Limites para despesas cadastrados</h2>
+      <div class="legend">
+        <span class="legend-item">
+          <span class="legend-color green"></span> Dentro do limite
+        </span>
+        <span class="legend-item">
+          <span class="legend-color red"></span> Limite ultrapassado
+        </span>
+      </div>
       <ul>
-        <li *ngFor="let target of expensesTarget">
+        <li *ngFor="let target of expensesTarget" [ngClass]="{'limit-exceeded': isLimitExceeded(target)}">
           <div>
             <strong>Categoria:</strong> {{ target.categoria }}<br>
             <strong>Valor limite:</strong> {{ target.valorLimite }}<br>
-            <strong>Periodo:</strong> {{ target.periodo }}<br>
+            <strong>Período:</strong> {{ target.periodo }}<br>
           </div>
           <button class="edit-remove" *ngIf="isEditing" (click)="openEditModal(target)">
             <img src="assets/edit-bnt.png">
@@ -38,7 +46,6 @@
         <button class="close" (click)="closeModal()">&times;</button>
         <h2>Criar Limite</h2>
         <form [formGroup]="createTargetExpenseForm" (ngSubmit)="onSubmitCreate()">
-
           <label for="categoria">Categoria</label>
           <div>
             <select id="categoria" formControlName="categoria" required>
@@ -47,15 +54,27 @@
                 {{category.nome}}
               </option>
             </select>
+            <p class="error-message" *ngIf="createTargetExpenseForm.get('categoria')?.touched && createTargetExpenseForm.get('categoria')?.hasError('required')">
+              A categoria é obrigatória.
+            </p>
           </div>
-
+        
           <label for="valorLimite">Valor limite</label>
           <input type="number" formControlName="valorLimite"/>
-
-          <label for="periodo">Periodo</label>
-          <input type="month" formControlName="periodo" placeholder="Escolha o periodo"/>
-
-          <button type="submit" [disabled]="createTargetExpenseForm.invalid">Criar Categoria</button>
+          <p class="error-message" *ngIf="createTargetExpenseForm.get('valorLimite')?.touched && createTargetExpenseForm.get('valorLimite')?.hasError('required')">
+            O valor limite é obrigatório.
+          </p>
+          <p class="error-message" *ngIf="createTargetExpenseForm.get('valorLimite')?.touched && createTargetExpenseForm.get('valorLimite')?.hasError('min')">
+            O valor limite deve ser maior que 0.
+          </p>
+        
+          <label for="periodo">Período</label>
+          <input type="month" formControlName="periodo" placeholder="Escolha o período"/>
+          <p class="error-message" *ngIf="createTargetExpenseForm.get('periodo')?.touched && createTargetExpenseForm.get('periodo')?.hasError('required')">
+            O período é obrigatório.
+          </p>
+        
+          <button type="submit" [disabled]="createTargetExpenseForm.invalid">Criar Limite</button>
         </form>
       </div>
     </div>
@@ -66,23 +85,34 @@
       <button class="close" (click)="closeModal()">&times;</button>
       <h2>Editar Limite</h2>
       <form [formGroup]="editTargetExpenseForm" (ngSubmit)="onSubmitEdit(editingTargetId!)">
-
         <label for="categoria">Categoria</label>
-          <div>
-            <select id="categoria" formControlName="categoria" required>
-              <option value="" disabled selected>Selecione uma categoria</option>
-              <option *ngFor="let category of expenseCategories" [value]="category.nome">
-                {{category.nome}}
-              </option>
-            </select>
-          </div>
-
-          <label for="valorLimite">Valor limite</label>
-          <input type="number" formControlName="valorLimite"/>
-
-          <label for="periodo">Periodo</label>
-          <input type="month" formControlName="periodo" placeholder="Escolha o periodo"/>
-
+        <div>
+          <select id="categoria" formControlName="categoria" required>
+            <option value="" disabled selected>Selecione uma categoria</option>
+            <option *ngFor="let category of expenseCategories" [value]="category.nome">
+              {{category.nome}}
+            </option>
+          </select>
+          <p class="error-message" *ngIf="editTargetExpenseForm.get('categoria')?.touched && editTargetExpenseForm.get('categoria')?.hasError('required')">
+            A categoria é obrigatória.
+          </p>
+        </div>
+      
+        <label for="valorLimite">Valor limite</label>
+        <input type="number" formControlName="valorLimite"/>
+        <p class="error-message" *ngIf="editTargetExpenseForm.get('valorLimite')?.touched && editTargetExpenseForm.get('valorLimite')?.hasError('required')">
+          O valor limite é obrigatório.
+        </p>
+        <p class="error-message" *ngIf="editTargetExpenseForm.get('valorLimite')?.touched && editTargetExpenseForm.get('valorLimite')?.hasError('min')">
+          O valor limite deve ser maior que 0.
+        </p>
+      
+        <label for="periodo">Período</label>
+        <input type="month" formControlName="periodo" placeholder="Escolha o período"/>
+        <p class="error-message" *ngIf="editTargetExpenseForm.get('periodo')?.touched && editTargetExpenseForm.get('periodo')?.hasError('required')">
+          O período é obrigatório.
+        </p>
+      
         <button type="submit" [disabled]="editTargetExpenseForm.invalid">Salvar Alterações</button>
       </form>
     </div>
